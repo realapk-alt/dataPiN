@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADITYA x OFFICIAL - PIN & Data Manager</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #333, #666, #333);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: clamp(1.8em, 5vw, 3em);
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: clamp(0.9em, 3vw, 1.2em);
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: white;
+            border: 2px solid #333;
+        }
+
+        .auth-section {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 2px solid #333;
+            text-align: center;
+            width: 95%;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+            font-size: clamp(0.8em, 3vw, 1em);
+        }
+
+        .auth-tab.active {
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #333;
+            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.2);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 2px solid #333;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-google {
+            background: #333;
+            border-color: #333;
+        }
+
+        .btn-secondary {
+            background: #666;
+            border-color: #666;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .btn-warning {
+            background: #FF9800;
+            border-color: #FF9800;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            border-color: #f44336;
+        }
+
+        .btn-small {
+            padding: 10px 15px;
+            font-size: clamp(0.7em, 2.5vw, 0.8em);
+            width: auto;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #333;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .card:hover {
+            border-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: clamp(1.1em, 4vw, 1.4em);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: clamp(0.7em, 2.5vw, 0.9em);
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .tab.active {
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #333;
+            z-index: 1000;
+            max-width: min(350px, 90vw);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.success {
+            border-left-color: #4CAF50;
+        }
+        
+        .notification.error {
+            border-left-color: #f44336;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: clamp(0.9em, 3vw, 1em);
+        }
+
+        .server-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .server-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .server-name {
+            font-weight: bold;
+            color: #333;
+            font-size: clamp(0.8em, 3vw, 0.9em);
+        }
+
+        .server-url {
+            font-size: clamp(0.7em, 2.5vw, 0.8em);
+            color: #666;
+            word-break: break-all;
+            margin-top: 5px;
+        }
+
+        .server-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .app-card {
+            margin-bottom: 20px;
+            border-left: 4px solid #666;
+            width: 100%;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .header h1 {
+                font-size: clamp(1.5em, 8vw, 2.2em);
+            }
+            
+            .tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 5px;
+            }
+            
+            .tab {
+                min-width: 100px;
+                padding: 10px;
+                font-size: clamp(0.6em, 3vw, 0.8em);
+            }
+            
+            .server-actions {
+                flex-direction: row;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .server-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .server-info {
+                min-width: 100%;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .modal-overlay {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-section {
+                margin: 30px auto;
+                padding: 20px 15px;
+            }
+            
+            .tab {
+                min-width: 80px;
+                padding: 8px 5px;
+                font-size: clamp(0.5em, 2.5vw, 0.7em);
+            }
+            
+            .server-actions {
+                flex-direction: column;
+            }
+            
+            .btn-small {
+                width: 100%;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: white;
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification System -->
+    <div id="notification" class="notification" style="display: none;"></div>
+
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-section">
+        <div style="margin-bottom: 30px;">
+            <div style="font-size: clamp(1.8em, 6vw, 2.5em); font-weight: 800; color: #333;">
+                ADITYA x OFFICIAL
+            </div>
+            <p style="color: #666; margin-top: 10px;">PIN & Data Injection Manager</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" onclick="switchAuthTab('login')">🔐 Login</div>
+            <div class="auth-tab" onclick="switchAuthTab('signup')">🚀 Sign Up</div>
+        </div>
+
+        <div id="loginTab">
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" class="modern-input">
+            </div>
+            <div class="form-group">
+                <label>🔒 Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" class="modern-input">
+            </div>
+            <button class="btn" onclick="login()">🚀 Login to Dashboard</button>
+            
+            <button class="btn btn-google" onclick="googleLogin()" style="margin-top: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
+                    <path fill="#FFFFFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <div id="signupTab" style="display: none;">
+            <div class="form-group">
+                <label>👤 Full Name</label>
+                <input type="text" id="signupName" placeholder="Enter your full name" class="modern-input">
+            </div>
+            <div class="form-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email" class="modern-input">
+            </div>
+            <div class="form-group">
+                <label>🔒 Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password (min 6 characters)" class="modern-input">
+            </div>
+            <button class="btn" onclick="signup()">🎯 Create Account</button>
+            <button class="btn btn-google" onclick="googleSignup()" style="margin-top: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 8px;">
+                    <path fill="#FFFFFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign up with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard container">
+        <div class="header">
+            <div>
+                <h1>ADITYA x OFFICIAL</h1>
+                <div class="header-subtitle">PIN & Data Injection Manager</div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div>
+                    <div id="userName" style="font-weight: 600; font-size: clamp(0.9em, 3vw, 1.1em);">Admin</div>
+                    <button class="btn btn-small" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('config')">⚙️ PIN Configuration</div>
+            <div class="tab" onclick="switchTab('datainjection')">📦 Data Injection</div>
+        </div>
+
+        <!-- Configuration Tab -->
+        <div id="configTab" class="tab-content active">
+            <div class="card">
+                <h3>⚙️ PIN Configuration</h3>
+                <form id="configForm">
+                    <div class="form-group">
+                        <label>🔗 Verification URL</label>
+                        <input type="url" id="verification_url" placeholder="https://hackertmm.rf.gd/verification.html?device={device}&code={code}&user={userBase}" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📚 How to Verify URL</label>
+                        <input type="url" id="how_to_verify_url" placeholder="https://example.com/tutorial" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>👥 Join Us URL</label>
+                        <input type="url" id="join_us_url" placeholder="https://example.com/join" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🔗 Shortener API</label>
+                        <input type="url" id="shortener_api" placeholder="https://api.shortener.com/shorten?url=" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📱 Telegram URL</label>
+                        <input type="url" id="telegram_url" placeholder="https://t.me/yourchannel" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📱 App Title</label>
+                        <input type="text" id="app_title" placeholder="My Awesome App" class="modern-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📝 App Description</label>
+                        <textarea id="app_description" placeholder="Description of your app" class="modern-textarea"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>⏰ Verification Duration (Hours)</label>
+                        <input type="number" id="verification_duration_hours" min="1" max="720" value="24" class="modern-input">
+                    </div>
+
+                    <button type="submit" class="btn">💾 Save Configuration</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Injection Tab -->
+        <div id="datainjectionTab" class="tab-content">
+            <div class="card">
+                <h3>📦 Data Injection Management</h3>
+                <p style="color: #666; margin-bottom: 20px;">Manage your apps and server data for data injection. Upload ZIP files that will be loaded in your Android app dialogs.</p>
+
+                <!-- Add New App Section -->
+                <div class="card" style="background: #f9f9f9; border-left: 4px solid #666;">
+                    <h4>📱 Add New App</h4>
+                    <div class="form-group">
+                        <label>📦 Package Name</label>
+                        <input type="text" id="newDataInjectionPackage" placeholder="com.example.app" class="modern-input">
+                        <small style="color: #666;">The package name that will use data injection</small>
+                    </div>
+                    <button class="btn" onclick="addNewDataInjectionApp()">🚀 Add App</button>
+                </div>
+
+                <!-- Apps List -->
+                <div style="margin-top: 30px;">
+                    <h4>📂 Your Apps</h4>
+                    <div id="dataInjectionAppsList">
+                        <div class="loading">🔄 Loading your apps...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Server Modal -->
+            <div id="addServerModal" class="modal-overlay">
+                <div class="card" style="max-width: 500px; margin: 20px; width: 100%;">
+                    <h3>➕ Add Server to <span id="currentAppName"></span></h3>
+                    <div class="form-group">
+                        <label>🔤 Server Name</label>
+                        <input type="text" id="newServerName" placeholder="server1" class="modern-input">
+                        <small style="color: #666;">Unique name for this server (e.g., server1, backup_server)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📁 Data ZIP File</label>
+                        <input type="file" id="newServerFile" accept=".zip" class="modern-input">
+                        <small style="color: #666;">Select the ZIP file containing server data</small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" onclick="addNewServer()" style="flex: 1; min-width: 120px;">🚀 Add Server</button>
+                        <button class="btn btn-danger" onclick="hideAddServerModal()" style="flex: 1; min-width: 120px;">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>ADITYA x OFFICIAL - PIN & Data Injection Manager</div>
+            <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.7);">Secure • Reliable • Professional</div>
+        </div>
+    </div>
+
+    <script>
+    
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBeHXB_9nHTWofFeXKOVUlQYCrB4YhAx_w",
+  authDomain: "real-apk-pin.firebaseapp.com",
+  databaseURL: "https://real-apk-pin-default-rtdb.firebaseio.com",
+  projectId: "real-apk-pin",
+  storageBucket: "real-apk-pin.firebasestorage.app",
+  messagingSenderId: "345555950697",
+  appId: "1:345555950697:web:e215d3e0850299e02096f8",
+  measurementId: "G-LPNCNHPYPF"
+};
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const firestore = firebase.firestore();
+
+        let currentUser = null;
+        let userBaseId = null;
+        let loginMethod = 'unknown';
+        let currentEditingApp = null;
+
+        // ZIP API Configuration
+        const ZIP_API_BASE = 'https://hackertmm.rf.gd/api/';
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        // Auth tab switching
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('loginTab').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('signupTab').style.display = tab === 'signup' ? 'block' : 'none';
+            document.querySelector(`.auth-tab:nth-child(${tab === 'login' ? 1 : 2})`).classList.add('active');
+        }
+
+        // Main tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabs = ['config', 'datainjection'];
+            const tabIndex = tabs.indexOf(tabName);
+            if (tabIndex !== -1) {
+                document.querySelectorAll('.tab')[tabIndex].classList.add('active');
+                document.getElementById(tabName + 'Tab').classList.add('active');
+            }
+
+            // Load specific data when switching tabs
+            if (tabName === 'datainjection') {
+                loadDataInjectionApps();
+            }
+        }
+
+        // Helper function to create safe Firebase key from package name
+        function createSafeKey(packageName) {
+            return packageName.replace(/\./g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+        }
+
+        // Helper function to get original package name from safe key
+        function getOriginalPackageName(safeKey) {
+            return safeKey.replace(/_/g, '.');
+        }
+
+        // Data Injection Management Functions
+        function loadDataInjectionApps() {
+            if (!currentUser || !userBaseId) return;
+
+            showNotification('🔄 Loading data injection apps...', 'info');
+            
+            database.ref('users/' + userBaseId + '/datainjection').once('value')
+                .then((snapshot) => {
+                    const apps = snapshot.val() || {};
+                    renderDataInjectionApps(apps);
+                    showNotification('✅ Data injection apps loaded', 'success');
+                })
+                .catch(error => {
+                    console.error('Error loading data injection apps:', error);
+                    showNotification('❌ Error loading data injection apps', 'error');
+                });
+        }
+
+        function renderDataInjectionApps(apps) {
+            const appsList = document.getElementById('dataInjectionAppsList');
+            
+            if (Object.keys(apps).length === 0) {
+                appsList.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: clamp(2em, 8vw, 3em); margin-bottom: 15px;">📱</div>
+                        <h3 style="color: #666; margin-bottom: 10px;">No Apps Configured</h3>
+                        <p style="color: #666;">Add your first app to start managing data injection servers</p>
+                    </div>
+                `;
+                return;
+            }
+
+            appsList.innerHTML = Object.entries(apps).map(([safeKey, appData]) => {
+                const packageName = appData.package || getOriginalPackageName(safeKey);
+                const servers = appData.servers || {};
+                const serverCount = Object.keys(servers).length;
+                
+                return `
+                    <div class="card app-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <h4 style="color: #333; margin-bottom: 5px;">
+                                    📱 ${packageName}
+                                </h4>
+                                <div style="color: #666; font-size: clamp(0.7em, 2.5vw, 0.8em);">
+                                    🔑 Safe Key: <code>${safeKey}</code><br>
+                                    🗂️ Servers: ${serverCount}
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn btn-small btn-success" onclick="showAddServerModal('${safeKey}', '${packageName}')">
+                                    ➕ Add Server
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="deleteDataInjectionApp('${safeKey}')">
+                                    🗑️ Delete App
+                                </button>
+                            </div>
+                        </div>
+
+                        ${serverCount > 0 ? `
+                            <div style="margin-top: 15px;">
+                                <h5 style="color: #333; margin-bottom: 10px;">🖥️ Servers:</h5>
+                                <div style="display: grid; gap: 10px;">
+                                    ${Object.entries(servers).map(([serverName, serverUrl]) => `
+                                        <div class="server-item">
+                                            <div class="server-info">
+                                                <div class="server-name">${serverName}</div>
+                                                <div class="server-url">${serverUrl}</div>
+                                            </div>
+                                            <div class="server-actions">
+                                                <button class="btn btn-small btn-success" onclick="copyToClipboard('${serverUrl}')" title="Copy URL">
+                                                    📋
+                                                </button>
+                                                <button class="btn btn-small btn-danger" onclick="deleteServer('${safeKey}', '${serverName}')" title="Delete Server">
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 20px; color: #666;">
+                                <div style="font-size: clamp(1.5em, 6vw, 2em); margin-bottom: 10px;">🖥️</div>
+                                <p>No servers added yet. Add your first server to get started.</p>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addNewDataInjectionApp() {
+            if (!currentUser || !userBaseId) {
+                showNotification('Please login first', 'error');
+                return;
+            }
+
+            const packageName = document.getElementById('newDataInjectionPackage').value.trim();
+            
+            if (!packageName) {
+                showNotification('Please enter a package name', 'error');
+                return;
+            }
+
+            if (!packageName.includes('.') || packageName.length < 3) {
+                showNotification('Please enter a valid package name (e.g., com.example.app)', 'error');
+                return;
+            }
+
+            const safeKey = createSafeKey(packageName);
+            
+            showNotification('🔄 Adding app...', 'info');
+            
+            database.ref('users/' + userBaseId + '/datainjection/' + safeKey).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        showNotification('❌ App already exists', 'error');
+                        return;
+                    }
+                    
+                    const appData = {
+                        package: packageName,
+                        servers: {},
+                        created_at: Date.now()
+                    };
+                    
+                    return database.ref('users/' + userBaseId + '/datainjection/' + safeKey).set(appData);
+                })
+                .then(() => {
+                    showNotification('✅ App added successfully!', 'success');
+                    document.getElementById('newDataInjectionPackage').value = '';
+                    loadDataInjectionApps();
+                })
+                .catch(error => {
+                    console.error('Error adding app:', error);
+                    showNotification('❌ Error adding app: ' + error.message, 'error');
+                });
+        }
+
+        function showAddServerModal(safeKey, packageName) {
+            currentEditingApp = safeKey;
+            document.getElementById('currentAppName').textContent = packageName;
+            document.getElementById('addServerModal').style.display = 'flex';
+            
+            document.getElementById('newServerName').value = '';
+            document.getElementById('newServerFile').value = '';
+        }
+
+        function hideAddServerModal() {
+            document.getElementById('addServerModal').style.display = 'none';
+            currentEditingApp = null;
+        }
+
+        async function addNewServer() {
+            if (!currentUser || !userBaseId || !currentEditingApp) {
+                showNotification('Please select an app first', 'error');
+                return;
+            }
+
+            const serverName = document.getElementById('newServerName').value.trim();
+            const fileInput = document.getElementById('newServerFile');
+            const file = fileInput.files[0];
+
+            if (!serverName || !file) {
+                showNotification('Please fill server name and select a ZIP file', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]+$/.test(serverName)) {
+                showNotification('Server name can only contain letters, numbers, and underscores', 'error');
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith('.zip')) {
+                showNotification('Please select a ZIP file only', 'error');
+                return;
+            }
+
+            try {
+                showNotification('📤 Uploading server data...', 'info');
+                
+                // Use PHP server upload
+                const serverUrl = await uploadViaPHPServer(file, serverName);
+                
+                if (serverUrl) {
+                    const updateData = {};
+                    updateData['/servers/' + serverName] = serverUrl;
+                    
+                    await database.ref('users/' + userBaseId + '/datainjection/' + currentEditingApp).update(updateData);
+                    
+                    showNotification('✅ Server added successfully! URL: ' + serverUrl, 'success');
+                    hideAddServerModal();
+                    loadDataInjectionApps();
+                } else {
+                    showNotification('❌ Upload failed: No URL returned from server', 'error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showNotification('❌ Upload error: ' + error.message, 'error');
+            }
+        }
+
+        async function uploadViaPHPServer(file, serverName) {
+            const formData = new FormData();
+            formData.append('user_base_id', userBaseId);
+            formData.append('package_name', currentEditingApp);
+            formData.append('server_name', serverName);
+            formData.append('server_file', file);
+
+            const response = await fetch(ZIP_API_BASE + 'upload_server.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.success && result.url) {
+                return result.url;
+            } else {
+                throw new Error(result.message || 'Upload failed');
+            }
+        }
+
+        function deleteServer(safeKey, serverName) {
+            if (!confirm(`Delete server "${serverName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            showNotification('🔄 Deleting server...', 'info');
+            
+            database.ref('users/' + userBaseId + '/datainjection/' + safeKey + '/servers/' + serverName).remove()
+                .then(() => {
+                    showNotification('🗑️ Server deleted!', 'success');
+                    loadDataInjectionApps();
+                })
+                .catch(error => {
+                    console.error('Error deleting server:', error);
+                    showNotification('❌ Error deleting server', 'error');
+                });
+        }
+
+        function deleteDataInjectionApp(safeKey) {
+            if (!confirm('Delete this app and all its servers? This action cannot be undone.')) {
+                return;
+            }
+
+            showNotification('🔄 Deleting app...', 'info');
+            
+            database.ref('users/' + userBaseId + '/datainjection/' + safeKey).remove()
+                .then(() => {
+                    showNotification('🗑️ App deleted!', 'success');
+                    loadDataInjectionApps();
+                })
+                .catch(error => {
+                    console.error('Error deleting app:', error);
+                    showNotification('❌ Error deleting app', 'error');
+                });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('📋 URL copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                showNotification('❌ Failed to copy URL', 'error');
+            });
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'addServerModal') {
+                hideAddServerModal();
+            }
+        });
+
+        // Authentication functions
+        async function signup() {
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+
+            if (!name || !email || !password) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            try {
+                showNotification('Creating your account...', 'info');
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                loginMethod = 'email';
+                
+                const permanentUserBaseId = 'USER_' + user.uid.substring(0, 8).toUpperCase() + '_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                
+                await firestore.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    userBaseId: permanentUserBaseId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userType: 'developer',
+                    loginMethod: 'email'
+                });
+
+                const defaultConfig = getDefaultConfig();
+                
+                await database.ref('users/' + permanentUserBaseId + '/config').set(defaultConfig);
+                
+                showNotification('🎉 Account created successfully!', 'success');
+                
+                // Auto login after signup
+                await auth.signInWithEmailAndPassword(email, password);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                showNotification('❌ Error creating account: ' + error.message, 'error');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showNotification('Please enter email and password', 'error');
+                return;
+            }
+
+            try {
+                showNotification('🔐 Logging in...', 'info');
+                await auth.signInWithEmailAndPassword(email, password);
+                loginMethod = 'email';
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('❌ Error signing in: ' + error.message, 'error');
+            }
+        }
+
+        async function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.addScope('email');
+            provider.addScope('profile');
+            
+            try {
+                showNotification('🔗 Connecting with Google...', 'info');
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                loginMethod = 'google';
+                
+                // Check if user exists in Firestore
+                const userDoc = await firestore.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    // Generate permanent user base ID for new Google user
+                    const permanentUserBaseId = 'USER_' + user.uid.substring(0, 8).toUpperCase() + '_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                    
+                    // Create new user profile
+                    await firestore.collection('users').doc(user.uid).set({
+                        name: user.displayName,
+                        email: user.email,
+                        userBaseId: permanentUserBaseId,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        userType: 'developer',
+                        loginMethod: 'google',
+                        photoURL: user.photoURL
+                    });
+                    
+                    // Create default config
+                    const defaultConfig = getDefaultConfig();
+                    
+                    await database.ref('users/' + permanentUserBaseId + '/config').set(defaultConfig);
+                    
+                    showNotification('🎉 Account created successfully!', 'success');
+                } else {
+                    showNotification('👋 Welcome back!', 'success');
+                }
+            } catch (error) {
+                console.error('Google login error:', error);
+                let errorMessage = 'Error with Google login';
+                if (error.code === 'auth/popup-blocked') {
+                    errorMessage = 'Popup blocked by browser. Please allow popups for this site.';
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = 'Google login was cancelled.';
+                } else {
+                    errorMessage = 'Error with Google login: ' + error.message;
+                }
+                showNotification('❌ ' + errorMessage, 'error');
+            }
+        }
+
+        async function googleSignup() {
+            await googleLogin();
+        }
+
+        function getDefaultConfig() {
+            return {
+                verification_url: "https://hackertmm.rf.gd/verification.html?device=",
+                how_to_verify_url: "https://example.com/tutorial",
+                join_us_url: "https://example.com/join",
+                shortener_api: "https://api.shortener.com/shorten?url=",
+                telegram_url: "https://t.me/yourchannel",
+                app_title: "My Awesome App",
+                app_description: "This is my amazing application",
+                verification_duration_hours: 24,
+                created_at: Date.now()
+            };
+        }
+
+        // Load user data after authentication
+        async function loadUserData() {
+            currentUser = auth.currentUser;
+            if (!currentUser) return;
+
+            try {
+                // Update UI
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+                const userDoc = await firestore.collection('users').doc(currentUser.uid).get();
+                if (!userDoc.exists) {
+                    showNotification('User profile not found', 'error');
+                    await logout();
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                
+                document.getElementById('userName').textContent = userData.name;
+                // Update avatar with first letter or Google photo
+                if (userData.photoURL) {
+                    document.getElementById('userAvatar').style.backgroundImage = `url(${userData.photoURL})`;
+                    document.getElementById('userAvatar').style.backgroundSize = 'cover';
+                    document.getElementById('userAvatar').textContent = '';
+                } else {
+                    document.getElementById('userAvatar').textContent = userData.name.charAt(0).toUpperCase();
+                }
+                
+                // Set the permanent user base ID
+                userBaseId = userData.userBaseId;
+
+                // Update login method
+                loginMethod = userData.loginMethod || 'email';
+
+                // Load user-specific configuration
+                await loadConfiguration();
+                
+                showNotification('👋 Welcome, ' + userData.name + '!', 'success');
+            } catch (error) {
+                console.error('Load user data error:', error);
+                showNotification('❌ Error loading user data', 'error');
+            }
+        }
+
+        // Load user-specific configuration
+        async function loadConfiguration() {
+            if (!currentUser || !userBaseId) return;
+
+            try {
+                const snapshot = await database.ref('users/' + userBaseId + '/config').once('value');
+                const config = snapshot.val();
+                
+                if (config) {
+                    document.getElementById('verification_url').value = config.verification_url || '';
+                    document.getElementById('how_to_verify_url').value = config.how_to_verify_url || '';
+                    document.getElementById('join_us_url').value = config.join_us_url || '';
+                    document.getElementById('shortener_api').value = config.shortener_api || '';
+                    document.getElementById('telegram_url').value = config.telegram_url || '';
+                    document.getElementById('app_title').value = config.app_title || '';
+                    document.getElementById('app_description').value = config.app_description || '';
+                    document.getElementById('verification_duration_hours').value = config.verification_duration_hours || 24;
+                } else {
+                    // If no config exists, create default one
+                    const defaultConfig = getDefaultConfig();
+                    await database.ref('users/' + userBaseId + '/config').set(defaultConfig);
+                    showNotification('⚙️ Default configuration created!', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Load configuration error:', error);
+                showNotification('❌ Error loading configuration', 'error');
+            }
+        }
+
+        // Save user-specific configuration
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser || !userBaseId) {
+                showNotification('You must be logged in to save configuration', 'error');
+                return;
+            }
+            
+            try {
+                showNotification('💾 Saving configuration...', 'info');
+                
+                const config = {
+                    verification_url: document.getElementById('verification_url').value || '',
+                    how_to_verify_url: document.getElementById('how_to_verify_url').value || '',
+                    join_us_url: document.getElementById('join_us_url').value || '',
+                    shortener_api: document.getElementById('shortener_api').value || '',
+                    telegram_url: document.getElementById('telegram_url').value || '',
+                    app_title: document.getElementById('app_title').value || '',
+                    app_description: document.getElementById('app_description').value || '',
+                    verification_duration_hours: parseInt(document.getElementById('verification_duration_hours').value) || 24,
+                    updated_at: Date.now()
+                };
+
+                // Use .set() to overwrite the entire config
+                await database.ref('users/' + userBaseId + '/config').set(config);
+                
+                showNotification('✅ Configuration saved successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Save configuration error:', error);
+                showNotification('❌ Error saving configuration: ' + error.message, 'error');
+            }
+        });
+
+        // Logout function
+        function logout() {
+            auth.signOut().then(() => {
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('authSection').style.display = 'block';
+                currentUser = null;
+                userBaseId = null;
+                loginMethod = 'unknown';
+                showNotification('🚪 Logged out successfully', 'info');
+            }).catch(error => {
+                console.error('Logout error:', error);
+                showNotification('❌ Error during logout', 'error');
+            });
+        }
+
+        // Initialize auth state listener
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                loadUserData();
+            } else {
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('authSection').style.display = 'block';
+            }
+        });
+
+        // Initialize the application
+        function init() {
+            // Check if user is already logged in
+            if (auth.currentUser) {
+                loadUserData();
+            }
+        }
+
+        // Start the application when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
