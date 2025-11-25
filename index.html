@@ -1,154 +1,155 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>GitHub File Manager (Frontend)</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{background:#0f172a;color:#e6eef8}
-    .card{border-radius:12px;background:#0b1220;border:1px solid rgba(255,255,255,0.04)}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;color:#cbd5e1}
-    .small-muted{color:#94a3b8}
-    .url {color:#7dd3fc;word-break:break-all}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Static Uploader — GitHub Pages Friendly</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body{background:#0f172a;color:#e6eef8}
+  .card{border-radius:12px;background:#0b1220;border:1px solid rgba(255,255,255,0.04)}
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;color:#cbd5e1}
+  .small-muted{color:#94a3b8}
+  a.url{color:#7dd3fc;word-break:break-all}
+</style>
 </head>
 <body>
-<div class="container py-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <h3 class="m-0">GitHub File Manager (Frontend)</h3>
-    <div class="small-muted">Static UI for uploads (requires PHP backend deployed separately)</div>
-  </div>
-
-  <div class="row g-3">
-    <div class="col-lg-4">
+<div class="container py-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
       <div class="card p-3">
-        <h5 class="mb-2">Upload to GitHub</h5>
-        <form id="uploadForm">
-          <input type="file" id="fileInput" class="form-control mb-2" required>
+        <h4 class="mb-2">Static Uploader (GitHub Pages)</h4>
+        <p class="small-muted">This page will attempt to upload files directly from the browser to public file hosts (no server required). It tries providers in order and shows the first working direct link.</p>
+        <form id="form">
+          <div class="mb-2"><input id="file" type="file" class="form-control" required></div>
           <div class="d-flex gap-2">
-            <button class="btn btn-primary" id="uploadBtn" type="submit">Upload</button>
-            <button id="clearBtn" type="button" class="btn btn-light">Clear</button>
+            <button class="btn btn-primary" id="upload">Upload</button>
+            <button type="button" id="clear" class="btn btn-light">Clear</button>
           </div>
         </form>
         <hr>
-        <div id="status" class="mono small-muted mt-2">Status: idle</div>
+        <div id="status" class="mono small-muted">Idle</div>
+        <div id="result" class="mt-2"></div>
         <hr>
-        <div class="small-muted">Deploy backend (app/) to a PHP host and set token in <code>app/config.php</code>.</div>
-      </div>
-    </div>
-
-    <div class="col-lg-8">
-      <div class="card p-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="m-0">Files in Release <small class="small-muted">auto-upload</small></h5>
-          <button class="btn btn-outline-light btn-sm" id="refreshBtn">Refresh</button>
-        </div>
-        <div id="filesArea"><div class="small-muted">Loading…</div></div>
+        <div class="small-muted">Notes: Some hosts may block uploads from GitHub Pages due to CORS. If uploads fail, try using a small PHP server or VPS backend (I can provide that).</div>
       </div>
     </div>
   </div>
 </div>
-<template id="fileTpl">
-  <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 p-2">
-    <div>
-      <div><strong class="fname"></strong></div>
-      <div class="url small-muted"></div>
-    </div>
-    <div class="btn-group">
-      <a class="btn btn-sm btn-outline-primary openBtn" target="_blank">Open</a>
-      <button class="btn btn-sm btn-outline-secondary copyBtn">Copy</button>
-      <label class="btn btn-sm btn-outline-warning replaceBtn">Replace<input type="file" class="d-none replaceFile"></label>
-      <button class="btn btn-sm btn-outline-danger deleteBtn">Delete</button>
-    </div>
-  </div>
-</template>
 <script>
-const statusEl = document.getElementById('status');
-const filesArea = document.getElementById('filesArea');
-const uploadForm = document.getElementById('uploadForm');
-const fileInput = document.getElementById('fileInput');
-const refreshBtn = document.getElementById('refreshBtn');
-const tpl = document.getElementById('fileTpl').content;
-function setStatus(s){ statusEl.textContent = 'Status: ' + s; }
-async function api(path, opts){ 
-  const r = await fetch('app/' + path, opts);
-  const txt = await r.text();
-  let json; try { json = JSON.parse(txt); } catch(e){ throw new Error('Invalid JSON response: ' + txt); }
-  return { ok: r.ok, body: json };
-}
-async function loadFiles(){
-  filesArea.innerHTML = '<div class="small-muted">Loading…</div>';
-  setStatus('Fetching file list');
+const form = document.getElementById('form');
+const fileEl = document.getElementById('file');
+const status = document.getElementById('status');
+const result = document.getElementById('result');
+const clearBtn = document.getElementById('clear');
+
+function setStatus(txt){ status.textContent = txt; }
+function showResult(html){ result.innerHTML = html; }
+
+async function tryAnonFiles(file){
+  setStatus('Trying anonfiles.com ...');
+  const fd = new FormData();
+  fd.append('file', file);
   try {
-    const r = await api('list.php', { method: 'GET' });
-    if (!r.ok) throw new Error(r.body.message || 'List failed');
-    const files = r.body.files || [];
-    renderFiles(files);
-    setStatus('Loaded ' + files.length + ' files');
-  } catch(e){ filesArea.innerHTML = '<div class="text-danger">Failed: ' + e.message + '</div>'; setStatus('Error'); }
+    const res = await fetch('https://api.anonfiles.com/upload', { method: 'POST', body: fd });
+    const txt = await res.text();
+    // try parse JSON
+    const j = JSON.parse(txt);
+    if (j && j.status && j.data && j.data.file && j.data.file.url && j.data.file.url.full) {
+      return { ok:true, url:j.data.file.url.full, provider:'anonfiles' };
+    } else {
+      return { ok:false, error: 'Unexpected response' };
+    }
+  } catch(e){
+    return { ok:false, error: e.message || e.toString() };
+  }
 }
-function renderFiles(files){
-  if (!files || files.length === 0) { filesArea.innerHTML = '<div class="small-muted">No files in release.</div>'; return; }
-  const list = document.createElement('div'); list.className = 'list-group';
-  files.forEach(f => {
-    const node = tpl.cloneNode(true);
-    node.querySelector('.fname').textContent = f.name;
-    node.querySelector('.url').textContent = f.browser_download_url;
-    const openBtn = node.querySelector('.openBtn'); openBtn.href = f.browser_download_url;
-    node.querySelector('.copyBtn').addEventListener('click', ()=>{ navigator.clipboard.writeText(f.browser_download_url); setStatus('Link copied'); });
-    const deleteBtn = node.querySelector('.deleteBtn'); deleteBtn.addEventListener('click', ()=> doDelete(f.id, f.name));
-    const replaceFile = node.querySelector('.replaceFile');
-    node.querySelector('.replaceBtn').addEventListener('click', ()=> replaceFile.click());
-    replaceFile.addEventListener('change', ()=> doReplace(f.id, f.name, replaceFile.files[0]));
-    list.appendChild(node);
-  });
-  filesArea.innerHTML = ''; filesArea.appendChild(list);
-}
-async function doDelete(id, name){
-  if (!confirm('Delete ' + name + ' from GitHub release?')) return;
-  setStatus('Deleting ' + name);
+
+async function tryPixeldrain(file){
+  setStatus('Trying pixeldrain.com ...');
+  const fd = new FormData();
+  fd.append('file', file);
   try {
-    const r = await api('delete.php', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: 'id=' + encodeURIComponent(id) });
-    if (!r.ok) throw new Error(r.body.message || 'Delete failed');
-    setStatus('Deleted ' + name);
-    loadFiles();
-  } catch(e){ setStatus('Delete error: ' + e.message); }
+    const res = await fetch('https://pixeldrain.com/api/file', { method:'POST', body:fd });
+    const j = await res.json();
+    // pixeldrain returns an object with 'success' and 'id' or similar
+    // if id present, direct link can be: https://pixeldrain.com/file/{id}
+    if (j && (j.success || j.id)) {
+      const id = j.id || j.result || j.success;
+      const url = (j.id) ? ('https://pixeldrain.com/file/' + j.id) : null;
+      return { ok:true, url:url || ('https://pixeldrain.com/file/' + j.id), provider:'pixeldrain' };
+    } else if (typeof j === 'string' && j.length>0) {
+      return { ok:true, url:'https://pixeldrain.com/file/' + j, provider:'pixeldrain' };
+    } else {
+      return { ok:false, error: 'Unexpected response' };
+    }
+  } catch(e){
+    return { ok:false, error: e.message || e.toString() };
+  }
 }
-async function doReplace(id, name, file){
-  if (!file) return;
-  if (!confirm('Replace ' + name + ' with ' + file.name + ' ?')) return;
-  setStatus('Replacing ' + name);
-  const form = new FormData();
-  form.append('id', id);
-  form.append('file', file);
+
+async function tryFileIo(file){
+  setStatus('Trying file.io ...');
+  const fd = new FormData();
+  fd.append('file', file);
   try {
-    const r = await fetch('app/replace.php', { method:'POST', body: form });
-    const txt = await r.text();
-    let json; try { json = JSON.parse(txt); } catch(e){ throw new Error('Invalid JSON: ' + txt); }
-    if (!r.ok) throw new Error(json.message || 'Replace failed');
-    setStatus('Replaced. New URL: ' + (json.browser_download_url || 'unknown'));
-    loadFiles();
-  } catch(e){ setStatus('Replace error: ' + e.message); }
+    const res = await fetch('https://file.io', { method:'POST', body: fd });
+    const j = await res.json();
+    // file.io returns {success:true,link:"https://file.io/xxxx"}
+    if (j && (j.link || j.success)) {
+      const url = j.link || j[Object.keys(j)[0]];
+      return { ok:true, url: url, provider:'file.io' };
+    } else {
+      return { ok:false, error: 'Unexpected response' };
+    }
+  } catch(e){
+    return { ok:false, error: e.message || e.toString() };
+  }
 }
-uploadForm.addEventListener('submit', async (ev)=>{
-  ev.preventDefault();
-  const file = fileInput.files[0];
-  if (!file) { setStatus('Choose a file first'); return; }
-  setStatus('Uploading to GitHub...');
-  const form = new FormData(); form.append('file', file);
+
+async function attemptUpload(file){
+  // Try providers in order. Return first success or error list.
+  const providers = [tryAnonFiles, tryPixeldrain, tryFileIo];
+  const errors = [];
+  for (const fn of providers){
+    try {
+      const r = await fn(file);
+      if (r.ok) return r;
+      errors.push({provider:r.provider||fn.name, err:r.error||'unknown'});
+    } catch(e){
+      errors.push({provider:fn.name, err: e.message || e.toString()});
+    }
+  }
+  return { ok:false, errors:errors };
+}
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const f = fileEl.files[0];
+  if (!f) { setStatus('Please choose a file'); return; }
+  setStatus('Starting upload...');
+  showResult('');
   try {
-    const r = await fetch('app/upload.php', { method:'POST', body: form });
-    const txt = await r.text();
-    let json; try { json = JSON.parse(txt); } catch(e){ throw new Error('Invalid JSON: ' + txt); }
-    if (!r.ok) throw new Error(json.message || 'Upload failed');
-    setStatus('Uploaded: ' + (json.browser_download_url || 'OK'));
-    fileInput.value = ''; loadFiles();
-  } catch(e){ setStatus('Upload error: ' + e.message); }
+    const res = await attemptUpload(f);
+    if (res.ok) {
+      setStatus('Upload successful via ' + res.provider);
+      showResult('<div class="alert alert-success">Uploaded: <a class="url" href="'+res.url+'" target="_blank">'+res.url+'</a><br><small class="small-muted">Provider: '+res.provider+'</small></div>');
+    } else {
+      setStatus('All providers failed');
+      let html = '<div class="alert alert-danger"><strong>All providers failed.</strong><br>Errors:<ul>';
+      for (const e of res.errors) {
+        html += '<li><code>' + (e.provider||'unknown') + '</code>: ' + (e.err||'error') + '</li>';
+      }
+      html += '</ul></div>';
+      showResult(html);
+    }
+  } catch(e){
+    setStatus('Upload error: ' + e.message);
+    showResult('<div class="alert alert-danger">Unexpected error: '+e.message+'</div>');
+  }
 });
-document.getElementById('clearBtn').addEventListener('click', ()=>{ fileInput.value=''; setStatus(''); });
-refreshBtn.addEventListener('click', loadFiles);
-loadFiles();
+
+clearBtn.addEventListener('click', ()=>{ fileEl.value=''; setStatus('Idle'); showResult(''); });
 </script>
 </body>
 </html>
