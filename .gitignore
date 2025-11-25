@@ -1,0 +1,5 @@
+# Do not commit server tokens or uploads
+/app/config.php
+/app/uploads/
+/app/*.log
+/node_modules/
