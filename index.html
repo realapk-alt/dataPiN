@@ -2,136 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberXLink Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CyberX Admin</title>
     <style>
-        :root { --ios-bg: #F2F2F7; --ios-card: #FFFFFF; --ios-blue: #007AFF; --ios-red: #FF3B30; --ios-green: #34C759; --ios-text: #1C1C1E; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--ios-bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; color: var(--ios-text); }
-        
-        /* LOGIN SCREEN */
-        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        .login-input { width: 90%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
-        
-        /* DASHBOARD */
-        .container { width: 100%; max-width: 700px; display: none; } /* Hidden by default */
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-weight: 800; font-size: 28px; margin: 0; }
-        .badge { font-size: 12px; background: #E5E5EA; padding: 4px 12px; border-radius: 20px; color: #8E8E93; }
+        :root {
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --primary: #007AFF;
+            --danger: #FF3B30;
+            --success: #34C759;
+            --text-dark: #1C1C1E;
+            --text-light: #8E8E93;
+            --radius: 14px;
+        }
 
-        /* Setup Box */
-        .card { background: var(--ios-card); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .input-row { display: flex; gap: 10px; margin-top: 10px; }
-        input[type="text"], input[type="number"] { flex: 1; padding: 12px; border: 1px solid #E5E5EA; border-radius: 10px; font-size: 14px; outline: none; background: #F9F9F9; }
-        input[type="color"] { border: none; width: 40px; height: 40px; cursor: pointer; background: none; }
-        
-        button { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        .btn-blue { background: var(--ios-blue); color: white; } .btn-blue:hover { opacity: 0.9; }
-        .btn-red { background: var(--ios-red); color: white; } .btn-green { background: var(--ios-green); color: white; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--ios-bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* App Item */
-        .app-item { background: white; border-radius: 16px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; }
-        .app-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-        .app-head:hover { background: #fcfcfc; }
-        .app-id-box { font-family: monospace; background: #eee; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #555; margin-top: 4px; display: inline-block; }
+        /* --- LOGIN SCREEN (Clean & Secure) --- */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(242, 242, 247, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: white; padding: 40px 30px; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 90%; max-width: 350px;
+            text-align: center;
+        }
+        .login-box h2 { margin: 0 0 20px 0; font-size: 22px; }
+        .secure-input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            border: 2px solid #E5E5EA; border-radius: 12px;
+            font-size: 16px; outline: none; transition: 0.3s;
+            box-sizing: border-box; text-align: center;
+        }
+        .secure-input:focus { border-color: var(--primary); }
+
+        /* --- DASHBOARD CONTAINER --- */
+        .container { max-width: 650px; margin: 0 auto; display: none; }
         
-        .app-body { padding: 20px; display: none; background: #fff; }
+        .header-title { font-size: 28px; font-weight: 800; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; }
+        .header-sub { font-size: 13px; color: var(--text-light); text-align: center; margin-bottom: 30px; display: block; font-weight: 500; }
+
+        /* --- CARD STYLES --- */
+        .card {
+            background: var(--ios-card); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        /* Create New Input */
+        .create-row { display: flex; gap: 10px; }
+        .input-std {
+            flex: 1; padding: 14px; border: 1px solid #E5E5EA;
+            border-radius: 12px; font-size: 15px; outline: none;
+            background: #F9F9F9; color: #333;
+        }
+        .btn {
+            padding: 14px 20px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 14px; cursor: pointer;
+            transition: transform 0.1s; white-space: nowrap;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; }
+
+        /* --- APP ITEM (Expandable) --- */
+        .app-item {
+            background: white; border-radius: var(--radius);
+            margin-bottom: 15px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .app-head {
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; border-bottom: 1px solid transparent; transition: 0.2s;
+        }
+        .app-head:active { background: #f5f5f5; }
+        .app-name { font-weight: 700; font-size: 17px; display: block; }
+        
+        /* Secured Long ID Badge */
+        .app-id-badge {
+            font-family: 'Courier New', monospace; font-size: 11px;
+            background: #F2F2F7; color: #555; padding: 4px 8px;
+            border-radius: 6px; margin-top: 5px; display: inline-block;
+            word-break: break-all; max-width: 200px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* Body & Controls */
+        .app-body { padding: 25px 20px; display: none; background: #fff; border-top: 1px solid #f0f0f0; }
         .show { display: block; }
 
-        /* Controls */
-        .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #8E8E93; margin: 20px 0 10px 0; letter-spacing: 0.5px; }
-        .control-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .full-width { grid-column: span 2; }
-        
-        .label-small { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; display: block; }
+        .control-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;
+        }
+        .full-col { grid-column: span 2; }
 
-        /* Switch */
-        .switch-wrap { display: flex; justify-content: space-between; align-items: center; background: #F2F2F7; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
-        .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+        .label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 6px; display: block; }
+        
+        /* Modern Color Picker */
+        .color-row { display: flex; justify-content: space-between; margin-top: 10px; background: #FAFAFA; padding: 10px; border-radius: 10px; }
+        .color-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .color-preview {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .color-preview:active { transform: scale(0.9); }
+        input[type="color"] { opacity: 0; width: 0; height: 0; position: absolute; }
+
+        /* iOS Switch */
+        .switch-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #F9F9F9; padding: 12px 15px; border-radius: 12px; margin-bottom: 15px;
+        }
+        .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--ios-green); }
-        input:checked + .slider:before { transform: translateX(18px); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E5E5EA; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .divider { height: 1px; background: #eee; margin: 25px 0; border: none; }
+        .section-title { font-size: 11px; font-weight: 800; color: #bbb; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+        /* MOBILE RESPONSIVE FIXES */
+        @media (max-width: 600px) {
+            .control-grid { grid-template-columns: 1fr; gap: 10px; }
+            .full-col { grid-column: span 1; }
+            .color-row { justify-content: space-around; }
+            .create-row { flex-direction: column; }
+            .btn { width: 100%; }
+            .app-id-badge { max-width: 150px; }
+        }
 
     </style>
 </head>
 <body>
 
-    <!-- LOGIN OVERLAY -->
+    <!-- SECURE LOGIN (NO URL INPUT) -->
     <div id="loginScreen">
         <div class="login-box">
-            <h2>🔒 Admin Access</h2>
-            <input type="text" id="dbUrl" placeholder="Firebase Database URL (https://...)" value="https://cyberxlink-db-default-rtdb.firebaseio.com">
-            <input type="password" id="adminPass" class="login-input" placeholder="Enter Password">
-            <button class="btn-blue" style="width:100%" onclick="attemptLogin()">Login</button>
-            <p id="loginMsg" style="color:red; font-size:12px; margin-top:10px;"></p>
+            <div style="font-size: 40px; margin-bottom: 10px;">🛡️</div>
+            <h2>Admin Login</h2>
+            <p style="color:#888; font-size:13px; margin-bottom:20px;">Enter access key to manage slots</p>
+            <input type="password" id="adminPass" class="secure-input" placeholder="Password">
+            <button class="btn btn-primary" style="width:100%" onclick="attemptLogin()">Unlock Dashboard</button>
+            <p id="loginMsg" style="color:red; font-size:12px; margin-top:15px; font-weight:600;"></p>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div class="container" id="mainDashboard">
+    <!-- MAIN INTERFACE -->
+    <div class="container" id="dashboard">
         <div class="header">
-            <h1>CyberXLink</h1>
-            <span class="badge">PRO CONTROL PANEL</span>
+            <div class="header-title">CyberX Panel</div>
+            <span class="header-sub">Advanced Injection Controller</span>
         </div>
 
-        <!-- Creator -->
+        <!-- Create Slot -->
         <div class="card">
-            <h3 style="margin-top:0">Create Encrypted Slot</h3>
-            <div class="input-row">
-                <input type="text" id="newAppName" placeholder="App Name (e.g. PubG v2.0)">
-                <button class="btn-blue" onclick="createApp()">+ Create</button>
+            <div class="section-title">NEW SLOT</div>
+            <div class="create-row">
+                <input type="text" id="newAppName" class="input-std" placeholder="App Name (e.g. BGMI Mod v3)">
+                <button class="btn btn-primary" onclick="createApp()">+ Create Slot</button>
             </div>
         </div>
 
-        <!-- List -->
+        <!-- Apps List -->
         <div id="appsList"></div>
     </div>
 
 <script>
-    let DB_URL = "";
+    // ============================================
+    // ⚙️ CONFIGURATION (EDIT THIS ONLY)
+    // ============================================
+    const DB_URL = "https://cyberxlink-db-default-rtdb.firebaseio.com"; 
+    // ============================================
 
-    // --- LOGIN SYSTEM ---
+    // --- LOGIN LOGIC ---
     function attemptLogin() {
-        const urlInput = document.getElementById('dbUrl').value.trim();
-        const passInput = document.getElementById('adminPass').value.trim();
+        const pass = document.getElementById('adminPass').value.trim();
         const msg = document.getElementById('loginMsg');
-
-        if(!urlInput) { msg.innerText = "Enter Firebase URL"; return; }
         
-        // Remove trailing slash
-        DB_URL = urlInput.endsWith('/') ? urlInput.slice(0, -1) : urlInput;
-
+        if (!pass) { msg.innerText = "Enter Password!"; return; }
         msg.innerText = "Verifying...";
-        
-        // Check password from Firebase
+
         fetch(DB_URL + "/admin_password.json")
             .then(res => res.json())
-            .then(realPass => {
-                if(realPass === null) {
-                    msg.innerText = "Password not set in DB! (Key: admin_password)";
-                } else if(String(realPass) === String(passInput)) {
+            .then(serverPass => {
+                if (String(serverPass) === pass) {
                     document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('mainDashboard').style.display = 'block';
+                    document.getElementById('dashboard').style.display = 'block';
                     loadApps();
                 } else {
-                    msg.innerText = "Wrong Password!";
+                    msg.innerText = "Access Denied: Wrong Password";
                 }
             })
-            .catch(err => msg.innerText = "Connection Failed!");
+            .catch(() => msg.innerText = "Connection Failed!");
     }
 
-    // --- UTILS ---
-    function generateEncryptedId() {
-        // Generates random ID like: x7a9-b2m4-k9p1
-        const s = () => Math.random().toString(36).substr(2, 4);
-        return s() + '-' + s() + '-' + s();
+    // --- ID GENERATOR (Complex & Secure Looking) ---
+    function generateSecureId() {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        // Format: xxxx-xxxx-xxxx-xxxx (Like License Keys)
+        for(let i=0; i<4; i++) {
+            for(let j=0; j<8; j++) { // 8 chars per block
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            if(i<3) result += '-';
+        }
+        return result; // Example: a8s7d9f8-j2k3l4m5-x1c2v3b4-n5m6k7l8
     }
 
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        alert("Encrypted ID Copied!\nPaste in assets/server.txt\n\nID: " + text);
+    function copyId(id) {
+        navigator.clipboard.writeText(id).then(() => {
+            alert("SECURE ID COPIED!\n\nPaste this in assets/server.txt:\n" + id);
+        });
     }
 
     // --- APP MANAGEMENT ---
@@ -141,132 +238,154 @@
             .then(data => {
                 const list = document.getElementById('appsList');
                 list.innerHTML = "";
-                if(!data) return;
-                Object.keys(data).forEach(key => renderApp(key, data[key]));
+                if (!data) return;
+                Object.keys(data).forEach(key => renderCard(key, data[key]));
             });
     }
 
     function createApp() {
-        const name = document.getElementById('newAppName').value;
-        if(!name) return;
-        const id = generateEncryptedId();
-        
-        const defaultData = {
+        const name = document.getElementById('newAppName').value.trim();
+        if(!name) return alert("Enter App Name");
+
+        const id = generateSecureId();
+        const data = {
             name: name,
-            update: { 
-                active: false, 
-                title: "Update Required", msg: "New version available", btn: "Update Now", url: "",
-                bg_color: "#FFFFFF", text_color: "#000000", btn_color: "#007AFF"
-            },
-            inject: { 
-                active: false, zip: "", ver: 1,
-                bg_color: "#FFFFFF", text_color: "#000000", progress_color: "#007AFF"
-            }
+            update: { active: false, title: "Update Required", msg: "New version available", btn: "Update Now", url: "", bg: "#FFFFFF", text: "#000000", btn_bg: "#007AFF" },
+            inject: { active: false, zip: "", ver: 1, bg: "#FFFFFF", text: "#000000", prog: "#007AFF" }
         };
 
-        fetch(DB_URL + "/apps/" + id + ".json", {
-            method: 'PUT', body: JSON.stringify(defaultData)
-        }).then(() => {
-            document.getElementById('newAppName').value = "";
-            loadApps();
-        });
+        fetch(DB_URL + "/apps/" + id + ".json", { method: 'PUT', body: JSON.stringify(data) })
+            .then(() => {
+                document.getElementById('newAppName').value = "";
+                loadApps();
+            });
     }
 
-    function saveApp(id) {
-        const data = {
+    function saveSlot(id) {
+        const btn = document.getElementById(`btnSave-${id}`);
+        btn.innerText = "Saving...";
+        
+        const payload = {
             name: document.getElementById(`name-${id}`).innerText,
             update: {
-                active: document.getElementById(`upActive-${id}`).checked,
-                title: document.getElementById(`upTitle-${id}`).value,
-                msg: document.getElementById(`upMsg-${id}`).value,
-                btn: document.getElementById(`upBtnText-${id}`).value,
-                url: document.getElementById(`upUrl-${id}`).value,
-                bg_color: document.getElementById(`upBg-${id}`).value,
-                text_color: document.getElementById(`upText-${id}`).value,
-                btn_color: document.getElementById(`upBtnColor-${id}`).value
+                active: document.getElementById(`uAct-${id}`).checked,
+                title: document.getElementById(`uTit-${id}`).value,
+                msg: document.getElementById(`uMsg-${id}`).value,
+                btn: document.getElementById(`uBtn-${id}`).value,
+                url: document.getElementById(`uUrl-${id}`).value,
+                bg: document.getElementById(`uBg-${id}`).value,
+                text: document.getElementById(`uTxt-${id}`).value,
+                btn_bg: document.getElementById(`uBtnC-${id}`).value
             },
             inject: {
-                active: document.getElementById(`injActive-${id}`).checked,
-                zip: document.getElementById(`injZip-${id}`).value,
-                ver: parseInt(document.getElementById(`injVer-${id}`).value),
-                bg_color: document.getElementById(`injBg-${id}`).value,
-                text_color: document.getElementById(`injText-${id}`).value,
-                progress_color: document.getElementById(`injProg-${id}`).value
+                active: document.getElementById(`iAct-${id}`).checked,
+                zip: document.getElementById(`iZip-${id}`).value,
+                ver: parseInt(document.getElementById(`iVer-${id}`).value),
+                bg: document.getElementById(`iBg-${id}`).value,
+                text: document.getElementById(`iTxt-${id}`).value,
+                prog: document.getElementById(`iProg-${id}`).value
             }
         };
 
-        const btn = document.getElementById(`saveBtn-${id}`);
-        btn.innerText = "Saving...";
-        fetch(DB_URL + "/apps/" + id + ".json", {
-            method: 'PUT', body: JSON.stringify(data)
-        }).then(() => {
-            btn.innerText = "Saved!";
-            setTimeout(() => btn.innerText = "Save Changes", 1500);
-        });
+        fetch(DB_URL + "/apps/" + id + ".json", { method: 'PUT', body: JSON.stringify(payload) })
+            .then(() => {
+                btn.innerText = "✅ Saved Successfully";
+                btn.style.background = "#34C759";
+                setTimeout(() => { btn.innerText = "SAVE CHANGES"; btn.style.background = "#34C759"; }, 2000);
+            });
     }
 
-    function deleteApp(id) {
-        if(confirm("Delete this slot permanently?")) {
+    function deleteSlot(id) {
+        if(confirm("⚠️ PERMANENT DELETE?\nThis cannot be undone!")) {
             fetch(DB_URL + "/apps/" + id + ".json", { method: 'DELETE' }).then(loadApps);
         }
     }
 
-    // --- RENDER ---
-    function renderApp(id, data) {
+    // --- HELPERS FOR COLOR PICKER ---
+    function triggerColor(id) { document.getElementById(id).click(); }
+    function updatePreview(input, previewId) { document.getElementById(previewId).style.backgroundColor = input.value; }
+
+    // --- HTML RENDER ---
+    function renderCard(id, d) {
         const html = `
         <div class="app-item">
-            <div class="app-head" onclick="document.getElementById('body-${id}').classList.toggle('show')">
-                <div>
-                    <div style="font-weight:bold; font-size:16px;" id="name-${id}">${data.name}</div>
-                    <div class="app-id-box" onclick="event.stopPropagation(); copyToClipboard('${id}')">ID: ${id} 📋</div>
+            <div class="app-head" onclick="document.getElementById('b-${id}').classList.toggle('show')">
+                <div style="width:100%">
+                    <div class="app-name" id="name-${id}">${d.name}</div>
+                    <div class="app-id-badge" onclick="event.stopPropagation(); copyId('${id}')">🔑 ${id}</div>
                 </div>
-                <div style="font-size:12px; color:#888">▼ Edit</div>
+                <div style="font-size:20px; color:#ccc;">⚙️</div>
             </div>
-            <div class="app-body" id="body-${id}">
+
+            <div class="app-body" id="b-${id}">
                 
-                <!-- UPDATE SETTINGS -->
-                <div class="section-label">Update Dialog Customization</div>
-                <div class="switch-wrap">
-                    <span style="font-weight:600">Show Update Dialog</span>
-                    <label class="switch"><input type="checkbox" id="upActive-${id}" ${data.update.active?'checked':''}><span class="slider"></span></label>
-                </div>
-                
-                <div class="control-group">
-                    <div><span class="label-small">Title</span><input type="text" id="upTitle-${id}" value="${data.update.title}"></div>
-                    <div><span class="label-small">Button Text</span><input type="text" id="upBtnText-${id}" value="${data.update.btn}"></div>
-                    <div class="full-width"><span class="label-small">Message</span><input type="text" id="upMsg-${id}" value="${data.update.msg}"></div>
-                    <div class="full-width"><span class="label-small">Download URL</span><input type="text" id="upUrl-${id}" value="${data.update.url}"></div>
+                <!-- UPDATE DIALOG -->
+                <div class="section-title">Update System</div>
+                <div class="switch-row">
+                    <span style="font-weight:600">Force Update Dialog</span>
+                    <label class="switch"><input type="checkbox" id="uAct-${id}" ${d.update.active?'checked':''}><span class="slider"></span></label>
                 </div>
                 
-                <div style="display:flex; gap:15px; margin-top:10px;">
-                    <div><span class="label-small">Background</span><input type="color" id="upBg-${id}" value="${data.update.bg_color}"></div>
-                    <div><span class="label-small">Text</span><input type="color" id="upText-${id}" value="${data.update.text_color}"></div>
-                    <div><span class="label-small">Button</span><input type="color" id="upBtnColor-${id}" value="${data.update.btn_color}"></div>
+                <div class="control-grid">
+                    <div><span class="label">Title</span><input type="text" class="input-std" id="uTit-${id}" value="${d.update.title}"></div>
+                    <div><span class="label">Btn Text</span><input type="text" class="input-std" id="uBtn-${id}" value="${d.update.btn}"></div>
+                    <div class="full-col"><span class="label">Message</span><input type="text" class="input-std" id="uMsg-${id}" value="${d.update.msg}"></div>
+                    <div class="full-col"><span class="label">Download URL</span><input type="text" class="input-std" id="uUrl-${id}" value="${d.update.url}"></div>
                 </div>
 
-                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
-
-                <!-- INJECTION SETTINGS -->
-                <div class="section-label">Data Injection Customization</div>
-                <div class="switch-wrap">
-                    <span style="font-weight:600">Enable Injection</span>
-                    <label class="switch"><input type="checkbox" id="injActive-${id}" ${data.inject.active?'checked':''}><span class="slider"></span></label>
+                <div class="color-row">
+                    <div class="color-item" onclick="triggerColor('uBg-${id}')">
+                        <div class="color-preview" id="prev-uBg-${id}" style="background:${d.update.bg}"></div>
+                        <span class="label" style="margin-top:5px">Bg</span>
+                        <input type="color" id="uBg-${id}" value="${d.update.bg}" onchange="updatePreview(this, 'prev-uBg-${id}')">
+                    </div>
+                    <div class="color-item" onclick="triggerColor('uTxt-${id}')">
+                        <div class="color-preview" id="prev-uTxt-${id}" style="background:${d.update.text}"></div>
+                        <span class="label" style="margin-top:5px">Text</span>
+                        <input type="color" id="uTxt-${id}" value="${d.update.text}" onchange="updatePreview(this, 'prev-uTxt-${id}')">
+                    </div>
+                    <div class="color-item" onclick="triggerColor('uBtnC-${id}')">
+                        <div class="color-preview" id="prev-uBtnC-${id}" style="background:${d.update.btn_bg}"></div>
+                        <span class="label" style="margin-top:5px">Btn</span>
+                        <input type="color" id="uBtnC-${id}" value="${d.update.btn_bg}" onchange="updatePreview(this, 'prev-uBtnC-${id}')">
+                    </div>
                 </div>
 
-                <div class="control-group">
-                    <div class="full-width"><span class="label-small">ZIP URL</span><input type="text" id="injZip-${id}" value="${data.inject.zip}"></div>
-                    <div><span class="label-small">Version Code</span><input type="number" id="injVer-${id}" value="${data.inject.ver}"></div>
+                <hr class="divider">
+
+                <!-- INJECTION DIALOG -->
+                <div class="section-title">Data Injection</div>
+                <div class="switch-row">
+                    <span style="font-weight:600">Auto-Load Data</span>
+                    <label class="switch"><input type="checkbox" id="iAct-${id}" ${d.inject.active?'checked':''}><span class="slider"></span></label>
                 </div>
 
-                <div style="display:flex; gap:15px; margin-top:10px;">
-                    <div><span class="label-small">Background</span><input type="color" id="injBg-${id}" value="${data.inject.bg_color}"></div>
-                    <div><span class="label-small">Text</span><input type="color" id="injText-${id}" value="${data.inject.text_color}"></div>
-                    <div><span class="label-small">Progress Bar</span><input type="color" id="injProg-${id}" value="${data.inject.progress_color}"></div>
+                <div class="control-grid">
+                    <div class="full-col"><span class="label">ZIP URL</span><input type="text" class="input-std" id="iZip-${id}" value="${d.inject.zip}"></div>
+                    <div><span class="label">Version Code</span><input type="number" class="input-std" id="iVer-${id}" value="${d.inject.ver}"></div>
                 </div>
 
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn-green" style="flex:1" id="saveBtn-${id}" onclick="saveApp('${id}')">Save Changes</button>
-                    <button class="btn-red" onclick="deleteApp('${id}')">Delete</button>
+                <div class="color-row">
+                    <div class="color-item" onclick="triggerColor('iBg-${id}')">
+                        <div class="color-preview" id="prev-iBg-${id}" style="background:${d.inject.bg}"></div>
+                        <span class="label" style="margin-top:5px">Bg</span>
+                        <input type="color" id="iBg-${id}" value="${d.inject.bg}" onchange="updatePreview(this, 'prev-iBg-${id}')">
+                    </div>
+                    <div class="color-item" onclick="triggerColor('iTxt-${id}')">
+                        <div class="color-preview" id="prev-iTxt-${id}" style="background:${d.inject.text}"></div>
+                        <span class="label" style="margin-top:5px">Text</span>
+                        <input type="color" id="iTxt-${id}" value="${d.inject.text}" onchange="updatePreview(this, 'prev-iTxt-${id}')">
+                    </div>
+                    <div class="color-item" onclick="triggerColor('iProg-${id}')">
+                        <div class="color-preview" id="prev-iProg-${id}" style="background:${d.inject.prog}"></div>
+                        <span class="label" style="margin-top:5px">Loader</span>
+                        <input type="color" id="iProg-${id}" value="${d.inject.prog}" onchange="updatePreview(this, 'prev-iProg-${id}')">
+                    </div>
+                </div>
+
+                <button class="btn btn-success" id="btnSave-${id}" onclick="saveSlot('${id}')">SAVE CHANGES</button>
+                <div style="text-align:center; margin-top:15px;">
+                    <span style="color:red; font-size:12px; cursor:pointer; font-weight:bold;" onclick="deleteSlot('${id}')">Delete Slot Permanently</span>
                 </div>
 
             </div>
@@ -275,6 +394,7 @@
         document.getElementById('appsList').insertAdjacentHTML('beforeend', html);
     }
 </script>
+
 </body>
 </html>
 
