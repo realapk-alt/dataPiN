@@ -2,215 +2,181 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>!! ADMIN LOGIN !!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberXLink Controller</title>
     <style>
-        :root { --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --text: #1C1C1E; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); -webkit-tap-highlight-color: transparent; }
-
-        /* LOGIN */
-        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(242, 242, 247, 0.98); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        .secure-input { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 16px; margin: 15px 0; outline:none; text-align: center; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .master-container { width: 100%; max-width: 600px; }
         
-        /* DASHBOARD */
-        .container { max-width: 600px; margin: 0 auto; display: none; }
+        /* HEADER & LOGIN */
         .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 24px; }
-        
-        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .create-row { display: flex; gap: 10px; }
-        .input-std { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; background: #FAFAFA; outline: none; width: 100%; box-sizing: border-box; }
-        
-        .btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #007AFF; }
-        .btn-save { background: #34C759; width: 100%; margin-top: 15px; }
-        .btn-del { background: #FF3B30; font-size: 12px; padding: 6px 12px; border-radius: 6px; }
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 999; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        .secure-input { width: 90%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; text-align: center; }
 
-        /* APP LIST */
-        .app-item { background: white; border-radius: 16px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .app-head { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .app-id { font-family: monospace; background: #eee; padding: 3px 6px; border-radius: 4px; font-size: 11px; color: #555; }
-        .app-body { padding: 20px; display: none; }
+        /* APP CARDS (OLD STYLE) */
+        .app-card { background: white; border-radius: 12px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #fff; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .app-title { font-size: 16px; font-weight: bold; color: #333; }
+        .card-body { padding: 20px; display: none; background: #fdfdfd; }
         .show { display: block; }
 
-        /* CONTROLS */
-        .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .full { grid-column: span 2; }
-        .label { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        /* INPUTS */
+        .input-group { margin-bottom: 10px; }
+        label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* COLOR BUTTONS */
-        .color-grid { display: flex; gap: 10px; margin-top: 10px; }
-        .color-btn { flex: 1; height: 40px; border-radius: 8px; border: 2px solid #eee; cursor: pointer; position: relative; }
-        .color-label { text-align: center; font-size: 10px; color: #666; margin-top: 4px; font-weight: 600; }
+        /* BUTTONS */
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; width: 100%; margin-top: 10px; }
+        .btn-primary { background: #007AFF; }
+        .btn-save { background: #28a745; }
+        .btn-danger { background: #dc3545; width: auto; font-size: 12px; padding: 5px 10px; }
 
-        /* RGB COLOR PICKER MODAL */
-        #pickerModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: none; justify-content: center; align-items: center; }
-        .picker-box { background: white; width: 90%; max-width: 320px; padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .picker-header { font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #007AFF; }
-        .color-preview { width: 60px; height: 60px; border-radius: 12px; margin: 0 auto 15px; border: 3px solid #eee; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .rgb-row { display: flex; align-items: center; margin-bottom: 12px; }
-        .rgb-label { width: 20px; font-weight: bold; font-size: 14px; }
-        .rgb-slider { flex: 1; margin: 0 10px; -webkit-appearance: none; height: 4px; border-radius: 2px; outline: none; }
-        
-        /* Slider Colors */
-        #sliderR { background: linear-gradient(to right, #ffcccc, #ff0000); }
-        #sliderR::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: red; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        #sliderG { background: linear-gradient(to right, #ccffcc, #00ff00); }
-        #sliderG::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: lime; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        #sliderB { background: linear-gradient(to right, #ccccff, #0000ff); }
-        #sliderB::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: blue; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* COLOR PICKER TRIGGER */
+        .color-row { display: flex; gap: 10px; margin-top: 10px; }
+        .color-box { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 8px; text-align: center; cursor: pointer; background: #fafafa; }
+        .color-preview { height: 25px; border-radius: 4px; border: 1px solid #ccc; margin-bottom: 5px; }
+        .color-label { font-size: 11px; color: #666; }
 
-        .hex-code { font-family: monospace; font-size: 16px; color: #555; background: #f0f0f0; padding: 5px 10px; border-radius: 6px; display: inline-block; margin-bottom: 15px; }
-        .picker-actions { display: flex; gap: 10px; }
-        .picker-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* RGB MODAL */
+        #rgbModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .rgb-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .range-wrap { display: flex; align-items: center; margin: 15px 0; }
+        .range-label { width: 20px; font-weight: bold; }
+        input[type=range] { flex: 1; margin: 0 10px; }
+        .final-preview { height: 50px; border-radius: 8px; border: 2px solid #eee; margin-bottom: 15px; }
+        .hex-display { font-family: monospace; background: #eee; padding: 5px; border-radius: 4px; display: inline-block; margin-bottom: 15px; }
+
     </style>
 </head>
 <body>
 
-    <!-- 1. RGB COLOR PICKER MODAL -->
-    <div id="pickerModal">
-        <div class="picker-box">
-            <div class="picker-header">Color Picker</div>
-            
-            <div class="color-preview" id="pickerPreview"></div>
-            <div class="hex-code" id="pickerHex">#000000</div>
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h3>Admin Login</h3>
+        <input type="password" id="adminPass" class="secure-input" placeholder="Enter Password">
+        <button class="btn btn-primary" onclick="attemptLogin()">Login</button>
+        <p id="loginMsg" style="color:red; font-size:12px; margin-top:10px;"></p>
+    </div>
+</div>
 
-            <div class="rgb-row">
-                <span class="rgb-label" style="color:red">R</span>
-                <input type="range" min="0" max="255" class="rgb-slider" id="sliderR" oninput="updatePicker()">
-            </div>
-            <div class="rgb-row">
-                <span class="rgb-label" style="color:green">G</span>
-                <input type="range" min="0" max="255" class="rgb-slider" id="sliderG" oninput="updatePicker()">
-            </div>
-            <div class="rgb-row">
-                <span class="rgb-label" style="color:blue">B</span>
-                <input type="range" min="0" max="255" class="rgb-slider" id="sliderB" oninput="updatePicker()">
-            </div>
+<!-- RGB MODAL -->
+<div id="rgbModal">
+    <div class="rgb-box">
+        <h4>Pick Color</h4>
+        <div class="final-preview" id="modalPreview"></div>
+        <div class="hex-display" id="modalHex">#000000</div>
 
-            <div class="picker-actions">
-                <button class="picker-btn" onclick="closePicker()" style="background:#eee; color:#333;">Cancel</button>
-                <button class="picker-btn" onclick="applyColor()" style="background:#007AFF; color:white;">PICK</button>
-            </div>
+        <div class="range-wrap"><span class="range-label" style="color:red">R</span><input type="range" min="0" max="255" id="sliderR" oninput="updateRgb()"></div>
+        <div class="range-wrap"><span class="range-label" style="color:green">G</span><input type="range" min="0" max="255" id="sliderG" oninput="updateRgb()"></div>
+        <div class="range-wrap"><span class="range-label" style="color:blue">B</span><input type="range" min="0" max="255" id="sliderB" oninput="updateRgb()"></div>
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="background:#888" onclick="closePicker()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmColor()">PICK</button>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="master-container" id="dashboard" style="display:none;">
+    <div class="header">
+        <h2>🔥 CyberX Control</h2>
+    </div>
+
+    <!-- Create App -->
+    <div class="app-card" style="padding:20px; border-left: 5px solid #007AFF;">
+        <label>Create New App Slot</label>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="newAppName" placeholder="App Name (e.g. Mod v1)">
+            <button class="btn btn-primary" style="width: auto; margin-top:0;" onclick="createApp()">+ Create</button>
         </div>
     </div>
 
-    <!-- 2. LOGIN -->
-    <div id="loginScreen">
-        <div class="login-box">
-            <h2>Admin Panel</h2>
-            <input type="password" id="adminPass" class="secure-input" placeholder="Enter Password">
-            <button class="btn btn-primary" style="width:100%" onclick="login()">Login</button>
-            <p id="loginMsg" style="color:red; font-size:12px; margin-top:10px;"></p>
-        </div>
-    </div>
-
-    <!-- 3. DASHBOARD -->
-    <div class="container" id="dashboard">
-        <div class="header">
-            <h1>SHANKAR SHARMA</h1>
-            <span style="font-size:12px; color:#888;">Multi-App Controller</span>
-        </div>
-
-        <div class="card">
-            <span class="label">Create New Slot</span>
-            <div class="create-row">
-                <input type="text" id="newAppName" class="input-std" placeholder="App Name">
-                <button class="btn btn-primary" onclick="createApp()">+ Add</button>
-            </div>
-        </div>
-
-        <div id="appsList"></div>
-    </div>
+    <div id="appsList"></div>
+</div>
 
 <script>
     const DB_URL = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let activeColorInputId = null; // To track which input triggered picker
+    let activeInputId = null; 
+    let activePreviewId = null;
 
     // --- LOGIN ---
-    function login() {
+    function attemptLogin() {
         const p = document.getElementById('adminPass').value;
-        const m = document.getElementById('loginMsg');
-        m.innerText = "Checking...";
-        fetch(DB_URL + "/admin_password.json").then(r=>r.json()).then(pass=>{
-            if(String(pass)===p) {
+        fetch(DB_URL + "/admin_password.json").then(r=>r.json()).then(d=>{
+            if(String(d)===p) {
                 document.getElementById('loginScreen').style.display='none';
                 document.getElementById('dashboard').style.display='block';
                 loadApps();
-            } else m.innerText="Wrong Password";
-        }).catch(()=>m.innerText="Error Connecting");
+            } else document.getElementById('loginMsg').innerText="Wrong Password";
+        });
     }
 
-    // --- COLOR PICKER LOGIC ---
-    function openPicker(inputId) {
-        activeColorInputId = inputId;
-        const currentHex = document.getElementById(inputId).value || "#000000";
+    // --- RGB PICKER ---
+    function openPicker(inputId, previewId) {
+        activeInputId = inputId;
+        activePreviewId = previewId;
         
-        // Parse Hex to RGB for sliders
-        const r = parseInt(currentHex.substr(1,2), 16);
-        const g = parseInt(currentHex.substr(3,2), 16);
-        const b = parseInt(currentHex.substr(5,2), 16);
+        const hex = document.getElementById(inputId).value || "#000000";
+        // Hex to RGB
+        const r = parseInt(hex.substr(1,2), 16) || 0;
+        const g = parseInt(hex.substr(3,2), 16) || 0;
+        const b = parseInt(hex.substr(5,2), 16) || 0;
 
         document.getElementById('sliderR').value = r;
         document.getElementById('sliderG').value = g;
         document.getElementById('sliderB').value = b;
+        updateRgb();
         
-        updatePicker();
-        document.getElementById('pickerModal').style.display = 'flex';
+        document.getElementById('rgbModal').style.display = 'flex';
     }
 
-    function updatePicker() {
+    function updateRgb() {
         const r = parseInt(document.getElementById('sliderR').value);
         const g = parseInt(document.getElementById('sliderG').value);
         const b = parseInt(document.getElementById('sliderB').value);
-
         const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
         
-        document.getElementById('pickerPreview').style.backgroundColor = hex;
-        document.getElementById('pickerHex').innerText = hex;
+        document.getElementById('modalPreview').style.background = hex;
+        document.getElementById('modalHex').innerText = hex;
     }
 
-    function applyColor() {
-        const hex = document.getElementById('pickerHex').innerText;
-        if(activeColorInputId) {
-            // Update hidden input value
-            document.getElementById(activeColorInputId).value = hex;
-            // Update preview button background
-            document.getElementById('btn-' + activeColorInputId).style.backgroundColor = hex;
-        }
+    function confirmColor() {
+        const hex = document.getElementById('modalHex').innerText;
+        document.getElementById(activeInputId).value = hex;
+        document.getElementById(activePreviewId).style.background = hex;
         closePicker();
     }
 
-    function closePicker() {
-        document.getElementById('pickerModal').style.display = 'none';
-    }
+    function closePicker() { document.getElementById('rgbModal').style.display = 'none'; }
 
     // --- APP LOGIC ---
     function loadApps() {
-        fetch(DB_URL+"/apps.json").then(r=>r.json()).then(d=>{
-            const l=document.getElementById('appsList'); l.innerHTML="";
-            if(d) Object.keys(d).forEach(k=>renderApp(k,d[k]));
+        fetch(DB_URL + "/apps.json").then(r=>r.json()).then(d=>{
+            const l = document.getElementById('appsList'); l.innerHTML="";
+            if(d) Object.keys(d).forEach(k=>renderCard(k,d[k]));
         });
     }
 
     function createApp() {
-        const n=document.getElementById('newAppName').value; if(!n)return;
-        const id = 'slot_'+Math.random().toString(36).substr(2,9);
-        const def = { 
-            name:n, 
-            update:{active:false, title:"Update", msg:"Msg", url:"", bg:"#FFFFFF", text:"#000000", btn:"#007AFF"},
-            inject:{active:false, zip:"", ver:1, bg:"#FFFFFF", text:"#000000", prog:"#007AFF"}
+        const n = document.getElementById('newAppName').value;
+        if(!n) return;
+        const id = 'slot_' + Math.random().toString(36).substr(2, 8);
+        const data = {
+            name: n,
+            // KEYS FIXED FOR ANDROID MATCH
+            update: { active:false, title:"Update", msg:"Msg", url:"", bg_color:"#FFFFFF", text_color:"#000000", btn_color:"#007AFF" },
+            inject: { active:false, zip:"", ver:1, bg_color:"#FFFFFF", text_color:"#000000", progress_color:"#007AFF" }
         };
-        fetch(DB_URL+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(def)}).then(()=>{
+        fetch(DB_URL+"/apps/"+id+".json", {method:'PUT', body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newAppName').value=""; loadApps();
         });
     }
 
     function saveApp(id) {
-        const btn = document.getElementById('save-'+id);
+        const btn = document.getElementById('btn-'+id);
         btn.innerText = "Saving...";
         
         const data = {
@@ -220,107 +186,104 @@
                 title: document.getElementById('ut-'+id).value,
                 msg: document.getElementById('um-'+id).value,
                 url: document.getElementById('uu-'+id).value,
-                bg: document.getElementById('ubg-'+id).value,
-                text: document.getElementById('utx-'+id).value,
-                btn: document.getElementById('ubtn-'+id).value
+                bg_color: document.getElementById('ubg-'+id).value, // Fixed key name
+                text_color: document.getElementById('utx-'+id).value,
+                btn_color: document.getElementById('ubc-'+id).value
             },
             inject: {
                 active: document.getElementById('ia-'+id).checked,
                 zip: document.getElementById('iz-'+id).value,
                 ver: parseInt(document.getElementById('iv-'+id).value),
-                bg: document.getElementById('ibg-'+id).value,
-                text: document.getElementById('itx-'+id).value,
-                prog: document.getElementById('ipg-'+id).value
+                bg_color: document.getElementById('ibg-'+id).value,
+                text_color: document.getElementById('itx-'+id).value,
+                progress_color: document.getElementById('ipc-'+id).value
             }
         };
 
-        fetch(DB_URL+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
-            btn.innerText="✅ Saved"; setTimeout(()=>btn.innerText="SAVE CHANGES",1500);
+        fetch(DB_URL+"/apps/"+id+".json", {method:'PUT', body:JSON.stringify(data)}).then(()=>{
+            btn.innerText = "✅ Saved!"; setTimeout(()=>btn.innerText="SAVE SETTINGS", 1500);
         });
     }
 
-    function deleteApp(id) {
-        if(confirm("Delete slot?")) fetch(DB_URL+"/apps/"+id+".json",{method:'DELETE'}).then(loadApps);
-    }
+    function copyId(id) { navigator.clipboard.writeText(id); alert("ID Copied: "+id); }
+    function deleteApp(id) { if(confirm("Delete?")) fetch(DB_URL+"/apps/"+id+".json", {method:'DELETE'}).then(loadApps); }
 
-    function copyId(id) {
-        navigator.clipboard.writeText(id); alert("ID Copied: "+id);
-    }
+    function renderCard(id, d) {
+        // Fallback for old data structure
+        const u = d.update || {};
+        const i = d.inject || {};
 
-    // --- HTML RENDERER ---
-    function renderApp(id, d) {
         const html = `
-        <div class="app-item">
-            <div class="app-head" onclick="document.getElementById('b-${id}').classList.toggle('show')">
+        <div class="app-card">
+            <div class="card-header" onclick="document.getElementById('b-${id}').classList.toggle('show')">
                 <div>
-                    <div style="font-weight:bold; font-size:16px;" id="n-${id}">${d.name}</div>
-                    <span class="app-id" onclick="event.stopPropagation(); copyId('${id}')">ID: ${id}</span>
+                    <span class="app-title" id="n-${id}">${d.name}</span>
+                    <span style="font-size:11px; background:#eee; padding:2px 5px; margin-left:5px" onclick="event.stopPropagation(); copyId('${id}')">ID: ${id}</span>
                 </div>
-                <span style="font-size:12px; color:#aaa">▼</span>
+                <span>▼</span>
             </div>
-            <div class="app-body" id="b-${id}">
+            <div class="card-body" id="b-${id}">
                 
-                <!-- UPDATE -->
+                <!-- Update Config -->
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="label">Update Dialog</span>
-                    <input type="checkbox" id="ua-${id}" ${d.update.active?'checked':''}>
+                    <strong>Update Dialog</strong>
+                    <input type="checkbox" id="ua-${id}" ${u.active?'checked':''}>
                 </div>
-                <div class="control-grid">
-                    <input class="input-std" id="ut-${id}" value="${d.update.title}" placeholder="Title">
-                    <input class="input-std" id="uu-${id}" value="${d.update.url}" placeholder="URL">
-                    <div class="full"><input class="input-std" id="um-${id}" value="${d.update.msg}" placeholder="Message"></div>
-                </div>
-                <div class="color-grid">
-                    <div>
-                        <div class="color-btn" id="btn-ubg-${id}" style="background:${d.update.bg}" onclick="openPicker('ubg-${id}')"></div>
-                        <input type="hidden" id="ubg-${id}" value="${d.update.bg}">
-                        <div class="color-label">Bg</div>
+                <input type="text" id="ut-${id}" value="${u.title}" placeholder="Title">
+                <input type="text" id="um-${id}" value="${u.msg}" placeholder="Message" style="margin-top:5px">
+                <input type="text" id="uu-${id}" value="${u.url}" placeholder="URL" style="margin-top:5px">
+                
+                <div class="color-row">
+                    <div class="color-box" onclick="openPicker('ubg-${id}', 'pubg-${id}')">
+                        <div class="color-preview" id="pubg-${id}" style="background:${u.bg_color}"></div>
+                        <span class="color-label">BG</span>
+                        <input type="hidden" id="ubg-${id}" value="${u.bg_color}">
                     </div>
-                    <div>
-                        <div class="color-btn" id="btn-utx-${id}" style="background:${d.update.text}" onclick="openPicker('utx-${id}')"></div>
-                        <input type="hidden" id="utx-${id}" value="${d.update.text}">
-                        <div class="color-label">Text</div>
+                    <div class="color-box" onclick="openPicker('utx-${id}', 'putx-${id}')">
+                        <div class="color-preview" id="putx-${id}" style="background:${u.text_color}"></div>
+                        <span class="color-label">Text</span>
+                        <input type="hidden" id="utx-${id}" value="${u.text_color}">
                     </div>
-                    <div>
-                        <div class="color-btn" id="btn-ubtn-${id}" style="background:${d.update.btn}" onclick="openPicker('ubtn-${id}')"></div>
-                        <input type="hidden" id="ubtn-${id}" value="${d.update.btn}">
-                        <div class="color-label">Btn</div>
+                    <div class="color-box" onclick="openPicker('ubc-${id}', 'pubc-${id}')">
+                        <div class="color-preview" id="pubc-${id}" style="background:${u.btn_color}"></div>
+                        <span class="color-label">Btn</span>
+                        <input type="hidden" id="ubc-${id}" value="${u.btn_color}">
                     </div>
                 </div>
 
-                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+                <hr style="margin:20px 0; border:0; border-top:1px solid #eee">
 
-                <!-- INJECTION -->
+                <!-- Inject Config -->
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="label">Data Injection</span>
-                    <input type="checkbox" id="ia-${id}" ${d.inject.active?'checked':''}>
+                    <strong>Data Injection</strong>
+                    <input type="checkbox" id="ia-${id}" ${i.active?'checked':''}>
                 </div>
-                <div class="control-grid">
-                    <div class="full"><input class="input-std" id="iz-${id}" value="${d.inject.zip}" placeholder="ZIP URL"></div>
-                    <input type="number" class="input-std" id="iv-${id}" value="${d.inject.ver}" placeholder="Ver">
-                </div>
-                <div class="color-grid">
-                    <div>
-                        <div class="color-btn" id="btn-ibg-${id}" style="background:${d.inject.bg}" onclick="openPicker('ibg-${id}')"></div>
-                        <input type="hidden" id="ibg-${id}" value="${d.inject.bg}">
-                        <div class="color-label">Bg</div>
+                <input type="text" id="iz-${id}" value="${i.zip}" placeholder="ZIP URL">
+                <input type="number" id="iv-${id}" value="${i.ver}" placeholder="Version Code" style="margin-top:5px">
+
+                <div class="color-row">
+                    <div class="color-box" onclick="openPicker('ibg-${id}', 'pibg-${id}')">
+                        <div class="color-preview" id="pibg-${id}" style="background:${i.bg_color}"></div>
+                        <span class="color-label">BG</span>
+                        <input type="hidden" id="ibg-${id}" value="${i.bg_color}">
                     </div>
-                    <div>
-                        <div class="color-btn" id="btn-itx-${id}" style="background:${d.inject.text}" onclick="openPicker('itx-${id}')"></div>
-                        <input type="hidden" id="itx-${id}" value="${d.inject.text}">
-                        <div class="color-label">Text</div>
+                    <div class="color-box" onclick="openPicker('itx-${id}', 'pitx-${id}')">
+                        <div class="color-preview" id="pitx-${id}" style="background:${i.text_color}"></div>
+                        <span class="color-label">Text</span>
+                        <input type="hidden" id="itx-${id}" value="${i.text_color}">
                     </div>
-                    <div>
-                        <div class="color-btn" id="btn-ipg-${id}" style="background:${d.inject.prog}" onclick="openPicker('ipg-${id}')"></div>
-                        <input type="hidden" id="ipg-${id}" value="${d.inject.prog}">
-                        <div class="color-label">Loader</div>
+                    <div class="color-box" onclick="openPicker('ipc-${id}', 'pipc-${id}')">
+                        <div class="color-preview" id="pipc-${id}" style="background:${i.progress_color}"></div>
+                        <span class="color-label">Prog</span>
+                        <input type="hidden" id="ipc-${id}" value="${i.progress_color}">
                     </div>
                 </div>
 
-                <button class="btn btn-save" id="save-${id}" onclick="saveApp('${id}')">SAVE CHANGES</button>
-                <div style="text-align:center; margin-top:10px;">
-                    <button class="btn-del" onclick="deleteApp('${id}')">Delete Slot</button>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button class="btn btn-danger" onclick="deleteApp('${id}')">Delete</button>
+                    <button class="btn btn-save" id="btn-${id}" style="width:70%" onclick="saveApp('${id}')">SAVE SETTINGS</button>
                 </div>
+
             </div>
         </div>`;
         document.getElementById('appsList').insertAdjacentHTML('beforeend', html);
