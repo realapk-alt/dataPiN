@@ -1,155 +1,281 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Static Uploader — GitHub Pages Friendly</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-  body{background:#0f172a;color:#e6eef8}
-  .card{border-radius:12px;background:#0b1220;border:1px solid rgba(255,255,255,0.04)}
-  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;color:#cbd5e1}
-  .small-muted{color:#94a3b8}
-  a.url{color:#7dd3fc;word-break:break-all}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberXLink Admin</title>
+    <style>
+        :root { --ios-bg: #F2F2F7; --ios-card: #FFFFFF; --ios-blue: #007AFF; --ios-red: #FF3B30; --ios-green: #34C759; --ios-text: #1C1C1E; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--ios-bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; color: var(--ios-text); }
+        
+        /* LOGIN SCREEN */
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        .login-input { width: 90%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
+        
+        /* DASHBOARD */
+        .container { width: 100%; max-width: 700px; display: none; } /* Hidden by default */
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-weight: 800; font-size: 28px; margin: 0; }
+        .badge { font-size: 12px; background: #E5E5EA; padding: 4px 12px; border-radius: 20px; color: #8E8E93; }
+
+        /* Setup Box */
+        .card { background: var(--ios-card); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .input-row { display: flex; gap: 10px; margin-top: 10px; }
+        input[type="text"], input[type="number"] { flex: 1; padding: 12px; border: 1px solid #E5E5EA; border-radius: 10px; font-size: 14px; outline: none; background: #F9F9F9; }
+        input[type="color"] { border: none; width: 40px; height: 40px; cursor: pointer; background: none; }
+        
+        button { padding: 12px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn-blue { background: var(--ios-blue); color: white; } .btn-blue:hover { opacity: 0.9; }
+        .btn-red { background: var(--ios-red); color: white; } .btn-green { background: var(--ios-green); color: white; }
+
+        /* App Item */
+        .app-item { background: white; border-radius: 16px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); transition: 0.3s; }
+        .app-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .app-head:hover { background: #fcfcfc; }
+        .app-id-box { font-family: monospace; background: #eee; padding: 4px 8px; border-radius: 6px; font-size: 11px; color: #555; margin-top: 4px; display: inline-block; }
+        
+        .app-body { padding: 20px; display: none; background: #fff; }
+        .show { display: block; }
+
+        /* Controls */
+        .section-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #8E8E93; margin: 20px 0 10px 0; letter-spacing: 0.5px; }
+        .control-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .full-width { grid-column: span 2; }
+        
+        .label-small { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; display: block; }
+
+        /* Switch */
+        .switch-wrap { display: flex; justify-content: space-between; align-items: center; background: #F2F2F7; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--ios-green); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+    </style>
 </head>
 <body>
-<div class="container py-5">
-  <div class="row">
-    <div class="col-md-6 mx-auto">
-      <div class="card p-3">
-        <h4 class="mb-2">Static Uploader (GitHub Pages)</h4>
-        <p class="small-muted">This page will attempt to upload files directly from the browser to public file hosts (no server required). It tries providers in order and shows the first working direct link.</p>
-        <form id="form">
-          <div class="mb-2"><input id="file" type="file" class="form-control" required></div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-primary" id="upload">Upload</button>
-            <button type="button" id="clear" class="btn btn-light">Clear</button>
-          </div>
-        </form>
-        <hr>
-        <div id="status" class="mono small-muted">Idle</div>
-        <div id="result" class="mt-2"></div>
-        <hr>
-        <div class="small-muted">Notes: Some hosts may block uploads from GitHub Pages due to CORS. If uploads fail, try using a small PHP server or VPS backend (I can provide that).</div>
-      </div>
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>🔒 Admin Access</h2>
+            <input type="text" id="dbUrl" placeholder="Firebase Database URL (https://...)" value="https://cyberxlink-db-default-rtdb.firebaseio.com">
+            <input type="password" id="adminPass" class="login-input" placeholder="Enter Password">
+            <button class="btn-blue" style="width:100%" onclick="attemptLogin()">Login</button>
+            <p id="loginMsg" style="color:red; font-size:12px; margin-top:10px;"></p>
+        </div>
     </div>
-  </div>
-</div>
+
+    <!-- MAIN DASHBOARD -->
+    <div class="container" id="mainDashboard">
+        <div class="header">
+            <h1>CyberXLink</h1>
+            <span class="badge">PRO CONTROL PANEL</span>
+        </div>
+
+        <!-- Creator -->
+        <div class="card">
+            <h3 style="margin-top:0">Create Encrypted Slot</h3>
+            <div class="input-row">
+                <input type="text" id="newAppName" placeholder="App Name (e.g. PubG v2.0)">
+                <button class="btn-blue" onclick="createApp()">+ Create</button>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div id="appsList"></div>
+    </div>
+
 <script>
-const form = document.getElementById('form');
-const fileEl = document.getElementById('file');
-const status = document.getElementById('status');
-const result = document.getElementById('result');
-const clearBtn = document.getElementById('clear');
+    let DB_URL = "";
 
-function setStatus(txt){ status.textContent = txt; }
-function showResult(html){ result.innerHTML = html; }
+    // --- LOGIN SYSTEM ---
+    function attemptLogin() {
+        const urlInput = document.getElementById('dbUrl').value.trim();
+        const passInput = document.getElementById('adminPass').value.trim();
+        const msg = document.getElementById('loginMsg');
 
-async function tryAnonFiles(file){
-  setStatus('Trying anonfiles.com ...');
-  const fd = new FormData();
-  fd.append('file', file);
-  try {
-    const res = await fetch('https://api.anonfiles.com/upload', { method: 'POST', body: fd });
-    const txt = await res.text();
-    // try parse JSON
-    const j = JSON.parse(txt);
-    if (j && j.status && j.data && j.data.file && j.data.file.url && j.data.file.url.full) {
-      return { ok:true, url:j.data.file.url.full, provider:'anonfiles' };
-    } else {
-      return { ok:false, error: 'Unexpected response' };
+        if(!urlInput) { msg.innerText = "Enter Firebase URL"; return; }
+        
+        // Remove trailing slash
+        DB_URL = urlInput.endsWith('/') ? urlInput.slice(0, -1) : urlInput;
+
+        msg.innerText = "Verifying...";
+        
+        // Check password from Firebase
+        fetch(DB_URL + "/admin_password.json")
+            .then(res => res.json())
+            .then(realPass => {
+                if(realPass === null) {
+                    msg.innerText = "Password not set in DB! (Key: admin_password)";
+                } else if(String(realPass) === String(passInput)) {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('mainDashboard').style.display = 'block';
+                    loadApps();
+                } else {
+                    msg.innerText = "Wrong Password!";
+                }
+            })
+            .catch(err => msg.innerText = "Connection Failed!");
     }
-  } catch(e){
-    return { ok:false, error: e.message || e.toString() };
-  }
-}
 
-async function tryPixeldrain(file){
-  setStatus('Trying pixeldrain.com ...');
-  const fd = new FormData();
-  fd.append('file', file);
-  try {
-    const res = await fetch('https://pixeldrain.com/api/file', { method:'POST', body:fd });
-    const j = await res.json();
-    // pixeldrain returns an object with 'success' and 'id' or similar
-    // if id present, direct link can be: https://pixeldrain.com/file/{id}
-    if (j && (j.success || j.id)) {
-      const id = j.id || j.result || j.success;
-      const url = (j.id) ? ('https://pixeldrain.com/file/' + j.id) : null;
-      return { ok:true, url:url || ('https://pixeldrain.com/file/' + j.id), provider:'pixeldrain' };
-    } else if (typeof j === 'string' && j.length>0) {
-      return { ok:true, url:'https://pixeldrain.com/file/' + j, provider:'pixeldrain' };
-    } else {
-      return { ok:false, error: 'Unexpected response' };
+    // --- UTILS ---
+    function generateEncryptedId() {
+        // Generates random ID like: x7a9-b2m4-k9p1
+        const s = () => Math.random().toString(36).substr(2, 4);
+        return s() + '-' + s() + '-' + s();
     }
-  } catch(e){
-    return { ok:false, error: e.message || e.toString() };
-  }
-}
 
-async function tryFileIo(file){
-  setStatus('Trying file.io ...');
-  const fd = new FormData();
-  fd.append('file', file);
-  try {
-    const res = await fetch('https://file.io', { method:'POST', body: fd });
-    const j = await res.json();
-    // file.io returns {success:true,link:"https://file.io/xxxx"}
-    if (j && (j.link || j.success)) {
-      const url = j.link || j[Object.keys(j)[0]];
-      return { ok:true, url: url, provider:'file.io' };
-    } else {
-      return { ok:false, error: 'Unexpected response' };
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+        alert("Encrypted ID Copied!\nPaste in assets/server.txt\n\nID: " + text);
     }
-  } catch(e){
-    return { ok:false, error: e.message || e.toString() };
-  }
-}
 
-async function attemptUpload(file){
-  // Try providers in order. Return first success or error list.
-  const providers = [tryAnonFiles, tryPixeldrain, tryFileIo];
-  const errors = [];
-  for (const fn of providers){
-    try {
-      const r = await fn(file);
-      if (r.ok) return r;
-      errors.push({provider:r.provider||fn.name, err:r.error||'unknown'});
-    } catch(e){
-      errors.push({provider:fn.name, err: e.message || e.toString()});
+    // --- APP MANAGEMENT ---
+    function loadApps() {
+        fetch(DB_URL + "/apps.json")
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('appsList');
+                list.innerHTML = "";
+                if(!data) return;
+                Object.keys(data).forEach(key => renderApp(key, data[key]));
+            });
     }
-  }
-  return { ok:false, errors:errors };
-}
 
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const f = fileEl.files[0];
-  if (!f) { setStatus('Please choose a file'); return; }
-  setStatus('Starting upload...');
-  showResult('');
-  try {
-    const res = await attemptUpload(f);
-    if (res.ok) {
-      setStatus('Upload successful via ' + res.provider);
-      showResult('<div class="alert alert-success">Uploaded: <a class="url" href="'+res.url+'" target="_blank">'+res.url+'</a><br><small class="small-muted">Provider: '+res.provider+'</small></div>');
-    } else {
-      setStatus('All providers failed');
-      let html = '<div class="alert alert-danger"><strong>All providers failed.</strong><br>Errors:<ul>';
-      for (const e of res.errors) {
-        html += '<li><code>' + (e.provider||'unknown') + '</code>: ' + (e.err||'error') + '</li>';
-      }
-      html += '</ul></div>';
-      showResult(html);
+    function createApp() {
+        const name = document.getElementById('newAppName').value;
+        if(!name) return;
+        const id = generateEncryptedId();
+        
+        const defaultData = {
+            name: name,
+            update: { 
+                active: false, 
+                title: "Update Required", msg: "New version available", btn: "Update Now", url: "",
+                bg_color: "#FFFFFF", text_color: "#000000", btn_color: "#007AFF"
+            },
+            inject: { 
+                active: false, zip: "", ver: 1,
+                bg_color: "#FFFFFF", text_color: "#000000", progress_color: "#007AFF"
+            }
+        };
+
+        fetch(DB_URL + "/apps/" + id + ".json", {
+            method: 'PUT', body: JSON.stringify(defaultData)
+        }).then(() => {
+            document.getElementById('newAppName').value = "";
+            loadApps();
+        });
     }
-  } catch(e){
-    setStatus('Upload error: ' + e.message);
-    showResult('<div class="alert alert-danger">Unexpected error: '+e.message+'</div>');
-  }
-});
 
-clearBtn.addEventListener('click', ()=>{ fileEl.value=''; setStatus('Idle'); showResult(''); });
+    function saveApp(id) {
+        const data = {
+            name: document.getElementById(`name-${id}`).innerText,
+            update: {
+                active: document.getElementById(`upActive-${id}`).checked,
+                title: document.getElementById(`upTitle-${id}`).value,
+                msg: document.getElementById(`upMsg-${id}`).value,
+                btn: document.getElementById(`upBtnText-${id}`).value,
+                url: document.getElementById(`upUrl-${id}`).value,
+                bg_color: document.getElementById(`upBg-${id}`).value,
+                text_color: document.getElementById(`upText-${id}`).value,
+                btn_color: document.getElementById(`upBtnColor-${id}`).value
+            },
+            inject: {
+                active: document.getElementById(`injActive-${id}`).checked,
+                zip: document.getElementById(`injZip-${id}`).value,
+                ver: parseInt(document.getElementById(`injVer-${id}`).value),
+                bg_color: document.getElementById(`injBg-${id}`).value,
+                text_color: document.getElementById(`injText-${id}`).value,
+                progress_color: document.getElementById(`injProg-${id}`).value
+            }
+        };
+
+        const btn = document.getElementById(`saveBtn-${id}`);
+        btn.innerText = "Saving...";
+        fetch(DB_URL + "/apps/" + id + ".json", {
+            method: 'PUT', body: JSON.stringify(data)
+        }).then(() => {
+            btn.innerText = "Saved!";
+            setTimeout(() => btn.innerText = "Save Changes", 1500);
+        });
+    }
+
+    function deleteApp(id) {
+        if(confirm("Delete this slot permanently?")) {
+            fetch(DB_URL + "/apps/" + id + ".json", { method: 'DELETE' }).then(loadApps);
+        }
+    }
+
+    // --- RENDER ---
+    function renderApp(id, data) {
+        const html = `
+        <div class="app-item">
+            <div class="app-head" onclick="document.getElementById('body-${id}').classList.toggle('show')">
+                <div>
+                    <div style="font-weight:bold; font-size:16px;" id="name-${id}">${data.name}</div>
+                    <div class="app-id-box" onclick="event.stopPropagation(); copyToClipboard('${id}')">ID: ${id} 📋</div>
+                </div>
+                <div style="font-size:12px; color:#888">▼ Edit</div>
+            </div>
+            <div class="app-body" id="body-${id}">
+                
+                <!-- UPDATE SETTINGS -->
+                <div class="section-label">Update Dialog Customization</div>
+                <div class="switch-wrap">
+                    <span style="font-weight:600">Show Update Dialog</span>
+                    <label class="switch"><input type="checkbox" id="upActive-${id}" ${data.update.active?'checked':''}><span class="slider"></span></label>
+                </div>
+                
+                <div class="control-group">
+                    <div><span class="label-small">Title</span><input type="text" id="upTitle-${id}" value="${data.update.title}"></div>
+                    <div><span class="label-small">Button Text</span><input type="text" id="upBtnText-${id}" value="${data.update.btn}"></div>
+                    <div class="full-width"><span class="label-small">Message</span><input type="text" id="upMsg-${id}" value="${data.update.msg}"></div>
+                    <div class="full-width"><span class="label-small">Download URL</span><input type="text" id="upUrl-${id}" value="${data.update.url}"></div>
+                </div>
+                
+                <div style="display:flex; gap:15px; margin-top:10px;">
+                    <div><span class="label-small">Background</span><input type="color" id="upBg-${id}" value="${data.update.bg_color}"></div>
+                    <div><span class="label-small">Text</span><input type="color" id="upText-${id}" value="${data.update.text_color}"></div>
+                    <div><span class="label-small">Button</span><input type="color" id="upBtnColor-${id}" value="${data.update.btn_color}"></div>
+                </div>
+
+                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+
+                <!-- INJECTION SETTINGS -->
+                <div class="section-label">Data Injection Customization</div>
+                <div class="switch-wrap">
+                    <span style="font-weight:600">Enable Injection</span>
+                    <label class="switch"><input type="checkbox" id="injActive-${id}" ${data.inject.active?'checked':''}><span class="slider"></span></label>
+                </div>
+
+                <div class="control-group">
+                    <div class="full-width"><span class="label-small">ZIP URL</span><input type="text" id="injZip-${id}" value="${data.inject.zip}"></div>
+                    <div><span class="label-small">Version Code</span><input type="number" id="injVer-${id}" value="${data.inject.ver}"></div>
+                </div>
+
+                <div style="display:flex; gap:15px; margin-top:10px;">
+                    <div><span class="label-small">Background</span><input type="color" id="injBg-${id}" value="${data.inject.bg_color}"></div>
+                    <div><span class="label-small">Text</span><input type="color" id="injText-${id}" value="${data.inject.text_color}"></div>
+                    <div><span class="label-small">Progress Bar</span><input type="color" id="injProg-${id}" value="${data.inject.progress_color}"></div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-green" style="flex:1" id="saveBtn-${id}" onclick="saveApp('${id}')">Save Changes</button>
+                    <button class="btn-red" onclick="deleteApp('${id}')">Delete</button>
+                </div>
+
+            </div>
+        </div>
+        `;
+        document.getElementById('appsList').insertAdjacentHTML('beforeend', html);
+    }
 </script>
 </body>
 </html>
+
+
