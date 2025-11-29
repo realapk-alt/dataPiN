@@ -3,142 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberX Admin Pro</title>
+    <title>CyberX Control</title>
     <style>
+        /* --- iOS THEME --- */
         :root {
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --glass: rgba(255, 255, 255, 0.85);
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
             --primary: #007AFF;
-            --text: #1c1c1e;
             --danger: #FF3B30;
+            --success: #34C759;
+            --text: #1C1C1E;
+            --subtext: #8E8E93;
+            --border: #C6C6C8;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
             margin: 0; padding: 15px; color: var(--text);
             -webkit-tap-highlight-color: transparent;
-            min-height: 100vh;
         }
 
-        /* --- LOGIN SCREEN --- */
-        #loginOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
-        }
-        .login-box {
-            background: white; padding: 30px; width: 85%; max-width: 320px;
-            border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            text-align: center;
-        }
-        .login-input {
-            width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 14px;
-            font-size: 18px; text-align: center; margin: 20px 0; outline: none;
-            box-sizing: border-box; transition: 0.3s;
-        }
-        .login-input:focus { border-color: var(--primary); background: #f9f9f9; }
-
-        /* --- MAIN UI --- */
+        /* --- LAYOUT --- */
         .container { max-width: 600px; margin: 0 auto; display: none; padding-bottom: 100px; }
         
-        .header { text-align: center; margin-bottom: 20px; position: relative; }
-        .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
-        
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding: 10px 5px;
+        }
+        .header h1 { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         .settings-btn {
-            position: absolute; right: 0; top: 0; background: white;
-            width: 40px; height: 40px; border-radius: 50%; border: none;
-            font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;
+            background: white; border: none; width: 40px; height: 40px;
+            border-radius: 50%; font-size: 20px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* --- CREATE CARD --- */
-        .create-card {
-            background: rgba(255,255,255,0.6); border-radius: 18px; padding: 10px;
-            display: flex; gap: 10px; margin-bottom: 25px; border: 1px solid white;
+        /* --- CARDS --- */
+        .card {
+            background: var(--card); border-radius: 16px; margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); overflow: hidden;
         }
-        .create-input { flex: 1; border: none; background: transparent; font-size: 16px; padding: 10px; outline: none; }
+
+        /* Create New */
+        .create-row { display: flex; padding: 10px; gap: 10px; align-items: center; }
+        .input-new {
+            flex: 1; border: none; background: #F9F9F9; padding: 12px;
+            border-radius: 10px; font-size: 16px; outline: none;
+        }
         .btn-add {
-            width: 45px; height: 45px; background: var(--primary); color: white;
-            border-radius: 14px; border: none; font-size: 24px; display: flex;
-            align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,122,255,0.3);
+            width: 44px; height: 44px; background: var(--primary); color: white;
+            border-radius: 12px; border: none; font-size: 24px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* --- SLOT ITEM --- */
-        .slot {
-            background: white; border-radius: 18px; margin-bottom: 15px;
-            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
+        /* Slots */
+        .slot-header {
+            padding: 18px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; border-bottom: 1px solid transparent;
         }
-        .slot-head {
-            padding: 18px 20px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; background: rgba(255,255,255,0.8);
+        .slot-header:active { background: #f5f5f5; }
+        .slot-title { font-weight: 700; font-size: 17px; }
+        .slot-id {
+            font-size: 11px; color: #888; background: #f0f0f0; padding: 3px 6px;
+            border-radius: 4px; margin-top: 4px; display: inline-block; font-family: monospace;
         }
-        .slot-head:active { background: #f0f0f0; }
-        
-        .slot-body { padding: 20px; display: none; background: #fff; border-top: 1px solid #f0f0f0; }
-        .show { display: block; }
 
-        /* --- CONTROLS --- */
-        .label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin: 15px 0 8px 0; display: block; }
-        
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        
-        .inp {
-            width: 100%; padding: 14px; background: #f2f2f7; border: none;
-            border-radius: 12px; font-size: 15px; margin-bottom: 10px;
-            outline: none; color: #333; font-weight: 500; box-sizing: border-box;
-        }
-        .inp:focus { background: #fff; box-shadow: 0 0 0 2px var(--primary); }
+        .slot-body { display: none; padding: 20px; background: #fff; border-top: 1px solid #f0f0f0; }
+        .show { display: block; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
 
-        /* UPLOAD AREA */
-        .upload-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        /* --- FORM ELEMENTS --- */
+        .section-title {
+            font-size: 12px; font-weight: 700; color: #aaa; text-transform: uppercase;
+            margin: 25px 0 10px 0; letter-spacing: 0.5px;
+        }
+        
+        .form-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .form-label { font-size: 15px; font-weight: 600; }
+
+        .input-std {
+            width: 100%; border: 1px solid #eee; background: #fcfcfc;
+            padding: 12px; border-radius: 10px; font-size: 15px; margin-bottom: 10px;
+            outline: none; box-sizing: border-box; color: var(--primary); font-weight: 500;
+        }
+        .input-std:focus { border-color: var(--primary); background: white; }
+
+        /* --- UPLOAD SECTION (Fixed Alignment) --- */
+        .upload-container {
+            display: flex; gap: 8px; align-items: center; width: 100%; margin-bottom: 10px;
+        }
         .btn-icon {
-            width: 48px; height: 46px; border-radius: 12px; border: none;
-            color: white; font-size: 20px; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; flex-shrink: 0;
+            width: 46px; height: 44px; border-radius: 10px; border: none; color: white;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .btn-up { background: #34C759; }
-        .btn-tr { background: #FF3B30; }
+        .btn-cloud { background: var(--success); }
+        .btn-trash { background: var(--danger); }
+        
+        .url-input {
+            flex: 1; margin: 0; border: 1px solid #eee; background: #fcfcfc;
+            padding: 12px; border-radius: 10px; font-size: 14px; outline: none;
+            color: #555; text-overflow: ellipsis;
+        }
 
-        /* BUTTONS */
-        .btn-main {
-            width: 100%; padding: 16px; background: var(--text); color: white;
-            border: none; border-radius: 14px; font-weight: 700; font-size: 16px;
-            margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        /* --- TOGGLE SWITCH --- */
+        .switch { position: relative; display: inline-block; width: 46px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #E9E9EA; transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        /* --- COLOR PICKER ROW --- */
+        .color-row { display: flex; gap: 12px; justify-content: flex-end; margin: 15px 0; }
+        .color-item { text-align: center; }
+        .color-circle {
+            width: 34px; height: 34px; border-radius: 50%; border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; margin-bottom: 4px;
         }
-        .btn-text {
+        .color-label { font-size: 10px; color: #888; font-weight: 600; }
+
+        /* --- ACTION BUTTONS --- */
+        .btn-save {
+            width: 100%; padding: 15px; background: var(--text); color: white;
+            border: none; border-radius: 12px; font-weight: 700; font-size: 15px;
+            margin-top: 25px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-delete {
             width: 100%; padding: 12px; background: transparent; color: var(--danger);
             border: none; font-weight: 600; font-size: 13px; margin-top: 5px; cursor: pointer;
         }
 
-        /* TOGGLE */
-        .switch { position: relative; display: inline-block; width: 46px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e4e4e4; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input:checked + .slider { background-color: #34C759; }
-        input:checked + .slider:before { transform: translateX(18px); }
+        /* --- MODALS --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 10000; display: none; align-items: center; justify-content: center; }
+        .modal-box { width: 85%; max-width: 320px; padding: 25px; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }
+        
+        .p-view { height: 50px; border-radius: 12px; margin-bottom: 15px; border: 4px solid #f2f2f7; }
+        input[type=range] { width: 100%; height: 6px; border-radius: 3px; outline: none; margin: 12px 0; -webkit-appearance: none; background: #eee; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+        #rngR { background: linear-gradient(to right, #ffcfcf, #ff0000); } #rngG { background: linear-gradient(to right, #cfffcf, #00ff00); } #rngB { background: linear-gradient(to right, #cfcfff, #0000ff); }
 
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 100; display: none; align-items: center; justify-content: center; }
-        .modal-card { width: 85%; max-width: 300px; padding: 25px; background: white; border-radius: 20px; text-align: center; }
+        /* --- LOGIN --- */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F2F2F7; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-box { text-align: center; width: 300px; }
+        .login-inp { padding: 15px; border-radius: 12px; border: 1px solid #ddd; width: 100%; text-align: center; font-size: 18px; margin-top: 20px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; margin-top: 15px; font-weight: bold; font-size: 16px; }
 
     </style>
 </head>
 <body>
 
-    <!-- GITHUB SETTINGS -->
-    <div id="ghModal" class="modal">
-        <div class="modal-card">
-            <h3>GitHub Setup</h3>
-            <input type="text" id="ghToken" class="inp" placeholder="Token (ghp_...)">
-            <input type="text" id="ghOwner" class="inp" placeholder="Username">
-            <input type="text" id="ghRepo" class="inp" placeholder="Repository">
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button onclick="document.getElementById('ghModal').style.display='none'" class="btn-main" style="background:#eee; color:#333; margin:0">Close</button>
-                <button onclick="saveGhSettings()" class="btn-main" style="background:var(--primary); margin:0">Save</button>
+    <!-- GITHUB CONFIG -->
+    <div id="ghModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin:0 0 15px 0;">GitHub Setup</h3>
+            <input type="text" id="ghToken" class="input-std" placeholder="Token (ghp_...)" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #eee; border-radius:8px;">
+            <input type="text" id="ghOwner" class="input-std" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #eee; border-radius:8px;">
+            <input type="text" id="ghRepo" class="input-std" placeholder="Repo Name" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #eee; border-radius:8px;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="document.getElementById('ghModal').style.display='none'" style="flex:1; padding:10px; border:none; background:#eee; border-radius:8px;">Cancel</button>
+                <button onclick="saveGhSettings()" style="flex:1; padding:10px; border:none; background:var(--primary); color:white; border-radius:8px;">Save</button>
             </div>
         </div>
     </div>
@@ -146,101 +173,101 @@
     <!-- LOGIN -->
     <div id="loginOverlay">
         <div class="login-box">
-            <h2>Admin Login</h2>
-            <p style="color:gray; font-size:14px; margin-bottom:20px;">Enter Access Key</p>
-            <input type="password" id="pass" class="login-input" placeholder="••••••••">
-            <button class="btn-main" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:15px; font-size:13px; font-weight:bold;"></p>
+            <h2 style="margin:0;">CyberX Admin</h2>
+            <p style="color:#888; margin:5px 0 0 0;">Secure Access</p>
+            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
+            <button class="login-btn" onclick="doLogin()">Unlock</button>
+            <p id="msg" style="color:red; margin-top:15px; font-size:13px;"></p>
+        </div>
+    </div>
+
+    <!-- COLOR PICKER -->
+    <div id="pickerModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin:0 0 15px 0;">Pick Color</h3>
+            <div class="p-view" id="prevBox"></div>
+            <div id="hexTxt" style="font-family:monospace; margin-bottom:15px; font-weight:bold;">#000000</div>
+            <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
+            <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
+            <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="document.getElementById('pickerModal').style.display='none'" style="flex:1; padding:10px; background:#eee; border:none; border-radius:8px;">Close</button>
+                <button onclick="saveCol()" style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px;">Apply</button>
+            </div>
         </div>
     </div>
 
     <!-- DASHBOARD -->
     <div class="container" id="mainUI">
         <div class="header">
-            <h2>CyberX Panel</h2>
+            <h1>Slots Manager</h1>
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
-        <div class="create-card">
-            <input type="text" id="newApp" class="create-input" placeholder="New App Name...">
+        <div class="card create-row">
+            <input type="text" id="newApp" class="input-new" placeholder="Enter App Name...">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
         <div id="listArea"></div>
     </div>
 
-    <input type="file" id="fileInput" style="display:none" onchange="handleFile(this)">
+    <!-- Hidden Input for File -->
+    <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload(this)">
 
 <script>
-    // 🔥 CONFIGURATION
+    // 🔥 FIREBASE URL (Auto-set)
     const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let upId = null;
+    let actInp=null, actCirc=null, uploadTargetId=null;
 
     // --- LOGIN ---
     const pInp = document.getElementById('pass');
-    pInp.addEventListener('paste', () => setTimeout(doLogin, 100)); // Auto Login on Paste
+    pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
     
     function doLogin() {
         const p = pInp.value.trim();
-        const msg = document.getElementById('msg');
+        const m = document.getElementById('msg');
+        if(!p) { m.innerText="Enter password"; return; }
         
-        if(!p) { msg.innerText="Please enter password"; return; }
-        
-        msg.innerText = "Checking...";
-        
+        m.innerText="Checking...";
         fetch(DB + "/admin_password.json")
             .then(r => r.json())
             .then(d => {
-                // Password match check (String conversion ensures safety)
                 if(String(d) === p) {
                     document.getElementById('loginOverlay').style.display = 'none';
                     document.getElementById('mainUI').style.display = 'block';
                     loadData();
                 } else {
-                    msg.innerText = "Wrong Password!";
+                    m.innerText = "Wrong Password!";
                 }
             })
-            .catch(e => msg.innerText = "Connection Error!");
+            .catch(() => m.innerText = "Connection Failed");
     }
 
-    // --- DATA HANDLING ---
+    // --- DATA ---
     function loadData() {
-        fetch(DB+"/apps.json")
-            .then(r => r.json())
-            .then(d => {
-                const list = document.getElementById('listArea');
-                list.innerHTML = "";
-                if(d) {
-                    Object.keys(d).reverse().forEach(k => drawSlot(k, d[k]));
-                } else {
-                    list.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No slots found</p>";
-                }
-            });
+        fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
+            const l = document.getElementById('listArea'); l.innerHTML="";
+            if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
+            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Found</p>";
+        });
     }
 
     function createNew() {
-        const n = document.getElementById('newApp').value;
-        if(!n) return;
-        
-        // Random 8 char ID
+        const n = document.getElementById('newApp').value; if(!n) return;
         const id = 'slot_' + Math.random().toString(36).substr(2, 8);
         const data = { 
-            name: n, 
-            update: { active:false, title:"Update", msg:"Msg", btn_text:"Update", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF" },
-            inject: { active:false, zip:"", pass:"", ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF" } 
+            name:n, 
+            update:{active:false, title:"Update", msg:"New version available", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"},
+            inject:{active:false, zip:"", pass:"", ver:1, wipe:true, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"}
         };
-
-        fetch(DB+"/apps/"+id+".json", {method:'PUT', body:JSON.stringify(data)})
-            .then(() => {
-                document.getElementById('newApp').value = "";
-                loadData();
-            });
+        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
+            document.getElementById('newApp').value=""; loadData();
+        });
     }
 
     function saveSlot(id) {
-        const b = document.getElementById('btn-'+id);
-        b.innerText = "Saving...";
-        
+        const b = document.getElementById('btn-'+id); b.innerText="Saving...";
         const d = {
             name: document.getElementById('n-'+id).innerText,
             update: {
@@ -254,108 +281,93 @@
             inject: {
                 active: document.getElementById('ia-'+id).checked,
                 zip: document.getElementById('iz-'+id).value,
-                pass: document.getElementById('pw-'+id).value, // Password Key
+                pass: document.getElementById('pw-'+id).value, // Password for decryption
                 ver: parseInt(document.getElementById('iv-'+id).value),
+                wipe: document.getElementById('iw-'+id).checked,
                 bg: document.getElementById('ibg-'+id).value, txt: document.getElementById('itx-'+id).value, prog: document.getElementById('ipc-'+id).value
             }
         };
-
-        fetch(DB+"/apps/"+id+".json", {method:'PUT', body:JSON.stringify(d)})
-            .then(() => {
-                b.innerText = "SAVED"; b.style.background = "#34C759";
-                setTimeout(() => { b.innerText="SAVE CHANGES"; b.style.background=""; }, 1500);
-            });
+        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
+            b.innerText="Saved!"; b.style.background="#34C759";
+            setTimeout(()=>{ b.innerText="Save Changes"; b.style.background=""; }, 1500);
+        });
     }
 
-    function delSlot(id) {
-        if(confirm("Permanently delete this slot?")) {
-            fetch(DB+"/apps/"+id+".json", {method:'DELETE'}).then(loadData);
-        }
-    }
-
+    function delSlot(id) { if(confirm("Permanently delete?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
     function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied!"); }
 
-    // --- GITHUB INTEGRATION ---
+    // --- GITHUB ---
     function openGhSettings() {
         document.getElementById('ghToken').value = localStorage.getItem('gh_t')||'';
         document.getElementById('ghOwner').value = localStorage.getItem('gh_o')||'';
         document.getElementById('ghRepo').value = localStorage.getItem('gh_r')||'';
-        document.getElementById('ghModal').style.display = 'flex';
+        document.getElementById('ghModal').style.display='flex';
     }
-    
     function saveGhSettings() {
         localStorage.setItem('gh_t', document.getElementById('ghToken').value.trim());
         localStorage.setItem('gh_o', document.getElementById('ghOwner').value.trim());
         localStorage.setItem('gh_r', document.getElementById('ghRepo').value.trim());
-        document.getElementById('ghModal').style.display = 'none';
+        document.getElementById('ghModal').style.display='none';
     }
-
-    function trigUp(id) {
-        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub first (Gear Icon)"); return; }
+    
+    function triggerUpload(id) {
+        if(!localStorage.getItem('gh_t')) { alert("Set GitHub first (Gear Icon)"); return; }
         const pass = document.getElementById('pw-'+id.split('-')[1]).value;
-        if(!pass) { alert("Enter a Secure Password first! Used for encryption."); return; }
-        
-        upId = id; 
-        document.getElementById('fileInput').click();
+        if(!pass) { alert("Enter a Password first! (Required for encryption)"); return; }
+        uploadTargetId = id; document.getElementById('fileInput').click();
     }
 
-    function handleFile(inp) {
+    function handleFileUpload(inp) {
         if(inp.files[0]) {
             const f = inp.files[0];
-            const slotId = upId.split('-')[1];
+            const slotId = uploadTargetId.split('-')[1];
             const pass = document.getElementById('pw-'+slotId).value;
-            const btn = document.getElementById(upId);
+            const btn = document.getElementById(uploadTargetId);
             
-            btn.innerText = "🔒"; 
+            btn.innerText = "🔒"; // Encrypting
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const rawData = new Uint8Array(e.target.result);
-                // XOR ENCRYPTION
-                for(let i=0; i<rawData.length; i++) {
-                    rawData[i] = rawData[i] ^ pass.charCodeAt(i % pass.length);
-                }
-                // Convert to Base64
-                let binary = '';
-                for (let i = 0; i < rawData.byteLength; i++) binary += String.fromCharCode(rawData[i]);
+            const r = new FileReader();
+            r.onload = function(e) {
+                const raw = new Uint8Array(e.target.result);
+                // XOR Encryption
+                for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ pass.charCodeAt(i % pass.length);
                 
-                uploadToGH(f.name, btoa(binary), btn, slotId);
+                let bin = '';
+                for(let i=0; i<raw.byteLength; i++) bin += String.fromCharCode(raw[i]);
+                uploadToGH(f.name, btoa(bin), btn, slotId);
             };
-            reader.readAsArrayBuffer(f);
+            r.readAsArrayBuffer(f);
         }
         inp.value = '';
     }
 
     function uploadToGH(name, content, btn, slotId) {
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
-        const sName = "enc_" + Date.now() + ".bin"; // Binary file (Hidden)
+        const sName = "enc_" + Date.now() + ".bin";
         
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
             method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ message:"Secure Upload", content:content })
         })
-        .then(res => res.json())
-        .then(d => {
+        .then(res=>res.json()).then(d=>{
             if(d.content) {
                 document.getElementById('iz-'+slotId).value = d.content.download_url;
-                btn.innerText = "✅"; setTimeout(() => btn.innerText="☁️", 2000);
-            } else { alert("Upload Failed: Check Token permissions"); btn.innerText="❌"; }
-        })
-        .catch(e => { alert(e); btn.innerText="❌"; });
+                btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️",2000);
+            } else { alert("Error: "+d.message); btn.innerText="❌"; }
+        }).catch(e=>{ alert(e); btn.innerText="❌"; });
     }
 
     function deleteFromGH(id) {
         if(!confirm("Delete file from GitHub?")) return;
         const url = document.getElementById('iz-'+id).value;
         if(!url) return;
-        
-        const filename = url.split('/').pop();
+        const name = url.split('/').pop();
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
         
-        fetch(`https://api.github.com/repos/${o}/${r}/contents/${filename}`, { headers: {'Authorization':`token ${t}`} })
+        fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, { headers: {'Authorization':`token ${t}`} })
         .then(r=>r.json()).then(d=>{
             if(d.sha) {
-                fetch(`https://api.github.com/repos/${o}/${r}/contents/${filename}`, {
+                fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, {
                     method:'DELETE', headers:{'Authorization':`token ${t}`, 'Content-Type':'application/json'},
                     body:JSON.stringify({message:"Deleted", sha:d.sha})
                 }).then(()=>{ alert("Deleted!"); document.getElementById('iz-'+id).value=""; });
@@ -363,51 +375,68 @@
         });
     }
 
-    // --- HTML RENDER ---
+    // --- COLOR ---
+    function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
+    function updCol() {
+        const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
+        document.getElementById('prevBox').style.background=hex; document.getElementById('hexTxt').innerText=hex;
+    }
+    function saveCol() { document.getElementById(actInp).value=document.getElementById('hexTxt').innerText; actCirc.style.background=document.getElementById('hexTxt').innerText; document.getElementById('pickerModal').style.display='none'; }
+
+    // --- RENDER ---
     function drawSlot(id, d) {
         const u = d.update||{}, i = d.inject||{};
-        
-        const html = `
-        <div class="slot">
-            <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
-                <div><b id="n-${id}" style="font-size:16px;">${d.name}</b><br><span class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id}</span></div>
-                <div style="font-size:20px;">⚙️</div>
+        const h = `
+        <div class="card slot">
+            <div class="slot-header" onclick="document.getElementById('b_${id}').classList.toggle('show')">
+                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id}</div></div>
+                <div style="font-size:18px; color:var(--primary);">⚙️</div>
             </div>
             <div class="slot-body" id="b_${id}">
                 
-                <div class="label">Update System</div>
-                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
-                <input class="inp" id="ut-${id}" value="${u.title}" placeholder="Title">
-                <input class="inp" id="um-${id}" value="${u.msg}" placeholder="Message">
-                <input class="inp" id="ubt-${id}" value="${u.btn_text}" placeholder="Button Text">
-                <input class="inp" id="uu-${id}" value="${u.url}" placeholder="URL">
+                <div class="section-title">Update System</div>
+                <div class="form-row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
                 
-                <!-- Hidden Color Inputs (To keep UI Simple) -->
-                <input type="hidden" id="ubg-${id}" value="${u.bg}"><input type="hidden" id="utx-${id}" value="${u.txt}"><input type="hidden" id="ubc-${id}" value="${u.btn}">
+                <input class="input-std" id="ut-${id}" value="${u.title}" placeholder="Title">
+                <input class="input-std" id="um-${id}" value="${u.msg}" placeholder="Message">
+                <input class="input-std" id="ubt-${id}" value="${u.btn_text}" placeholder="Btn Text">
+                <input class="input-std" id="uu-${id}" value="${u.url}" placeholder="URL">
 
-                <hr style="border:0; border-top:1px solid #eee; margin:25px 0;">
-
-                <div class="label">Secure Injection</div>
-                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
-                
-                <input class="inp" id="pw-${id}" value="${i.pass}" placeholder="Set ZIP Password (Key)">
-                
-                <div class="upload-row">
-                    <button class="btn-icon btn-up" id="up-${id}" onclick="triggerUpload('up-${id}')">☁️</button>
-                    <input class="inp" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Encrypted Link (Auto)">
-                    <button class="btn-icon btn-tr" onclick="deleteFromGH('${id}')">🗑️</button>
+                <div class="color-row">
+                    <div class="color-item"><div class="color-circle" style="background:${u.bg}" onclick="showPicker('ubg-${id}',this)"></div><span class="color-label">BG</span><input type="hidden" id="ubg-${id}" value="${u.bg}"></div>
+                    <div class="color-item"><div class="color-circle" style="background:${u.txt}" onclick="showPicker('utx-${id}',this)"></div><span class="color-label">TXT</span><input type="hidden" id="utx-${id}" value="${u.txt}"></div>
+                    <div class="color-item"><div class="color-circle" style="background:${u.btn}" onclick="showPicker('ubc-${id}',this)"></div><span class="color-label">BTN</span><input type="hidden" id="ubc-${id}" value="${u.btn}"></div>
                 </div>
 
-                <input type="number" class="inp" id="iv-${id}" value="${i.ver}" placeholder="Version Code" style="margin-top:10px">
-                
-                <input type="hidden" id="ibg-${id}" value="${i.bg}"><input type="hidden" id="itx-${id}" value="${i.txt}"><input type="hidden" id="ipc-${id}" value="${i.prog}">
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
 
-                <button class="btn-main" id="btn-${id}" onclick="saveSlot('${id}')">SAVE CHANGES</button>
-                <button class="btn-text" onclick="delSlot('${id}')">Delete Slot</button>
+                <div class="section-title">Data Injection</div>
+                <div class="form-row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
+                <div class="form-row"><span>Wipe Data</span><label class="switch"><input type="checkbox" id="iw-${id}" ${i.wipe?'checked':''}><span class="slider"></span></label></div>
+
+                <input class="input-std" id="pw-${id}" value="${i.pass}" placeholder="Set Encrypt Password">
+
+                <div class="upload-container">
+                    <button class="btn-icon btn-cloud" id="up-${id}" onclick="triggerUpload('up-${id}')">☁️</button>
+                    <input class="input-std url-input" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Encrypted Link">
+                    <button class="btn-icon btn-trash" onclick="deleteFromGH('${id}')">🗑️</button>
+                </div>
+
+                <input type="number" class="input-std" id="iv-${id}" value="${i.ver}" placeholder="Ver Code" style="margin-top:10px">
+
+                <div class="color-row">
+                    <div class="color-item"><div class="color-circle" style="background:${i.bg}" onclick="showPicker('ibg-${id}',this)"></div><span class="color-label">BG</span><input type="hidden" id="ibg-${id}" value="${i.bg}"></div>
+                    <div class="color-item"><div class="color-circle" style="background:${i.txt}" onclick="showPicker('itx-${id}',this)"></div><span class="color-label">TXT</span><input type="hidden" id="itx-${id}" value="${i.txt}"></div>
+                    <div class="color-item"><div class="color-circle" style="background:${i.prog}" onclick="showPicker('ipc-${id}',this)"></div><span class="color-label">LOAD</span><input type="hidden" id="ipc-${id}" value="${i.prog}"></div>
+                </div>
+
+                <button class="btn-save" id="btn-${id}" onclick="saveSlot('${id}')">Save Changes</button>
+                <button class="btn-delete" onclick="delSlot('${id}')">Delete Slot</button>
             </div>
         </div>`;
-        document.getElementById('listArea').insertAdjacentHTML('beforeend', html);
+        document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
     }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: " + t); }
 </script>
 </body>
 </html>
