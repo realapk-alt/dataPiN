@@ -5,120 +5,243 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CyberX Pro Panel</title>
     <style>
-        :root { --bg: #e0e5ec; --primary: #007AFF; --text: #4a4a4a; --shadow-light: #ffffff; --shadow-dark: #a3b1c6; }
-        body { background: var(--bg); font-family: -apple-system, sans-serif; padding: 20px; color: var(--text); -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --primary: #007AFF;
+            --text-main: #1d1d1f;
+            --text-sec: #86868b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh; margin: 0; padding: 15px;
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* --- LOGIN --- */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-card { padding: 30px 25px; width: 85%; max-width: 320px; text-align: center; background: white; border-radius: 20px; }
+        .glass-input { width: 100%; padding: 14px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 12px; font-size: 16px; outline: none; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
+        .btn-glass { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+        /* --- DASHBOARD --- */
+        .container { max-width: 600px; margin: 0 auto; display: none; padding-bottom: 80px; }
+        .header { text-align: center; margin-bottom: 25px; position: relative; }
+        .settings-btn { position: absolute; right: 0; top: 0; background: white; width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
+
+        /* --- CREATE --- */
+        .create-box { display: flex; gap: 10px; padding: 10px; margin-bottom: 20px; align-items: center; background: rgba(255,255,255,0.5); }
+        .input-create { flex: 1; border: none; background: transparent; padding: 10px; font-size: 16px; outline: none; min-width: 0; }
+        .btn-add { width: 40px; height: 40px; border-radius: 12px; background: var(--primary); color: white; border: none; font-size: 24px; cursor: pointer; flex-shrink: 0; }
+
+        /* --- SLOTS --- */
+        .slot { margin-bottom: 15px; overflow: hidden; transition: 0.3s; background: rgba(255,255,255,0.7); }
+        .slot-head { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .slot-name { font-size: 16px; font-weight: 700; color: #333; }
+        .slot-id { font-family: monospace; font-size: 11px; background: rgba(0,0,0,0.06); padding: 3px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; color: #555; }
         
-        /* NEUMORPHISM STYLE */
-        .neu-card { border-radius: 20px; background: var(--bg); box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light); padding: 25px; margin-bottom: 25px; }
-        .neu-btn { border-radius: 50px; background: var(--bg); box-shadow: 6px 6px 10px var(--shadow-dark), -6px -6px 10px var(--shadow-light); color: var(--primary); font-weight: bold; border: none; padding: 12px 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .neu-btn:active { box-shadow: inset 6px 6px 10px var(--shadow-dark), inset -6px -6px 10px var(--shadow-light); }
-        .neu-input { width: 100%; background: var(--bg); border: none; box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); border-radius: 10px; padding: 15px; outline: none; color: var(--text); font-weight: 500; margin-bottom: 10px; box-sizing: border-box; }
+        .slot-body { padding: 15px; display: none; border-top: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.4); }
+        .show { display: block; }
 
-        /* HEADER */
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { font-size: 26px; margin: 0; color: #333; letter-spacing: -1px; }
-        .badge { font-size: 10px; background: var(--primary); color: white; padding: 3px 8px; border-radius: 10px; vertical-align: middle; }
+        /* --- CONTROLS --- */
+        .sec-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 8px 0; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .row span { font-weight: 600; font-size: 14px; }
 
+        .inp-line { width: 100%; border: none; background: white; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 8px; outline: none; color: var(--primary); box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* UPLOAD GROUP */
+        .upload-group { display: flex; gap: 8px; align-items: center; width: 100%; margin-bottom: 8px; }
+        .btn-upload { background: #34C759; color: white; border: none; border-radius: 10px; width: 44px; height: 42px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); flex-shrink: 0; }
+        
         /* SWITCH */
-        .switch-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d9e6; border-radius: 34px; box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light); transition: .4s; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: var(--primary); border-radius: 50%; transition: .4s; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
-        input:checked + .slider:before { transform: translateX(20px); background: #34C759; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.2); transition: .3s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #34C759; }
+        input:checked + .slider:before { transform: translateX(18px); }
 
         /* COLORS */
-        .color-row { display: flex; gap: 12px; justify-content: flex-end; margin-top: 15px; }
-        .c-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); border: 2px solid var(--bg); }
+        .color-row { display: flex; gap: 10px; justify-content: flex-end; margin: 15px 0; flex-wrap: wrap; }
+        .c-circle { width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; }
+        .c-txt { font-size: 9px; text-align: center; color: #666; margin-top: 4px; font-weight: 600; display: block; }
 
-        /* LOGIN */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(224, 229, 236, 0.95); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { width: 300px; text-align: center; }
+        /* ACTIONS */
+        .btn-save { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 700; margin-top: 15px; cursor: pointer; }
+        .btn-del { width: 100%; padding: 10px; background: transparent; color: #FF3B30; border: none; font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 5px; }
 
-        /* MODAL */
-        #pickerModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 10000; display: none; align-items: center; justify-content: center; }
-        .p-card { background: var(--bg); padding: 20px; border-radius: 20px; width: 300px; text-align: center; }
-        input[type=range] { width: 100%; margin: 10px 0; accent-color: var(--primary); }
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 10000; display: none; align-items: center; justify-content: center; }
+        .modal-box { width: 85%; max-width: 300px; padding: 25px; text-align: center; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .p-view { height: 50px; border-radius: 12px; margin-bottom: 15px; border: 4px solid #f2f2f7; }
+        input[type=range] { width: 100%; height: 6px; border-radius: 3px; outline: none; margin: 12px 0; -webkit-appearance: none; background: #eee; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+        #rngR { background: linear-gradient(to right, #ffcfcf, #ff0000); } #rngG { background: linear-gradient(to right, #cfffcf, #00ff00); } #rngB { background: linear-gradient(to right, #cfcfff, #0000ff); }
 
     </style>
 </head>
 <body>
 
-    <!-- LOGIN -->
-    <div id="loginOverlay">
-        <div class="neu-card login-box">
-            <h2>🔒 Admin</h2>
-            <input type="password" id="pass" class="neu-input" placeholder="Access Key" style="text-align:center">
-            <button class="neu-btn" style="width:100%; margin-top:15px;" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; font-size:12px; margin-top:10px;"></p>
+    <!-- GITHUB MODAL -->
+    <div id="ghModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin:0 0 10px 0;">GitHub Setup</h3>
+            <p style="font-size:12px; color:gray; margin-bottom:15px;">Required for uploading files</p>
+            <input type="text" id="ghToken" class="glass-input" placeholder="Token (ghp_...)" style="background:#f9f9f9">
+            <input type="text" id="ghOwner" class="glass-input" placeholder="Username" style="background:#f9f9f9">
+            <input type="text" id="ghRepo" class="glass-input" placeholder="Repo Name" style="background:#f9f9f9">
+            <div style="display:flex; gap:10px;">
+                <button onclick="document.getElementById('ghModal').style.display='none'" class="btn-glass" style="background:#eee; color:black;">Close</button>
+                <button onclick="saveGhSettings()" class="btn-glass">Save</button>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div class="container" id="mainUI" style="display:none; max-width:600px; margin:0 auto;">
+    <!-- LOGIN -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2 style="margin:0 0 5px 0;">CyberX Admin</h2>
+            <p style="color:gray; margin-bottom:20px;">Enter Access Key</p>
+            <input type="password" id="pass" class="glass-input" placeholder="••••••••">
+            <button class="btn-glass" onclick="doLogin()">Unlock</button>
+            <p id="msg" style="color:red; margin-top:10px; font-size:12px;"></p>
+        </div>
+    </div>
+
+    <!-- COLOR PICKER -->
+    <div id="pickerModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin:0 0 15px 0;">Select Color</h3>
+            <div class="p-view" id="prevBox"></div>
+            <div id="hexTxt" style="font-family:monospace; margin-bottom:15px; font-weight:bold;">#000000</div>
+            <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
+            <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
+            <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="document.getElementById('pickerModal').style.display='none'" class="btn-glass" style="background:#eee; color:black;">Cancel</button>
+                <button onclick="saveCol()" class="btn-glass">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="container" id="mainUI">
         <div class="header">
-            <h1>CyberX <span class="badge">PRO</span></h1>
+            <h1>CyberX Panel</h1>
+            <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
-        <div class="neu-card">
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="newApp" class="neu-input" placeholder="New App Name..." style="margin:0;">
-                <button class="neu-btn" onclick="createNew()" style="border-radius:10px; font-size:20px;">+</button>
-            </div>
+        <div class="create-box glass">
+            <input type="text" id="newApp" class="input-create" placeholder="App Name (e.g. Mod v2)">
+            <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
         <div id="listArea"></div>
     </div>
 
-    <!-- COLOR PICKER (Hidden) -->
-    <div id="pickerModal"><div class="neu-card p-card">
-        <h3>Pick Color</h3>
-        <div id="prevBox" style="height:50px; border-radius:10px; margin-bottom:10px; box-shadow:inset 3px 3px 6px #a3b1c6;"></div>
-        <div id="hexTxt" style="font-family:monospace; margin-bottom:10px;">#000000</div>
-        <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
-        <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
-        <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
-        <button class="neu-btn" style="width:100%; margin-top:10px;" onclick="saveCol()">APPLY</button>
-    </div></div>
+    <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload(this)">
 
 <script>
     const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let actInp, actCirc;
+    let actInp=null, actCirc=null, uploadTargetId=null;
 
-    // LOGIN
-    const pInp = document.getElementById('pass');
-    pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
-    function doLogin() {
-        const p = pInp.value.trim();
-        fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
-            if(String(d)===p) { document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainUI').style.display='block'; loadData(); }
-            else document.getElementById('msg').innerText="Wrong Key";
-        });
+    // --- GITHUB ---
+    function openGhSettings() {
+        document.getElementById('ghToken').value = localStorage.getItem('gh_token')||'';
+        document.getElementById('ghOwner').value = localStorage.getItem('gh_owner')||'';
+        document.getElementById('ghRepo').value = localStorage.getItem('gh_repo')||'';
+        document.getElementById('ghModal').style.display='flex';
+    }
+    function saveGhSettings() {
+        localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
+        localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
+        localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
+        document.getElementById('ghModal').style.display='none';
+    }
+    function triggerUpload(id) {
+        if(!localStorage.getItem('gh_token')) { alert("Setup GitHub first (Click Gear Icon)"); return; }
+        uploadTargetId = id; document.getElementById('fileInput').click();
+    }
+    function handleFileUpload(inp) {
+        if(inp.files[0]) {
+            const f = inp.files[0];
+            const btn = document.getElementById(uploadTargetId).previousElementSibling;
+            btn.innerText = "⏳";
+            const r = new FileReader();
+            r.onload = e => uploadToGH(f.name, e.target.result.split(',')[1], btn);
+            r.readAsDataURL(f);
+        }
+        inp.value = '';
+    }
+    function uploadToGH(name, content, btn) {
+        const t = localStorage.getItem('gh_token'), o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo');
+        const safeName = "data_" + Date.now() + "." + name.split('.').pop();
+        fetch(`https://api.github.com/repos/${o}/${r}/contents/${safeName}`, {
+            method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message:"Auto-Upload", content:content })
+        })
+        .then(res => res.json())
+        .then(d => {
+            if(d.content) {
+                document.getElementById(uploadTargetId).value = d.content.download_url;
+                btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️",2000);
+            } else { alert("Error: "+d.message); btn.innerText="❌"; }
+        }).catch(e=>{ alert(e); btn.innerText="❌"; });
     }
 
-    // LOGIC
+    // --- LOGIN ---
+    const pInp = document.getElementById('pass');
+    pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
+    pInp.addEventListener('input', () => document.getElementById('msg').innerText="");
+
+    function doLogin() {
+        const p = pInp.value.trim();
+        if(!p) { document.getElementById('msg').innerText="Enter password"; return; }
+        document.getElementById('msg').innerText="Checking...";
+        fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
+            if(String(d) === p) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainUI').style.display = 'block';
+                loadData();
+            } else document.getElementById('msg').innerText = "Wrong Password";
+        }).catch(()=>document.getElementById('msg').innerText = "Connection Error");
+    }
+
+    // --- DATA ---
     function loadData() {
         fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
-            const l = document.getElementById('listArea'); l.innerHTML="";
+            const l = document.getElementById('listArea'); l.innerHTML = "";
             if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
+            else l.innerHTML = "<p style='text-align:center; color:#666; margin-top:50px'>No slots found</p>";
         });
     }
 
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
         const id = Array.from({length:32},()=>Math.floor(Math.random()*36).toString(36)).join('');
-        const data = { 
-            name:n, 
-            update:{active:false, title:"Update", msg:"Msg", btn_text:"Update Now", url:"", bg:"#e0e5ec", txt:"#4a4a4a", btn:"#007AFF"},
-            inject:{active:false, zip:"", ver:1, wipe:true, bg:"#e0e5ec", txt:"#4a4a4a", prog:"#007AFF"}
-        };
-        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
+        const d = { name:n, update:{active:false, title:"Update", msg:"New version available", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, zip:"", ver:1, wipe:true, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
     }
 
     function saveSlot(id) {
-        const b=document.getElementById('btn-'+id); b.innerText="Saving...";
+        const b = document.getElementById('btn-'+id); b.innerText = "Saving...";
         const d = {
             name: document.getElementById('n-'+id).innerText,
             update: {
@@ -127,89 +250,88 @@
                 msg: document.getElementById('um-'+id).value,
                 btn_text: document.getElementById('ubt-'+id).value,
                 url: document.getElementById('uu-'+id).value,
-                bg: document.getElementById('ubg-'+id).value, txt: document.getElementById('utx-'+id).value, btn: document.getElementById('ubc-'+id).value
+                bg: document.getElementById('ubg-'+id).value,
+                txt: document.getElementById('utx-'+id).value,
+                btn: document.getElementById('ubc-'+id).value
             },
             inject: {
                 active: document.getElementById('ia-'+id).checked,
                 zip: document.getElementById('iz-'+id).value,
                 ver: parseInt(document.getElementById('iv-'+id).value),
-                wipe: document.getElementById('iw-'+id).checked, // Wipe Data
-                bg: document.getElementById('ibg-'+id).value, txt: document.getElementById('itx-'+id).value, prog: document.getElementById('ipc-'+id).value
+                wipe: document.getElementById('iw-'+id).checked,
+                bg: document.getElementById('ibg-'+id).value,
+                txt: document.getElementById('itx-'+id).value,
+                prog: document.getElementById('ipc-'+id).value
             }
         };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
-            b.innerText="SAVED"; setTimeout(()=>b.innerText="SAVE CHANGES",1500);
+            b.innerText="Saved!"; b.style.background="#34C759";
+            setTimeout(()=>{ b.innerText="Save Changes"; b.style.background=""; }, 1500);
         });
     }
 
-    function delSlot(id) { if(confirm("Delete?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("Copied ID"); }
+    function delSlot(id) { if(confirm("Delete this slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied!"); }
 
-    // RENDER
-    function drawSlot(id, d) {
-        const u=d.update||{}, i=d.inject||{};
-        const h = `
-        <div class="neu-card">
-            <div onclick="document.getElementById('b_${id}').classList.toggle('show')" style="display:flex; justify-content:space-between; cursor:pointer;">
-                <div><b id="n-${id}">${d.name}</b><br><span style="font-size:10px; color:#888;" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id.substring(0,8)}...</span></div>
-                <span>⚙️</span>
-            </div>
-            <div id="b_${id}" style="display:none; margin-top:20px; border-top:1px solid #ccc; padding-top:15px;">
-                
-                <small style="font-weight:bold; color:#888;">UPDATE SYSTEM</small>
-                <div class="switch-row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
-                <input class="neu-input" id="ut-${id}" value="${u.title}" placeholder="Title">
-                <input class="neu-input" id="um-${id}" value="${u.msg}" placeholder="Message">
-                <input class="neu-input" id="ubt-${id}" value="${u.btn_text}" placeholder="Btn Text">
-                <input class="neu-input" id="uu-${id}" value="${u.url}" placeholder="URL">
-                
-                <!-- Color Hidden Inputs Update -->
-                <input type="hidden" id="ubg-${id}" value="${u.bg}"><input type="hidden" id="utx-${id}" value="${u.txt}"><input type="hidden" id="ubc-${id}" value="${u.btn}">
-
-                <hr style="margin:20px 0; border:0; border-top:1px solid #ccc;">
-
-                <small style="font-weight:bold; color:#888;">DATA INJECTION</small>
-                <div class="switch-row"><span>Auto Load</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
-                
-                <!-- WIPE DATA SWITCH -->
-                <div class="switch-row"><span>Wipe Old Data</span><label class="switch"><input type="checkbox" id="iw-${id}" ${i.wipe?'checked':''}><span class="slider"></span></label></div>
-
-                <input class="neu-input" id="iz-${id}" value="${i.zip}" placeholder="ZIP URL">
-                <input type="number" class="neu-input" id="iv-${id}" value="${i.ver}" placeholder="Ver Code">
-
-                <!-- Color Hidden Inputs Inject -->
-                <input type="hidden" id="ibg-${id}" value="${i.bg}"><input type="hidden" id="itx-${id}" value="${i.txt}"><input type="hidden" id="ipc-${id}" value="${i.prog}">
-
-                <div class="color-row">
-                    <div class="c-dot" style="background:${i.bg}" onclick="showPicker('ibg-${id}',this)"></div>
-                    <div class="c-dot" style="background:${i.txt}" onclick="showPicker('itx-${id}',this)"></div>
-                    <div class="c-dot" style="background:${i.prog}" onclick="showPicker('ipc-${id}',this)"></div>
-                </div>
-
-                <button class="neu-btn" id="btn-${id}" style="width:100%; margin-top:20px;" onclick="saveSlot('${id}')">SAVE CHANGES</button>
-                <button class="neu-btn" style="width:100%; margin-top:10px; color:red;" onclick="delSlot('${id}')">Delete</button>
-            </div>
-        </div>`;
-        l.insertAdjacentHTML('beforeend', h);
-    }
-
-    function showPicker(inp, el) {
-        actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex';
-    }
+    // --- COLOR ---
+    function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
     function updCol() {
-        const hex = `rgb(${document.getElementById('rngR').value},${document.getElementById('rngG').value},${document.getElementById('rngB').value})`;
-        document.getElementById('prevBox').style.background=hex; 
+        const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
+        document.getElementById('prevBox').style.background=hex; document.getElementById('hexTxt').innerText=hex;
     }
     function saveCol() {
-        // Convert RGB to Hex for storage
-        const r = parseInt(document.getElementById('rngR').value);
-        const g = parseInt(document.getElementById('rngG').value);
-        const b = parseInt(document.getElementById('rngB').value);
-        const hex = "#" + ((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1).toUpperCase();
-        
-        document.getElementById(actInp).value = hex;
-        actCirc.style.background = hex;
+        document.getElementById(actInp).value = document.getElementById('hexTxt').innerText;
+        actCirc.style.background = document.getElementById('hexTxt').innerText;
         document.getElementById('pickerModal').style.display='none';
+    }
+
+    // --- DRAW ---
+    function drawSlot(id, d) {
+        const u = d.update||{}, i = d.inject||{};
+        const h = `
+        <div class="slot glass">
+            <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
+                <div><div class="slot-name" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id.substring(0,12)}...</div></div>
+                <div style="font-size:20px;">⚙️</div>
+            </div>
+            <div class="slot-body" id="b_${id}">
+                <div class="sec-label">UPDATE SYSTEM</div>
+                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
+                
+                <input class="inp-line" id="ut-${id}" value="${u.title}" placeholder="Title">
+                <input class="inp-line" id="um-${id}" value="${u.msg}" placeholder="Message">
+                <input class="inp-line" id="ubt-${id}" value="${u.btn_text||'Update Now'}" placeholder="Button Text">
+                <input class="inp-line" id="uu-${id}" value="${u.url}" placeholder="URL">
+
+                <div class="color-row">
+                    <div style="text-align:center"><div class="c-circle" style="background:${u.bg}" onclick="showPicker('ubg-${id}',this)"></div><span class="c-txt">BG</span><input type="hidden" id="ubg-${id}" value="${u.bg}"></div>
+                    <div style="text-align:center"><div class="c-circle" style="background:${u.txt}" onclick="showPicker('utx-${id}',this)"></div><span class="c-txt">TXT</span><input type="hidden" id="utx-${id}" value="${u.txt}"></div>
+                    <div style="text-align:center"><div class="c-circle" style="background:${u.btn}" onclick="showPicker('ubc-${id}',this)"></div><span class="c-txt">BTN</span><input type="hidden" id="ubc-${id}" value="${u.btn}"></div>
+                </div>
+
+                <hr style="margin:20px 0; border:0; border-top:1px solid rgba(0,0,0,0.05)">
+
+                <div class="sec-label">DATA INJECTION</div>
+                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
+                <div class="row"><span>Wipe Data</span><label class="switch"><input type="checkbox" id="iw-${id}" ${i.wipe?'checked':''}><span class="slider"></span></label></div>
+
+                <div class="upload-group">
+                    <button class="btn-upload" onclick="triggerUpload('iz-${id}')">☁️</button>
+                    <input class="inp-line" style="margin-bottom:0" id="iz-${id}" value="${i.zip}" placeholder="ZIP URL">
+                </div>
+                <input class="inp-line" type="number" id="iv-${id}" value="${i.ver}" placeholder="Ver Code">
+
+                <div class="color-row">
+                    <div style="text-align:center"><div class="c-circle" style="background:${i.bg}" onclick="showPicker('ibg-${id}',this)"></div><span class="c-txt">BG</span><input type="hidden" id="ibg-${id}" value="${i.bg}"></div>
+                    <div style="text-align:center"><div class="c-circle" style="background:${i.txt}" onclick="showPicker('itx-${id}',this)"></div><span class="c-txt">TXT</span><input type="hidden" id="itx-${id}" value="${i.txt}"></div>
+                    <div style="text-align:center"><div class="c-circle" style="background:${i.prog}" onclick="showPicker('ipc-${id}',this)"></div><span class="c-txt">LOAD</span><input type="hidden" id="ipc-${id}" value="${i.prog}"></div>
+                </div>
+
+                <button class="btn-save" id="btn-${id}" onclick="saveSlot('${id}')">Save Changes</button>
+                <button class="btn-del" onclick="delSlot('${id}')">Delete Slot</button>
+            </div>
+        </div>`;
+        document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
     }
 </script>
 </body>
