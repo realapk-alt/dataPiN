@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberX Control</title>
+    <title>CyberX Admin</title>
     <style>
-        /* iOS THEME */
-        :root { --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --text: #000; --border: #C6C6C8; }
+        :root { --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --text: #000; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); }
         
         /* LOGIN */
         #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F2F2F7; z-index: 999; display: flex; align-items: center; justify-content: center; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 16px; box-sizing: border-box; }
+        .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 16px; outline: none; }
         .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; }
 
-        /* DASHBOARD */
+        /* MAIN */
         .container { max-width: 600px; margin: 0 auto; display: none; padding-bottom: 80px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .settings-btn { background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
 
         /* CARDS */
         .card { background: var(--card); border-radius: 16px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .create-box { padding: 12px; display: flex; gap: 10px; }
-        .input-create { flex: 1; border: none; background: #F9F9F9; padding: 12px; border-radius: 10px; font-size: 16px; }
+        .create-box { padding: 12px; display: flex; gap: 10px; background: white; border-radius: 16px; margin-bottom: 20px; }
+        .input-create { flex: 1; border: none; background: #F9F9F9; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; }
         .btn-add { width: 44px; height: 44px; background: var(--primary); color: white; border-radius: 12px; border: none; font-size: 24px; cursor: pointer; }
 
         /* SLOTS */
@@ -33,7 +32,7 @@
 
         /* CONTROLS */
         .label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 8px 0; display: block; }
-        .inp-line { width: 100%; padding: 12px; background: #f2f2f7; border: none; border-radius: 10px; font-size: 14px; margin-bottom: 10px; box-sizing: border-box; color: var(--primary); font-weight: 600; }
+        .inp-line { width: 100%; padding: 12px; background: #f2f2f7; border: none; border-radius: 10px; font-size: 14px; margin-bottom: 10px; box-sizing: border-box; color: var(--primary); font-weight: 600; outline: none; }
         
         .upload-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .btn-icon { width: 46px; height: 44px; border-radius: 10px; border: none; color: white; font-size: 18px; cursor: pointer; }
@@ -79,6 +78,7 @@
     <div id="loginOverlay">
         <div class="login-box">
             <h2>Admin Login</h2>
+            <p style="color:gray; font-size:14px; margin-bottom:20px;">Enter Access Key</p>
             <input type="password" id="pass" class="login-inp" placeholder="Access Key">
             <button class="login-btn" onclick="doLogin()">Unlock</button>
             <p id="msg" style="color:red; margin-top:10px;"></p>
@@ -108,7 +108,7 @@
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
-        <div class="card create-box">
+        <div class="create-box">
             <input type="text" id="newApp" class="input-create" placeholder="New App Name...">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
@@ -183,7 +183,7 @@
     }
 
     function delSlot(id) { if(confirm("Delete Slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: "+t); }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied!"); }
 
     // GITHUB UPLOAD (ENCRYPTED)
     function openGhSettings() {
@@ -202,7 +202,7 @@
     function triggerUpload(id) {
         if(!localStorage.getItem('gh_t')) { alert("Configure GitHub first (Gear Icon)"); return; }
         const pass = document.getElementById('pw-'+id.split('-')[1]).value;
-        if(!pass) { alert("Please enter a 'Zip Password' first! This will be used to encrypt the file."); return; }
+        if(!pass) { alert("Enter a 'Zip Password' first! This key locks the file."); return; }
         upId = id; document.getElementById('fileInput').click();
     }
 
@@ -213,17 +213,17 @@
             const pass = document.getElementById('pw-'+slotId).value;
             const btn = document.getElementById(upId);
             
-            btn.innerText = "🔒"; // Encrypting
+            btn.innerText = "🔒"; 
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
-                // XOR ENCRYPTION
+                // Simple XOR Encryption
                 for(let i=0; i<raw.length; i++) {
                     raw[i] = raw[i] ^ pass.charCodeAt(i % pass.length);
                 }
                 
-                // Convert to Binary String for btoa
+                // Convert to Base64 manually to avoid stack overflow
                 let binary = '';
                 for(let i=0; i<raw.byteLength; i++) {
                     binary += String.fromCharCode(raw[i]);
@@ -239,8 +239,7 @@
 
     function uploadToGH(name, content, btn, slotId) {
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
-        // Extension must be .zip for GitHub/App logic, but content is encrypted
-        const sName = "data_" + Date.now() + ".zip"; 
+        const sName = "locked_" + Date.now() + ".zip"; 
         
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
             method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
@@ -250,7 +249,7 @@
             if(d.content) {
                 document.getElementById('iz-'+slotId).value = d.content.download_url;
                 btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️", 2000);
-            } else { alert("Upload Failed: Check Token Scope"); btn.innerText="❌"; }
+            } else { alert("Upload Failed: Check Token/Repo"); btn.innerText="❌"; }
         }).catch(e=>{ alert("Error: "+e); btn.innerText="❌"; });
     }
 
@@ -272,6 +271,14 @@
         });
     }
 
+    // --- COLOR ---
+    function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
+    function updCol() {
+        const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
+        document.getElementById('prevBox').style.background=hex; document.getElementById('hexTxt').innerText=hex;
+    }
+    function saveCol() { document.getElementById(actInp).value=document.getElementById('hexTxt').innerText; actCirc.style.background=document.getElementById('hexTxt').innerText; document.getElementById('pickerModal').style.display='none'; }
+
     // --- RENDER ---
     function drawSlot(id, d) {
         const u = d.update||{}, i = d.inject||{};
@@ -282,6 +289,7 @@
                 <div style="font-size:18px; color:var(--primary);">⚙️</div>
             </div>
             <div class="slot-body" id="b_${id}">
+                
                 <div class="label">Update System</div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:10px">
                     <span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label>
@@ -325,15 +333,7 @@
         </div>`;
         document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
     }
-
-    // --- COLOR ---
-    function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
-    function updCol() {
-        const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
-        document.getElementById('prevBox').style.background=hex; document.getElementById('hexTxt').innerText=hex;
-    }
-    function saveCol() { document.getElementById(actInp).value=document.getElementById('hexTxt').innerText; actCirc.style.background=document.getElementById('hexTxt').innerText; document.getElementById('pickerModal').style.display='none'; }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("Copied ID"); }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: " + t); }
 </script>
 </body>
 </html>
