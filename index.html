@@ -9,11 +9,11 @@
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: var(--text); -webkit-user-select:none; }
         
         /* LOGIN */
-        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:#F2F2F7; z-index:999; display:flex; align-items:center; justify-content:center; }
-        .login-box { background:white; padding:30px; border-radius:20px; width:80%; max-width:320px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1); }
-        .login-inp { width:100%; padding:15px; margin:20px 0; border:1px solid #ddd; border-radius:12px; text-align:center; font-size:16px; outline:none; }
-        .login-btn { width:100%; padding:15px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px; }
-
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F2F2F7; z-index: 999; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 16px; outline: none; }
+        .login-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; }
+        
         /* HEADER */
         .container { max-width:600px; margin:0 auto; display:none; padding-bottom:100px; }
         .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:10px; }
@@ -83,7 +83,7 @@
         <div class="login-box">
             <h2>Admin Login</h2>
             <input type="password" id="pass" class="login-inp" placeholder="Access Key">
-            <button class="login-btn" onclick="doLogin()">Unlock</button>
+            <button class="login-btn" onclick="doLogin()">ACCESS</button>
             <p id="msg" style="color:red; margin-top:10px;"></p>
         </div>
     </div>
@@ -105,7 +105,7 @@
     <!-- MAIN UI -->
     <div class="container" id="mainUI">
         <div class="header">
-            <div class="title">CyberX Panel</div>
+            <div class="title">CyberX - 🪷</div>
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
@@ -239,7 +239,7 @@
         .then(res=>res.json()).then(d=>{
             if(d.content) {
                 document.getElementById('iz-'+slotId).value = d.content.download_url;
-                btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️", 2000);
+                btn.innerText = "✅"; setTimeout(()=>btn.innerText="📂", 2000);
             } else { alert("Error: "+d.message); btn.innerText="❌"; }
         }).catch(e=>{ alert("Error: "+e); btn.innerText="❌"; });
     }
@@ -277,12 +277,12 @@
         <div class="slot">
             <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
                 <div><div class="slot-name" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id}</div></div>
-                <div style="font-size:18px; color:var(--primary);">⚙️</div>
+                <div style="font-size:15px; color:var(--primary);">edit</div>
             </div>
             <div class="slot-body" id="b_${id}">
                 <div class="lbl">Update System</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
-                <input class="inp" id="ut-${id}" value="${u.title}" placeholder="Title">
+                <input class="inp" id="ut-${id}" value="${u.title}" placeholder="Header">
                 <input class="inp" id="um-${id}" value="${u.msg}" placeholder="Message">
                 <input class="inp" id="ubt-${id}" value="${u.btn_text}" placeholder="Btn Text">
                 <input class="inp" id="uu-${id}" value="${u.url}" placeholder="URL">
@@ -301,8 +301,8 @@
                 <input class="inp" id="pw-${id}" value="${i.pass}" placeholder="Set Password (Required)">
                 
                 <div class="upload-grp">
-                    <button class="btn-icon" style="background:#34C759;" id="up-${id}" onclick="triggerUpload('up-${id}')">☁️</button>
-                    <input class="inp" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Encrypted Link">
+                    <button class="btn-icon" style="background:#34C759;" id="up-${id}" onclick="triggerUpload('up-${id}')">📂</button>
+                    <input class="inp" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Direct Data Link">
                     <button class="btn-icon" style="background:#FF3B30;" onclick="deleteFromGH('${id}')">🗑️</button>
                 </div>
 
