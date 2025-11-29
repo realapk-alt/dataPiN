@@ -3,245 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberX Pro Panel</title>
+    <title>CyberX Secure Panel</title>
     <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            --primary: #007AFF;
-            --text-main: #1d1d1f;
-            --text-sec: #86868b;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh; margin: 0; padding: 15px;
-            color: var(--text-main);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        /* --- LOGIN --- */
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-card { padding: 30px 25px; width: 85%; max-width: 320px; text-align: center; background: white; border-radius: 20px; }
-        .glass-input { width: 100%; padding: 14px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 12px; font-size: 16px; outline: none; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
-        .btn-glass { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-
-        /* --- DASHBOARD --- */
-        .container { max-width: 600px; margin: 0 auto; display: none; padding-bottom: 80px; }
-        .header { text-align: center; margin-bottom: 25px; position: relative; }
-        .settings-btn { position: absolute; right: 0; top: 0; background: white; width: 40px; height: 40px; border-radius: 50%; border: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-
-        /* --- CREATE --- */
-        .create-box { display: flex; gap: 10px; padding: 10px; margin-bottom: 20px; align-items: center; background: rgba(255,255,255,0.5); }
-        .input-create { flex: 1; border: none; background: transparent; padding: 10px; font-size: 16px; outline: none; min-width: 0; }
-        .btn-add { width: 40px; height: 40px; border-radius: 12px; background: var(--primary); color: white; border: none; font-size: 24px; cursor: pointer; flex-shrink: 0; }
-
-        /* --- SLOTS --- */
-        .slot { margin-bottom: 15px; overflow: hidden; transition: 0.3s; background: rgba(255,255,255,0.7); }
-        .slot-head { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .slot-name { font-size: 16px; font-weight: 700; color: #333; }
-        .slot-id { font-family: monospace; font-size: 11px; background: rgba(0,0,0,0.06); padding: 3px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; color: #555; }
+        :root { --bg: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); --glass: rgba(255,255,255,0.65); --border: rgba(255,255,255,0.4); --text: #1d1d1f; --primary: #007AFF; }
+        body { background: var(--bg); font-family: -apple-system, sans-serif; margin: 0; padding: 15px; color: var(--text); }
+        .glass { background: var(--glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(31,38,135,0.15); }
         
-        .slot-body { padding: 15px; display: none; border-top: 1px solid rgba(0,0,0,0.05); background: rgba(255,255,255,0.4); }
-        .show { display: block; }
+        /* LOGIN */
+        #loginOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.1); backdrop-filter:blur(10px); z-index:99; display:flex; align-items:center; justify-content:center; }
+        .login-box { padding:30px; width:85%; max-width:320px; text-align:center; background:white; border-radius:20px; }
+        .input-std { width:100%; padding:14px; border:1px solid #ddd; background:#f9f9f9; border-radius:12px; text-align:center; box-sizing:border-box; outline:none; }
+        .btn-main { width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:700; margin-top:15px; cursor:pointer; }
 
-        /* --- CONTROLS --- */
-        .sec-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; margin: 15px 0 8px 0; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .row span { font-weight: 600; font-size: 14px; }
+        /* DASHBOARD */
+        .container { max-width:600px; margin:0 auto; display:none; padding-bottom:80px; }
+        .header { text-align:center; margin-bottom:20px; position:relative; }
+        .gear-btn { position:absolute; right:0; top:0; background:white; width:40px; height:40px; border-radius:50%; border:none; font-size:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); cursor:pointer; }
 
-        .inp-line { width: 100%; border: none; background: white; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 8px; outline: none; color: var(--primary); box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* CARDS */
+        .card { padding:20px; margin-bottom:20px; }
+        .create-row { display:flex; gap:10px; }
+        .input-create { flex:1; border:none; background:transparent; font-size:16px; outline:none; }
+        .btn-add { width:40px; height:40px; background:var(--primary); color:white; border-radius:12px; border:none; font-size:24px; cursor:pointer; }
 
+        /* SLOT ITEMS */
+        .slot { margin-bottom:15px; overflow:hidden; transition:0.3s; background:rgba(255,255,255,0.7); }
+        .slot-head { padding:15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+        .slot-id { font-family:monospace; font-size:10px; background:rgba(0,0,0,0.05); padding:3px 6px; border-radius:4px; }
+        .slot-body { padding:15px; display:none; background:rgba(255,255,255,0.4); border-top:1px solid rgba(0,0,0,0.05); }
+        .show { display:block; }
+
+        /* CONTROLS */
+        .label { font-size:11px; font-weight:800; color:#888; text-transform:uppercase; margin:15px 0 8px 0; display:block; }
+        .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .inp-line { width:100%; border:none; background:white; padding:12px; border-radius:10px; font-size:14px; margin-bottom:8px; outline:none; color:var(--primary); box-sizing:border-box; }
+        
         /* UPLOAD GROUP */
-        .upload-group { display: flex; gap: 8px; align-items: center; width: 100%; margin-bottom: 8px; }
-        .btn-upload { background: #34C759; color: white; border: none; border-radius: 10px; width: 44px; height: 42px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3); flex-shrink: 0; }
-        
+        .upload-row { display:flex; gap:8px; align-items:center; width:100%; margin-bottom:8px; }
+        .btn-upload { background:#34C759; color:white; border:none; border-radius:10px; width:44px; height:42px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(52,199,89,0.3); }
+        .btn-trash { background:#FF3B30; color:white; border:none; border-radius:10px; width:44px; height:42px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(255,59,48,0.3); }
+
         /* SWITCH */
-        .switch { position: relative; display: inline-block; width: 44px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.2); transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #34C759; }
-        input:checked + .slider:before { transform: translateX(18px); }
+        .switch { position:relative; display:inline-block; width:44px; height:26px; }
+        .switch input { opacity:0; width:0; height:0; }
+        .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.2); transition:.3s; border-radius:34px; }
+        .slider:before { position:absolute; content:""; height:22px; width:22px; left:2px; bottom:2px; background:white; transition:.3s; border-radius:50%; }
+        input:checked + .slider { background:#34C759; }
+        input:checked + .slider:before { transform:translateX(18px); }
 
-        /* COLORS */
-        .color-row { display: flex; gap: 10px; justify-content: flex-end; margin: 15px 0; flex-wrap: wrap; }
-        .c-circle { width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; }
-        .c-txt { font-size: 9px; text-align: center; color: #666; margin-top: 4px; font-weight: 600; display: block; }
-
-        /* ACTIONS */
-        .btn-save { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 700; margin-top: 15px; cursor: pointer; }
-        .btn-del { width: 100%; padding: 10px; background: transparent; color: #FF3B30; border: none; font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 5px; }
-
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); z-index: 10000; display: none; align-items: center; justify-content: center; }
-        .modal-box { width: 85%; max-width: 300px; padding: 25px; text-align: center; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .p-view { height: 50px; border-radius: 12px; margin-bottom: 15px; border: 4px solid #f2f2f7; }
-        input[type=range] { width: 100%; height: 6px; border-radius: 3px; outline: none; margin: 12px 0; -webkit-appearance: none; background: #eee; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
-        #rngR { background: linear-gradient(to right, #ffcfcf, #ff0000); } #rngG { background: linear-gradient(to right, #cfffcf, #00ff00); } #rngB { background: linear-gradient(to right, #cfcfff, #0000ff); }
+        /* COLORS & MODALS */
+        .color-row { display:flex; gap:10px; justify-content:flex-end; margin:15px 0; }
+        .c-dot { width:32px; height:32px; border-radius:50%; border:2px solid white; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); backdrop-filter:blur(5px); z-index:100; display:none; align-items:center; justify-content:center; }
+        .modal-box { width:85%; max-width:300px; padding:25px; text-align:center; background:white; border-radius:20px; }
+        input[type=range] { width:100%; margin:10px 0; accent-color:var(--primary); }
 
     </style>
 </head>
 <body>
 
-    <!-- GITHUB MODAL -->
-    <div id="ghModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin:0 0 10px 0;">GitHub Setup</h3>
-            <p style="font-size:12px; color:gray; margin-bottom:15px;">Required for uploading files</p>
-            <input type="text" id="ghToken" class="glass-input" placeholder="Token (ghp_...)" style="background:#f9f9f9">
-            <input type="text" id="ghOwner" class="glass-input" placeholder="Username" style="background:#f9f9f9">
-            <input type="text" id="ghRepo" class="glass-input" placeholder="Repo Name" style="background:#f9f9f9">
-            <div style="display:flex; gap:10px;">
-                <button onclick="document.getElementById('ghModal').style.display='none'" class="btn-glass" style="background:#eee; color:black;">Close</button>
-                <button onclick="saveGhSettings()" class="btn-glass">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LOGIN -->
-    <div id="loginOverlay">
-        <div class="login-card">
-            <h2 style="margin:0 0 5px 0;">CyberX Admin</h2>
-            <p style="color:gray; margin-bottom:20px;">Enter Access Key</p>
-            <input type="password" id="pass" class="glass-input" placeholder="••••••••">
-            <button class="btn-glass" onclick="doLogin()">Unlock</button>
-            <p id="msg" style="color:red; margin-top:10px; font-size:12px;"></p>
-        </div>
-    </div>
+    <!-- GITHUB CONFIG -->
+    <div id="ghModal" class="modal"><div class="modal-box glass">
+        <h3>GitHub Config</h3>
+        <input type="text" id="ghToken" class="input-std" placeholder="Token (ghp_...)" style="margin-bottom:10px">
+        <input type="text" id="ghOwner" class="input-std" placeholder="Username" style="margin-bottom:10px">
+        <input type="text" id="ghRepo" class="input-std" placeholder="Repo Name">
+        <button class="btn-main" onclick="saveGh()">SAVE</button>
+        <button class="btn-main" onclick="document.getElementById('ghModal').style.display='none'" style="background:#eee; color:#333; margin-top:10px">CLOSE</button>
+    </div></div>
 
     <!-- COLOR PICKER -->
-    <div id="pickerModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin:0 0 15px 0;">Select Color</h3>
-            <div class="p-view" id="prevBox"></div>
-            <div id="hexTxt" style="font-family:monospace; margin-bottom:15px; font-weight:bold;">#000000</div>
-            <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
-            <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
-            <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button onclick="document.getElementById('pickerModal').style.display='none'" class="btn-glass" style="background:#eee; color:black;">Cancel</button>
-                <button onclick="saveCol()" class="btn-glass">Apply</button>
-            </div>
-        </div>
-    </div>
+    <div id="pickerModal" class="modal"><div class="modal-box glass">
+        <h3>Pick Color</h3>
+        <div id="prevBox" style="height:50px; border-radius:10px; margin-bottom:15px; border:1px solid #ddd;"></div>
+        <div id="hexTxt" style="font-family:monospace; margin-bottom:10px;">#000000</div>
+        <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
+        <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
+        <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
+        <button class="btn-main" onclick="saveCol()">APPLY</button>
+    </div></div>
 
-    <!-- DASHBOARD -->
+    <!-- LOGIN -->
+    <div id="loginOverlay"><div class="login-card glass">
+        <h2>CyberX Admin</h2><p style="color:gray;">Secure Access</p>
+        <input type="password" id="pass" class="input-std" placeholder="Enter Key">
+        <button class="btn-main" onclick="doLogin()">UNLOCK</button>
+        <p id="msg" style="color:red; font-size:12px; margin-top:10px;"></p>
+    </div></div>
+
+    <!-- MAIN UI -->
     <div class="container" id="mainUI">
         <div class="header">
-            <h1>CyberX Panel</h1>
-            <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
+            <h1>CyberX <span style="font-size:12px; background:var(--primary); color:white; padding:2px 6px; border-radius:6px; vertical-align:middle;">SECURE</span></h1>
+            <button class="gear-btn" onclick="openGh()">⚙️</button>
         </div>
 
-        <div class="create-box glass">
-            <input type="text" id="newApp" class="input-create" placeholder="App Name (e.g. Mod v2)">
+        <div class="card glass" style="display:flex; gap:10px; padding:10px;">
+            <input type="text" id="newApp" class="input-create" placeholder="New App Name...">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
         <div id="listArea"></div>
     </div>
 
-    <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload(this)">
+    <input type="file" id="fileInput" style="display:none" onchange="handleFile(this)">
 
 <script>
     const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let actInp=null, actCirc=null, uploadTargetId=null;
+    let actInp, actCirc, upId;
 
-    // --- GITHUB ---
-    function openGhSettings() {
-        document.getElementById('ghToken').value = localStorage.getItem('gh_token')||'';
-        document.getElementById('ghOwner').value = localStorage.getItem('gh_owner')||'';
-        document.getElementById('ghRepo').value = localStorage.getItem('gh_repo')||'';
-        document.getElementById('ghModal').style.display='flex';
-    }
-    function saveGhSettings() {
-        localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
-        localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
-        localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
-        document.getElementById('ghModal').style.display='none';
-    }
-    function triggerUpload(id) {
-        if(!localStorage.getItem('gh_token')) { alert("Setup GitHub first (Click Gear Icon)"); return; }
-        uploadTargetId = id; document.getElementById('fileInput').click();
-    }
-    function handleFileUpload(inp) {
-        if(inp.files[0]) {
-            const f = inp.files[0];
-            const btn = document.getElementById(uploadTargetId).previousElementSibling;
-            btn.innerText = "⏳";
-            const r = new FileReader();
-            r.onload = e => uploadToGH(f.name, e.target.result.split(',')[1], btn);
-            r.readAsDataURL(f);
-        }
-        inp.value = '';
-    }
-    function uploadToGH(name, content, btn) {
-        const t = localStorage.getItem('gh_token'), o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo');
-        const safeName = "data_" + Date.now() + "." + name.split('.').pop();
-        fetch(`https://api.github.com/repos/${o}/${r}/contents/${safeName}`, {
-            method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message:"Auto-Upload", content:content })
-        })
-        .then(res => res.json())
-        .then(d => {
-            if(d.content) {
-                document.getElementById(uploadTargetId).value = d.content.download_url;
-                btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️",2000);
-            } else { alert("Error: "+d.message); btn.innerText="❌"; }
-        }).catch(e=>{ alert(e); btn.innerText="❌"; });
-    }
-
-    // --- LOGIN ---
+    // LOGIN
     const pInp = document.getElementById('pass');
     pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
-    pInp.addEventListener('input', () => document.getElementById('msg').innerText="");
-
     function doLogin() {
         const p = pInp.value.trim();
-        if(!p) { document.getElementById('msg').innerText="Enter password"; return; }
-        document.getElementById('msg').innerText="Checking...";
         fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
-            if(String(d) === p) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainUI').style.display = 'block';
-                loadData();
-            } else document.getElementById('msg').innerText = "Wrong Password";
-        }).catch(()=>document.getElementById('msg').innerText = "Connection Error");
+            if(String(d)===p) { document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainUI').style.display='block'; loadData(); }
+            else document.getElementById('msg').innerText="Wrong Key";
+        });
     }
 
-    // --- DATA ---
+    // LOGIC
     function loadData() {
         fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
-            const l = document.getElementById('listArea'); l.innerHTML = "";
+            const l = document.getElementById('listArea'); l.innerHTML="";
             if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
-            else l.innerHTML = "<p style='text-align:center; color:#666; margin-top:50px'>No slots found</p>";
         });
     }
 
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
         const id = Array.from({length:32},()=>Math.floor(Math.random()*36).toString(36)).join('');
-        const d = { name:n, update:{active:false, title:"Update", msg:"New version available", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, zip:"", ver:1, wipe:true, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
-        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
+        const data = { 
+            name:n, 
+            update:{active:false, title:"Update", msg:"Msg", btn_text:"Update", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"},
+            inject:{active:false, zip:"", ver:1, enc_key:"", bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"}
+        };
+        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
     }
 
     function saveSlot(id) {
-        const b = document.getElementById('btn-'+id); b.innerText = "Saving...";
+        const b=document.getElementById('btn-'+id); b.innerText="Saving...";
         const d = {
             name: document.getElementById('n-'+id).innerText,
             update: {
@@ -250,89 +154,142 @@
                 msg: document.getElementById('um-'+id).value,
                 btn_text: document.getElementById('ubt-'+id).value,
                 url: document.getElementById('uu-'+id).value,
-                bg: document.getElementById('ubg-'+id).value,
-                txt: document.getElementById('utx-'+id).value,
-                btn: document.getElementById('ubc-'+id).value
+                bg: document.getElementById('ubg-'+id).value, txt: document.getElementById('utx-'+id).value, btn: document.getElementById('ubc-'+id).value
             },
             inject: {
                 active: document.getElementById('ia-'+id).checked,
                 zip: document.getElementById('iz-'+id).value,
+                enc_key: document.getElementById('ik-'+id).value, // SECRET KEY
                 ver: parseInt(document.getElementById('iv-'+id).value),
-                wipe: document.getElementById('iw-'+id).checked,
-                bg: document.getElementById('ibg-'+id).value,
-                txt: document.getElementById('itx-'+id).value,
-                prog: document.getElementById('ipc-'+id).value
+                bg: document.getElementById('ibg-'+id).value, txt: document.getElementById('itx-'+id).value, prog: document.getElementById('ipc-'+id).value
             }
         };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
-            b.innerText="Saved!"; b.style.background="#34C759";
+            b.innerText="SAVED"; b.style.background="#34C759";
             setTimeout(()=>{ b.innerText="Save Changes"; b.style.background=""; }, 1500);
         });
     }
 
-    function delSlot(id) { if(confirm("Delete this slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied!"); }
+    function delSlot(id) { if(confirm("Delete Slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
+    function clearZip(id) { document.getElementById('iz-'+id).value=""; document.getElementById('ik-'+id).value=""; alert("Link Cleared! Save changes."); }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("Copied ID"); }
 
-    // --- COLOR ---
+    // UPLOAD & ENCRYPT
+    function openGh() { document.getElementById('ghModal').style.display='flex'; }
+    function saveGh() { 
+        localStorage.setItem('gh_t', document.getElementById('ghToken').value);
+        localStorage.setItem('gh_o', document.getElementById('ghOwner').value);
+        localStorage.setItem('gh_r', document.getElementById('ghRepo').value);
+        document.getElementById('ghModal').style.display='none';
+    }
+    function trigUp(id) { if(!localStorage.getItem('gh_t')) { alert("Setup GitHub first"); return; } upId=id; document.getElementById('fileInput').click(); }
+    
+    function handleFile(inp) {
+        if(inp.files[0]) {
+            const f = inp.files[0];
+            const btn = document.getElementById(upId).previousElementSibling.previousElementSibling;
+            btn.innerText = "🔒"; // Locking icon
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawData = new Uint8Array(e.target.result);
+                // GENERATE RANDOM KEY
+                const key = Math.random().toString(36).substring(2, 10);
+                
+                // XOR ENCRYPTION
+                const encData = new Uint8Array(rawData.length);
+                for(let i=0; i<rawData.length; i++) {
+                    encData[i] = rawData[i] ^ key.charCodeAt(i % key.length);
+                }
+                
+                // Convert back to Base64 for GitHub
+                let binary = '';
+                const len = encData.byteLength;
+                for (let i = 0; i < len; i++) { binary += String.fromCharCode(encData[i]); }
+                const base64 = btoa(binary);
+
+                uploadToGH(f.name, base64, key, btn);
+            };
+            reader.readAsArrayBuffer(f);
+        }
+        inp.value = '';
+    }
+
+    function uploadToGH(name, content, key, btn) {
+        const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
+        const sName = "enc_" + Date.now() + ".bin"; // Binary extension to hide zip
+        
+        fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
+            method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message:"Secure Upload", content:content })
+        })
+        .then(res=>res.json()).then(d=>{
+            if(d.content) {
+                document.getElementById('iz-'+upId).value = d.content.download_url;
+                document.getElementById('ik-'+upId).value = key; // Save Key hiddenly
+                btn.innerText = "✅"; setTimeout(()=>btn.innerText="☁️", 2000);
+            } else { alert("Error: "+d.message); btn.innerText="❌"; }
+        });
+    }
+
+    // DRAW UI
+    function drawSlot(id, d) {
+        const u=d.update||{}, i=d.inject||{};
+        const h = `
+        <div class="slot glass">
+            <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
+                <div><b id="n-${id}">${d.name}</b><br><span class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id.substring(0,8)}...</span></div>
+                <span>✏️</span>
+            </div>
+            <div class="slot-body" id="b_${id}">
+                <span class="label">UPDATE SYSTEM</span>
+                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
+                <input class="inp-line" id="ut-${id}" value="${u.title}" placeholder="Title">
+                <input class="inp-line" id="um-${id}" value="${u.msg}" placeholder="Msg">
+                <input class="inp-line" id="ubt-${id}" value="${u.btn_text}" placeholder="Btn">
+                <input class="inp-line" id="uu-${id}" value="${u.url}" placeholder="URL">
+                
+                <input type="hidden" id="ubg-${id}" value="${u.bg}"><input type="hidden" id="utx-${id}" value="${u.txt}"><input type="hidden" id="ubc-${id}" value="${u.btn}">
+                <div class="color-row">
+                    <div class="c-dot" style="background:${u.bg}" onclick="showPicker('ubg-${id}',this)"></div>
+                    <div class="c-dot" style="background:${u.txt}" onclick="showPicker('utx-${id}',this)"></div>
+                    <div class="c-dot" style="background:${u.btn}" onclick="showPicker('ubc-${id}',this)"></div>
+                </div>
+
+                <hr style="border:0; border-top:1px solid rgba(0,0,0,0.05); margin:20px 0;">
+
+                <span class="label">SECURE INJECTION</span>
+                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
+                
+                <div class="upload-row">
+                    <button class="btn-upload" onclick="trigUp('iz-${id}')">☁️</button>
+                    <button class="btn-trash" onclick="clearZip('${id}')">🗑️</button>
+                    <input class="inp-line" style="margin-bottom:0" id="iz-${id}" value="${i.zip}" placeholder="Encrypted URL">
+                </div>
+                <input type="hidden" id="ik-${id}" value="${i.enc_key}"> <!-- HIDDEN KEY -->
+                
+                <input type="number" class="inp-line" id="iv-${id}" value="${i.ver}" placeholder="Ver Code">
+
+                <input type="hidden" id="ibg-${id}" value="${i.bg}"><input type="hidden" id="itx-${id}" value="${i.txt}"><input type="hidden" id="ipc-${id}" value="${i.prog}">
+                <div class="color-row">
+                    <div class="c-dot" style="background:${i.bg}" onclick="showPicker('ibg-${id}',this)"></div>
+                    <div class="c-dot" style="background:${i.txt}" onclick="showPicker('itx-${id}',this)"></div>
+                    <div class="c-dot" style="background:${i.prog}" onclick="showPicker('ipc-${id}',this)"></div>
+                </div>
+
+                <button class="btn-main" id="btn-${id}" onclick="saveSlot('${id}')">SAVE CHANGES</button>
+                <div style="text-align:center; margin-top:10px;"><span style="color:red; font-size:12px; cursor:pointer;" onclick="delSlot('${id}')">Delete Slot</span></div>
+            </div>
+        </div>`;
+        document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
+    }
+
     function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
     function updCol() {
         const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
         document.getElementById('prevBox').style.background=hex; document.getElementById('hexTxt').innerText=hex;
     }
-    function saveCol() {
-        document.getElementById(actInp).value = document.getElementById('hexTxt').innerText;
-        actCirc.style.background = document.getElementById('hexTxt').innerText;
-        document.getElementById('pickerModal').style.display='none';
-    }
-
-    // --- DRAW ---
-    function drawSlot(id, d) {
-        const u = d.update||{}, i = d.inject||{};
-        const h = `
-        <div class="slot glass">
-            <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
-                <div><div class="slot-name" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id.substring(0,12)}...</div></div>
-                <div style="font-size:20px;">⚙️</div>
-            </div>
-            <div class="slot-body" id="b_${id}">
-                <div class="sec-label">UPDATE SYSTEM</div>
-                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
-                
-                <input class="inp-line" id="ut-${id}" value="${u.title}" placeholder="Title">
-                <input class="inp-line" id="um-${id}" value="${u.msg}" placeholder="Message">
-                <input class="inp-line" id="ubt-${id}" value="${u.btn_text||'Update Now'}" placeholder="Button Text">
-                <input class="inp-line" id="uu-${id}" value="${u.url}" placeholder="URL">
-
-                <div class="color-row">
-                    <div style="text-align:center"><div class="c-circle" style="background:${u.bg}" onclick="showPicker('ubg-${id}',this)"></div><span class="c-txt">BG</span><input type="hidden" id="ubg-${id}" value="${u.bg}"></div>
-                    <div style="text-align:center"><div class="c-circle" style="background:${u.txt}" onclick="showPicker('utx-${id}',this)"></div><span class="c-txt">TXT</span><input type="hidden" id="utx-${id}" value="${u.txt}"></div>
-                    <div style="text-align:center"><div class="c-circle" style="background:${u.btn}" onclick="showPicker('ubc-${id}',this)"></div><span class="c-txt">BTN</span><input type="hidden" id="ubc-${id}" value="${u.btn}"></div>
-                </div>
-
-                <hr style="margin:20px 0; border:0; border-top:1px solid rgba(0,0,0,0.05)">
-
-                <div class="sec-label">DATA INJECTION</div>
-                <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
-                <div class="row"><span>Wipe Data</span><label class="switch"><input type="checkbox" id="iw-${id}" ${i.wipe?'checked':''}><span class="slider"></span></label></div>
-
-                <div class="upload-group">
-                    <button class="btn-upload" onclick="triggerUpload('iz-${id}')">☁️</button>
-                    <input class="inp-line" style="margin-bottom:0" id="iz-${id}" value="${i.zip}" placeholder="ZIP URL">
-                </div>
-                <input class="inp-line" type="number" id="iv-${id}" value="${i.ver}" placeholder="Ver Code">
-
-                <div class="color-row">
-                    <div style="text-align:center"><div class="c-circle" style="background:${i.bg}" onclick="showPicker('ibg-${id}',this)"></div><span class="c-txt">BG</span><input type="hidden" id="ibg-${id}" value="${i.bg}"></div>
-                    <div style="text-align:center"><div class="c-circle" style="background:${i.txt}" onclick="showPicker('itx-${id}',this)"></div><span class="c-txt">TXT</span><input type="hidden" id="itx-${id}" value="${i.txt}"></div>
-                    <div style="text-align:center"><div class="c-circle" style="background:${i.prog}" onclick="showPicker('ipc-${id}',this)"></div><span class="c-txt">LOAD</span><input type="hidden" id="ipc-${id}" value="${i.prog}"></div>
-                </div>
-
-                <button class="btn-save" id="btn-${id}" onclick="saveSlot('${id}')">Save Changes</button>
-                <button class="btn-del" onclick="delSlot('${id}')">Delete Slot</button>
-            </div>
-        </div>`;
-        document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
-    }
+    function saveCol() { document.getElementById(actInp).value=document.getElementById('hexTxt').innerText; actCirc.style.background=document.getElementById('hexTxt').innerText; document.getElementById('pickerModal').style.display='none'; }
 </script>
 </body>
 </html>
