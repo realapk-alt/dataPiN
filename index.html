@@ -3,132 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberX Admin</title>
+    <title>CyberX Pro Panel</title>
     <style>
-        /* --- iOS DESIGN SYSTEM --- */
+        /* iOS THEME */
         :root {
-            --bg-body: #F2F2F7;
-            --card-bg: #FFFFFF;
-            --primary: #007AFF;
-            --success: #34C759;
-            --danger: #FF3B30;
-            --text-main: #1C1C1E;
-            --text-sec: #8E8E93;
-            --border: #E5E5EA;
+            --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --danger: #FF3B30; --success: #34C759; --text: #1C1C1E; --border: #C6C6C8;
         }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 80px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-body);
-            margin: 0; padding: 15px; color: var(--text-main);
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: 100px;
-        }
-
-        /* --- HEADER --- */
+        /* LAYOUT */
         .container { max-width: 600px; margin: 0 auto; display: none; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header h2 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .btn-gear {
-            background: white; width: 44px; height: 44px; border-radius: 50%; border: none;
-            font-size: 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center;
-        }
+        .settings-btn { background: white; width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* --- LOGIN --- */
-        #loginOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(242, 242, 247, 0.95); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
-        }
-        .login-card {
-            background: white; padding: 40px 30px; border-radius: 24px; width: 85%; max-width: 320px;
-            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-        }
-        .login-inp {
-            width: 100%; padding: 16px; margin: 20px 0; border: 1px solid #ddd; border-radius: 14px;
-            font-size: 18px; text-align: center; outline: none; background: #F9F9F9;
-        }
-        .btn-login {
-            width: 100%; padding: 16px; background: var(--primary); color: white; border: none;
-            border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer;
-        }
+        /* CARDS */
+        .card { background: var(--card); border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; }
+        .create-row { display: flex; padding: 12px; gap: 10px; align-items: center; }
+        .input-new { flex: 1; border: none; background: #F5F5F5; padding: 12px 15px; border-radius: 12px; font-size: 16px; outline: none; }
+        .btn-add { width: 46px; height: 46px; background: var(--primary); color: white; border-radius: 12px; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* --- CREATE NEW --- */
-        .create-card {
-            background: white; padding: 10px; border-radius: 18px; display: flex; gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; align-items: center;
-        }
-        .input-create { flex: 1; border: none; background: #F5F5F5; padding: 12px 15px; border-radius: 12px; font-size: 16px; outline: none; }
-        .btn-add {
-            width: 46px; height: 46px; background: var(--primary); color: white;
-            border-radius: 12px; border: none; font-size: 26px; cursor: pointer;
-        }
-
-        /* --- SLOTS --- */
-        .slot {
-            background: white; border-radius: 20px; margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04); overflow: hidden;
-        }
-        .slot-head {
-            padding: 20px; display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; border-bottom: 1px solid #f0f0f0;
-        }
+        /* SLOTS */
+        .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .slot-title { font-weight: 700; font-size: 17px; }
-        .slot-id {
-            font-size: 11px; color: #888; background: #f2f2f7; padding: 4px 8px;
-            border-radius: 6px; display: inline-block; margin-top: 4px; font-family: monospace;
-        }
-        .slot-body { display: none; padding: 25px 20px; background: #fff; }
+        .slot-id { font-size: 11px; color: #888; background: #f0f0f0; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; font-family: monospace; }
+        .slot-body { display: none; padding: 20px; background: #fff; }
         .show { display: block; }
 
-        /* --- CONTROLS --- */
-        .sec-label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin: 25px 0 10px 0; letter-spacing: 0.5px; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        
-        .inp-std {
-            width: 100%; padding: 14px; background: #F9F9F9; border: 1px solid #eee;
-            border-radius: 12px; font-size: 15px; margin-bottom: 10px; outline: none;
-            color: var(--primary); font-weight: 600; box-sizing: border-box;
-        }
-        .inp-std:focus { background: white; border-color: var(--primary); }
+        /* CONTROLS */
+        .label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin: 20px 0 8px 0; display: block; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .inp-std { width: 100%; padding: 14px; background: #F9F9F9; border: 1px solid #eee; border-radius: 12px; font-size: 15px; margin-bottom: 10px; outline: none; color: var(--primary); font-weight: 600; box-sizing: border-box; }
 
-        /* --- UPLOAD ROW (Perfect Alignment) --- */
-        .upload-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-        .btn-icon {
-            width: 50px; height: 48px; border-radius: 12px; border: none; color: white;
-            font-size: 20px; cursor: pointer; flex-shrink: 0; display: flex;
-            align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        /* UPLOAD ROW */
+        .upload-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .btn-icon { width: 50px; height: 46px; border-radius: 12px; border: none; color: white; font-size: 20px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .btn-up { background: var(--success); }
         .btn-tr { background: var(--danger); }
 
-        /* --- SWITCH --- */
-        .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+        /* MULTI SERVER */
+        .srv-box { background: #f2f2f7; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #ddd; }
+        .srv-head { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; font-weight: bold; color: #888; }
+        .btn-mini { width: 40px; height: 40px; border-radius: 10px; border: none; color: white; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* SWITCH */
+        .switch { position: relative; display: inline-block; width: 46px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e4e4e4; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
 
-        /* --- ACTIONS --- */
-        .btn-save { width: 100%; padding: 16px; background: var(--text-main); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; margin-top: 25px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        /* ACTIONS */
+        .btn-save { width: 100%; padding: 15px; background: var(--text); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; margin-top: 20px; cursor: pointer; }
         .btn-del { width: 100%; padding: 12px; background: transparent; color: var(--danger); border: none; font-weight: 600; font-size: 13px; margin-top: 5px; cursor: pointer; }
 
-        /* --- MODALS --- */
+        /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { width: 85%; max-width: 300px; padding: 25px; background: white; border-radius: 20px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-box { width: 85%; max-width: 300px; padding: 30px; background: white; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
         
+        /* LOGIN */
+        #loginOverlay { background: #F2F2F7; z-index: 2000; }
+        .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 18px; background: white; outline: none; }
+
         /* COLORS */
         .color-row { display: flex; gap: 12px; justify-content: flex-end; margin: 15px 0; }
         .c-circ { width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; }
-        input[type=range] { width: 100%; margin: 12px 0; }
-
-        /* Multi Server Items */
-        .srv-box { background: #f4f4f4; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; }
-        .srv-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 800; color: #888; }
-        .btn-mini { width: 42px; height: 42px; border-radius: 10px; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        input[type=range] { width: 100%; margin: 10px 0; }
 
     </style>
 </head>
@@ -137,8 +77,7 @@
     <!-- GITHUB SETTINGS -->
     <div id="ghModal" class="modal">
         <div class="modal-box">
-            <h3 style="margin:0 0 15px 0;">GitHub Config</h3>
-            <p style="font-size:12px; color:gray; margin-bottom:15px;">Required for uploads</p>
+            <h3>GitHub Config</h3>
             <input type="text" id="ghToken" class="inp-std" placeholder="Token (ghp_...)" style="background:white; border:1px solid #eee">
             <input type="text" id="ghOwner" class="inp-std" placeholder="Username" style="background:white; border:1px solid #eee">
             <input type="text" id="ghRepo" class="inp-std" placeholder="Repo Name" style="background:white; border:1px solid #eee">
@@ -150,12 +89,12 @@
     </div>
 
     <!-- LOGIN -->
-    <div id="loginOverlay" style="display:flex;">
-        <div class="login-card">
-            <h2 style="margin:0 0 10px 0;">Admin Login</h2>
+    <div id="loginOverlay" class="modal" style="display:flex;">
+        <div class="modal-box">
+            <h2>Admin Login</h2>
             <input type="password" id="pass" class="login-inp" placeholder="Access Key">
-            <button class="login-btn" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:15px; font-size:13px;"></p>
+            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
+            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
         </div>
     </div>
 
@@ -164,7 +103,7 @@
         <div class="modal-box">
             <h3>Select Color</h3>
             <div id="prevBox" style="height:60px; border-radius:12px; margin-bottom:15px; border:1px solid #eee;"></div>
-            <div id="hexTxt" style="font-family:monospace; font-weight:bold; margin-bottom:15px;">#000000</div>
+            <div id="hexTxt" style="font-family:monospace; font-weight:bold; margin-bottom:10px;">#000000</div>
             <input type="range" min="0" max="255" id="rngR" oninput="updCol()">
             <input type="range" min="0" max="255" id="rngG" oninput="updCol()">
             <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
@@ -193,10 +132,9 @@
     <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload(this)">
 
 <script>
-    // 🔥 CONFIG
+    // 🔥 CONFIGURATION
     const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let actInp, actCirc;
-    let uploadCtx = {}; // Stores context for upload
+    let actInp, actCirc, uploadCtx = {};
 
     // --- LOGIN ---
     const pInp = document.getElementById('pass');
@@ -215,7 +153,7 @@
         fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
             const l = document.getElementById('listArea'); l.innerHTML="";
             if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
-            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Created</p>";
+            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Found</p>";
         });
     }
 
@@ -258,14 +196,14 @@
         };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(d)}).then(()=>{
             btn.innerText="Saved!"; btn.style.background="#34C759";
-            setTimeout(()=>{ btn.innerText="Save Changes"; btn.style.background=""; }, 1500);
+            setTimeout(()=>{ b=btn.style; btn.innerText="Save Changes"; b.background=""; }, 1500);
         });
     }
 
     function delSlot(id) { if(confirm("Delete Slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
     function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: "+t); }
 
-    // UI TOGGLES
+    // UI TOGGLE
     function toggleMulti(id) {
         const on = document.getElementById('im-'+id).checked;
         document.getElementById('single-'+id).style.display = on ? 'none' : 'block';
@@ -278,14 +216,14 @@
         div.innerHTML = `
         <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
         <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
-        <div class="upload-row">
+        <div class="srv-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
             <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
         </div>`;
         document.getElementById('srv-list-'+id).appendChild(div);
     }
 
-    // --- FIXED GITHUB UPLOAD ---
+    // --- GITHUB UPLOAD (FIXED BINARY SAFE) ---
     function openGhSettings() {
         document.getElementById('ghToken').value = localStorage.getItem('gh_t')||'';
         document.getElementById('ghOwner').value = localStorage.getItem('gh_o')||'';
@@ -300,12 +238,10 @@
     }
 
     function triggerUpload(btnId, inputId, slotId) {
-        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub Config First (Gear Icon)"); openGhSettings(); return; }
-        
+        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub Config First!"); openGhSettings(); return; }
         const pass = document.getElementById('pw-'+slotId).value.trim();
-        if(!pass) { alert("Error: Enter Encryption Password First!"); document.getElementById('pw-'+slotId).focus(); return; }
+        if(!pass) { alert("Enter Encryption Password First!"); document.getElementById('pw-'+slotId).focus(); return; }
         
-        // Set Upload Context
         uploadCtx = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
     }
@@ -314,26 +250,26 @@
         if(inp.files[0]) {
             const f = inp.files[0];
             const btn = document.getElementById(uploadCtx.btnId);
-            
-            if(btn) btn.innerText = "🔒"; // Encrypting...
+            if(btn) btn.innerText = "🔒"; 
 
             const r = new FileReader();
+            r.readAsArrayBuffer(f);
             r.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
                 // XOR Encrypt
                 for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ uploadCtx.pass.charCodeAt(i % uploadCtx.pass.length);
                 
-                // Convert to Base64 (Blob Method - Safe for large files)
-                const blob = new Blob([raw]);
-                const reader2 = new FileReader();
-                reader2.readAsDataURL(blob);
-                reader2.onloadend = function() {
-                    const base64data = reader2.result.split(',')[1];
-                    if(btn) btn.innerText = "☁️"; // Uploading...
-                    uploadToGH(f.name, base64data, btn);
+                // Convert Uint8Array to Base64 Safely
+                let binary = '';
+                const len = raw.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(raw[i]);
                 }
+                const base64 = btoa(binary);
+
+                if(btn) btn.innerText = "☁️"; 
+                uploadToGH(f.name, base64, btn);
             };
-            reader.readAsArrayBuffer(f);
         }
         inp.value = '';
     }
@@ -348,23 +284,17 @@
         })
         .then(async res => {
             const d = await res.json();
-            if(!res.ok) throw new Error(d.message || "GitHub Error");
-            
+            if(!res.ok) throw new Error(d.message);
             document.getElementById(uploadCtx.inputId).value = d.content.download_url;
             if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="☁️", 2000); }
         })
-        .catch(e => { 
-            alert("Upload Failed: " + e.message); 
-            if(btn) btn.innerText="❌"; 
-        });
+        .catch(e => { alert("Upload Failed: "+e.message); if(btn) btn.innerText="❌"; });
     }
 
     function deleteFromGH(id) {
         if(!confirm("Delete from GitHub?")) return;
-        const inp = document.getElementById('iz-'+id);
-        const url = inp.value;
+        const url = document.getElementById('iz-'+id).value;
         if(!url) return;
-
         if(!localStorage.getItem('gh_t')) { alert("Setup GitHub First"); return; }
 
         const name = url.split('/').pop();
@@ -376,12 +306,12 @@
                 fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, {
                     method:'DELETE', headers:{'Authorization':`token ${t}`, 'Content-Type':'application/json'},
                     body:JSON.stringify({message:"Deleted", sha:d.sha})
-                }).then(()=>{ alert("File Deleted!"); inp.value=""; });
+                }).then(()=>{ alert("Deleted!"); document.getElementById('iz-'+id).value=""; });
             } else alert("File Not Found");
         });
     }
 
-    // COLORS
+    // COLOR
     function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
     function updCol() {
         const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
@@ -399,10 +329,10 @@
             const uid = Date.now() + Math.random().toString().substr(2,5);
             srvHtml += `<div class="srv-box srv-${id}">
                 <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
-                <input class="inp-std nm" value="${s.name}" placeholder="Server Name">
-                <div class="upload-row">
-                    <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Encrypted Link" style="margin:0">
-                    <button class="btn-mini" id="btn-${uid}" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')">☁️</button>
+                <input class="inp-std nm" value="${s.name}" placeholder="Server Name" style="margin-bottom:5px">
+                <div class="srv-row">
+                    <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Link" style="margin:0">
+                    <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
                 </div>
             </div>`;
         });
@@ -410,11 +340,11 @@
         const h = `
         <div class="card slot">
             <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
-                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">${id.substring(0,8)}...</div></div>
+                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id.substring(0,8)}...</div></div>
                 <div style="font-size:18px; color:var(--primary);">⚙️</div>
             </div>
             <div class="slot-body" id="b_${id}">
-                <div class="sec-label">Update Config</div>
+                <div class="label">Update Config</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
                 <input class="inp-std" id="ut-${id}" value="${u.title}" placeholder="Title">
                 <input class="inp-std" id="um-${id}" value="${u.msg}" placeholder="Message">
@@ -428,7 +358,7 @@
 
                 <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
 
-                <div class="sec-label">Data Injection</div>
+                <div class="label">Data Injection</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
                 <div class="row"><span>Multi-Server</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
                 
