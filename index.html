@@ -7,7 +7,7 @@
     <style>
         /* iOS THEME */
         :root { --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --danger: #FF3B30; --success: #34C759; --text: #1C1C1E; --border: #C6C6C8; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); -webkit-tap-highlight-color: transparent; padding-bottom: 60px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 80px; }
 
         /* LAYOUT */
         .container { max-width: 600px; margin: 0 auto; display: none; }
@@ -22,22 +22,22 @@
 
         /* SLOTS */
         .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
-        .slot-title { font-weight: 700; font-size: 17px; }
+        .slot-title { font-weight: 700; font-size: 16px; }
         .slot-id { font-size: 11px; color: #888; background: #f0f0f0; padding: 3px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; font-family: monospace; }
-        .slot-body { display: none; padding: 20px; background: #fff; border-top: 1px solid #f0f0f0; }
+        .slot-body { display: none; padding: 20px; background: #fff; }
         .show { display: block; }
 
         /* CONTROLS */
         .label { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; margin: 20px 0 8px 0; display: block; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .inp-std { width: 100%; padding: 14px; background: #F9F9F9; border: 1px solid #eee; border-radius: 10px; font-size: 15px; margin-bottom: 10px; outline: none; box-sizing: border-box; color: var(--primary); font-weight: 600; }
-        
+
         /* MULTI SERVER ITEMS */
-        .srv-box { background: #F2F2F7; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e0e0e0; position: relative; }
-        .srv-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: bold; color: #888; }
+        .srv-box { background: #F2F2F7; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e0e0e0; }
+        .srv-head { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #888; margin-bottom: 5px; }
         .srv-row { display: flex; gap: 8px; align-items: center; }
-        .btn-mini { width: 38px; height: 38px; border-radius: 8px; border: none; color: white; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        
+        .btn-mini { width: 40px; height: 40px; border-radius: 10px; border: none; color: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
         /* SWITCH */
         .switch { position: relative; display: inline-block; width: 46px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -50,11 +50,15 @@
         .btn-save { width: 100%; padding: 15px; background: var(--text); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; margin-top: 20px; cursor: pointer; }
         .btn-del { width: 100%; padding: 12px; background: transparent; color: var(--danger); border: none; font-weight: 600; font-size: 13px; margin-top: 5px; cursor: pointer; }
 
-        /* LOGIN & MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        /* MODALS & LOGIN */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-box { width: 85%; max-width: 300px; padding: 25px; background: white; border-radius: 20px; text-align: center; }
         
-        /* COLOR PICKER */
+        /* LOGIN */
+        #loginOverlay { background: #F2F2F7; z-index: 2000; }
+        .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 16px; background: white; }
+        
+        /* COLORS */
         .color-row { display: flex; gap: 12px; justify-content: flex-end; margin: 15px 0; }
         .c-circ { width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.15); cursor: pointer; }
         input[type=range] { width: 100%; margin: 10px 0; }
@@ -62,31 +66,31 @@
 </head>
 <body>
 
-    <!-- 1. GITHUB CONFIG -->
+    <!-- GITHUB SETTINGS -->
     <div id="ghModal" class="modal">
         <div class="modal-box">
-            <h3>GitHub Setup</h3>
+            <h3>GitHub Config</h3>
             <input type="text" id="ghToken" class="inp-std" placeholder="Token (ghp_...)">
             <input type="text" id="ghOwner" class="inp-std" placeholder="Username">
             <input type="text" id="ghRepo" class="inp-std" placeholder="Repo Name">
             <div style="display:flex; gap:10px; margin-top:10px;">
                 <button onclick="document.getElementById('ghModal').style.display='none'" class="btn-save" style="background:#eee; color:#333; margin:0">Close</button>
-                <button onclick="saveGhSettings()" class="btn-save" style="background:var(--primary); margin:0">Save</button>
+                <button onclick="saveGhSettings()" class="btn-save" style="margin:0">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. LOGIN -->
-    <div id="loginOverlay" class="modal" style="display:flex; background:#F2F2F7;">
-        <div class="modal-box" style="box-shadow:0 15px 40px rgba(0,0,0,0.1);">
+    <!-- LOGIN -->
+    <div id="loginOverlay" class="modal" style="display:flex;">
+        <div class="modal-box">
             <h2>Admin Login</h2>
-            <input type="password" id="pass" class="inp-std" placeholder="Access Key" style="text-align:center; margin:20px 0;">
+            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
             <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:15px; font-size:13px;"></p>
+            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
         </div>
     </div>
 
-    <!-- 3. COLOR PICKER -->
+    <!-- COLOR PICKER -->
     <div id="pickerModal" class="modal">
         <div class="modal-box">
             <h3>Select Color</h3>
@@ -97,20 +101,20 @@
             <input type="range" min="0" max="255" id="rngB" oninput="updCol()">
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button onclick="document.getElementById('pickerModal').style.display='none'" class="btn-save" style="background:#eee; color:#333; margin:0">Cancel</button>
-                <button onclick="saveCol()" class="btn-save" style="background:var(--primary); margin:0">Apply</button>
+                <button onclick="saveCol()" class="btn-save" style="margin:0">Apply</button>
             </div>
         </div>
     </div>
 
-    <!-- 4. DASHBOARD -->
+    <!-- DASHBOARD -->
     <div class="container" id="mainUI">
         <div class="header">
-            <h2 style="margin:0">CyberX Panel</h2>
+            <h2>CyberX Panel</h2>
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
         <div class="card create-row">
-            <input type="text" id="newApp" class="input-new" placeholder="New App Name..." style="flex:1; border:none; background:#F9F9F9; padding:10px; border-radius:10px; font-size:16px; outline:none;">
+            <input type="text" id="newApp" class="input-new" placeholder="New App Name...">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
@@ -120,12 +124,14 @@
     <input type="file" id="fileInput" style="display:none" onchange="handleFileUpload(this)">
 
 <script>
+    // 🔥 CONFIGURATION
     const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com";
-    let actInp, actCirc, uploadConfig = {};
+    let actInp, actCirc, uploadConfig;
 
-    // LOGIN
+    // --- LOGIN ---
     const pInp = document.getElementById('pass');
     pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
+    
     function doLogin() {
         const p = pInp.value.trim();
         fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
@@ -134,19 +140,23 @@
         });
     }
 
-    // CORE
+    // --- CORE DATA ---
     function loadData() {
         fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
             const l = document.getElementById('listArea'); l.innerHTML="";
             if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
-            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Found</p>";
+            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Created</p>";
         });
     }
 
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
         const id = 'slot_'+Math.random().toString(36).substr(2,8);
-        const data = { name:n, update:{active:false, title:"Update", msg:"Msg", btn_text:"Update", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        const data = { 
+            name:n, 
+            update:{active:false, title:"Update", msg:"Msg", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"},
+            inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"}
+        };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
@@ -198,10 +208,10 @@
 
     function addServer(id) {
         const uid = Date.now();
-        const div = document.createElement('div'); div.className=`srv-box srv-${id}`;
+        const div = document.createElement('div'); div.className = `srv-box srv-${id}`;
         div.innerHTML = `
         <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
-        <input class="inp-std nm" placeholder="Name (e.g. Server 1)" style="margin-bottom:5px">
+        <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
         <div class="srv-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
             <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('u-${uid}', '${id}')">☁️</button>
@@ -209,21 +219,33 @@
         document.getElementById('srv-list-'+id).appendChild(div);
     }
 
-    // UPLOAD
-    function openGhSettings() { document.getElementById('ghModal').style.display='flex'; }
+    // --- GITHUB UPLOAD LOGIC ---
+    function openGhSettings() {
+        document.getElementById('ghToken').value = localStorage.getItem('gh_t')||'';
+        document.getElementById('ghOwner').value = localStorage.getItem('gh_o')||'';
+        document.getElementById('ghRepo').value = localStorage.getItem('gh_r')||'';
+        document.getElementById('ghModal').style.display='flex';
+    }
     function saveGhSettings() {
-        localStorage.setItem('gh_t', document.getElementById('ghToken').value);
-        localStorage.setItem('gh_o', document.getElementById('ghOwner').value);
-        localStorage.setItem('gh_r', document.getElementById('ghRepo').value);
+        localStorage.setItem('gh_t', document.getElementById('ghToken').value.trim());
+        localStorage.setItem('gh_o', document.getElementById('ghOwner').value.trim());
+        localStorage.setItem('gh_r', document.getElementById('ghRepo').value.trim());
         document.getElementById('ghModal').style.display='none';
     }
 
-    function triggerUpload(targetInputId, slotId) {
-        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub First (Gear Icon)"); return; }
-        const pass = document.getElementById('pw-'+slotId).value;
-        if(!pass) { alert("Enter Encryption Password First!"); return; }
+    function triggerUpload(targetId, slotId) {
+        // 1. Check GitHub Config
+        if(!localStorage.getItem('gh_t') || !localStorage.getItem('gh_o') || !localStorage.getItem('gh_r')) {
+            alert("Please configure GitHub Settings first (Click the Gear Icon ⚙️)");
+            openGhSettings();
+            return;
+        }
         
-        uploadConfig = { target: targetInputId, pass: pass };
+        // 2. Check Password
+        const pass = document.getElementById('pw-'+slotId).value;
+        if(!pass) { alert("Please set 'Encryption Password' first! It is required to encrypt the file."); return; }
+        
+        uploadConfig = { target: targetId, pass: pass };
         document.getElementById('fileInput').click();
     }
 
@@ -231,14 +253,19 @@
         if(inp.files[0]) {
             const f = inp.files[0];
             const btn = document.getElementById(uploadConfig.target).nextElementSibling || document.getElementById(uploadConfig.target).previousElementSibling;
-            if(btn) btn.innerText = "🔒"; 
+            if(btn) btn.innerText = "🔒";
 
             const r = new FileReader();
             r.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
                 for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ uploadConfig.pass.charCodeAt(i % uploadConfig.pass.length);
-                let b = ''; for(let i=0; i<raw.byteLength; i++) b += String.fromCharCode(raw[i]);
-                uploadToGH(f.name, btoa(b), btn);
+                
+                // Convert to Base64
+                let binary = '';
+                for(let i=0; i<raw.byteLength; i++) binary += String.fromCharCode(raw[i]);
+                const base64 = btoa(binary);
+
+                uploadToGH(f.name, base64, btn);
             };
             reader.readAsArrayBuffer(f);
         }
@@ -248,14 +275,38 @@
     function uploadToGH(name, content, btn) {
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
         const sName = "data_" + Date.now() + ".zip"; 
+        
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
             method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ message:"Upload", content:content })
-        }).then(res=>res.json()).then(d=>{
+        })
+        .then(res=>res.json()).then(d=>{
             if(d.content) {
                 document.getElementById(uploadConfig.target).value = d.content.download_url;
                 if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="☁️",2000); }
-            } else alert(d.message);
+            } else { alert("Upload Error: "+d.message); if(btn) btn.innerText="❌"; }
+        }).catch(e=>{ alert("Net Error: "+e); if(btn) btn.innerText="❌"; });
+    }
+    
+    function deleteFromGH(id) {
+        if(!confirm("Delete File?")) return;
+        const url = document.getElementById('iz-'+id).value;
+        if(!url) return;
+        
+        // Check GH Config
+        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub Settings first!"); return; }
+
+        const name = url.split('/').pop();
+        const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
+        
+        fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, { headers: {'Authorization':`token ${t}`} })
+        .then(r=>r.json()).then(d=>{
+            if(d.sha) {
+                fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, {
+                    method:'DELETE', headers:{'Authorization':`token ${t}`, 'Content-Type':'application/json'},
+                    body:JSON.stringify({message:"Deleted", sha:d.sha})
+                }).then(()=>{ alert("Deleted!"); document.getElementById('iz-'+id).value=""; });
+            } else alert("File Not Found on GitHub");
         });
     }
 
@@ -271,11 +322,12 @@
     function drawSlot(id, d) {
         const u = d.update||{}, i = d.inject||{};
         const isMulti = i.multi || false;
+        
         let srvHtml = "";
         if(i.servers) i.servers.forEach(s => {
             const uid = Date.now() + Math.random();
             srvHtml += `<div class="srv-box srv-${id}">
-                <div class="srv-head"><span>SERVER</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
+                <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
                 <input class="inp-std nm" value="${s.name}" placeholder="Name">
                 <div class="srv-row"><input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Link" style="margin:0"><button class="btn-mini" style="background:#34C759" onclick="triggerUpload('u-${uid}', '${id}')">☁️</button></div>
             </div>`;
@@ -284,7 +336,7 @@
         const h = `
         <div class="card slot">
             <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
-                <div><div class="slot-name" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">${id.substring(0,8)}...</div></div>
+                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">ID: ${id}</div></div>
                 <div style="font-size:18px; color:var(--primary);">⚙️</div>
             </div>
             <div class="slot-body" id="b_${id}">
@@ -294,7 +346,6 @@
                 <input class="inp-std" id="um-${id}" value="${u.msg}" placeholder="Message">
                 <input class="inp-std" id="ubt-${id}" value="${u.btn_text}" placeholder="Btn Text">
                 <input class="inp-std" id="uu-${id}" value="${u.url}" placeholder="URL">
-                
                 <div class="color-row">
                     <div style="text-align:center"><div class="c-circ" style="background:${u.bg}" onclick="showPicker('ubg-${id}',this)"></div><input type="hidden" id="ubg-${id}" value="${u.bg}"></div>
                     <div style="text-align:center"><div class="c-circ" style="background:${u.txt}" onclick="showPicker('utx-${id}',this)"></div><input type="hidden" id="utx-${id}" value="${u.txt}"></div>
@@ -306,21 +357,20 @@
                 <div class="label">Data Injection</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
                 <div class="row"><span>Multi-Server</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
-
+                
                 <input class="inp-std" id="pw-${id}" value="${i.pass}" placeholder="Encryption Password (Required)">
 
-                <!-- SINGLE MODE -->
-                <div id="single-${id}" style="display:${isMulti?'none':'block'}; margin-bottom:10px;">
+                <div id="single-${id}" style="display:${isMulti?'none':'block'}">
                     <div class="upload-row">
-                        <button class="btn-icon" style="background:#34C759" onclick="triggerUpload('iz-${id}', '${id}')">☁️</button>
-                        <input class="inp-std" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Single Link">
+                        <button class="btn-icon btn-up" onclick="triggerUpload('iz-${id}', '${id}')">☁️</button>
+                        <input class="inp-std" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Main Link">
+                        <button class="btn-icon btn-tr" onclick="deleteFromGH('${id}')">🗑️</button>
                     </div>
                 </div>
 
-                <!-- MULTI MODE -->
                 <div id="multi-${id}" style="display:${isMulti?'block':'none'}">
                     <div id="srv-list-${id}">${srvHtml}</div>
-                    <button class="btn-save" style="margin-top:0; background:#eee; color:#333;" onclick="addServer('${id}')">+ Add Server</button>
+                    <button class="btn-save" style="margin-top:0; background:#eee; color:#333" onclick="addServer('${id}')">+ Add Server</button>
                 </div>
 
                 <input type="number" class="inp-std" id="iv-${id}" value="${i.ver}" placeholder="Ver Code" style="margin-top:15px">
@@ -337,8 +387,8 @@
         </div>`;
         document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
     }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: "+t); }
 </script>
 </body>
 </html>
-
 
