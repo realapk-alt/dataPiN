@@ -133,15 +133,36 @@
  <div id="loginOverlay" class="modal" style="display:flex;">
     <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
         
-    <!-- LOGIN -->
+     <!-- LOGIN -->
     <div id="loginOverlay" class="modal" style="display:flex;">
-        <div class="modal-box">
-            <h2>Admin Login</h2>
-            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
-            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
+        <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            
+            <!-- Animation Style for this specific text -->
+            <style>
+                .anim-header {
+                    font-size: 26px; margin: 0 0 20px 0; font-weight: 900; letter-spacing: -0.5px;
+                    background: linear-gradient(to right, #000000 20%, #007AFF 50%, #000000 80%);
+                    background-size: 200% auto;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: shineMove 3s linear infinite;
+                }
+                @keyframes shineMove { to { background-position: 200% center; } }
+            </style>
+
+            <h2 class="anim-header">Admin Access</h2>
+            
+            <input type="password" id="pass" class="login-inp" placeholder="Enter Password" 
+                   style="text-align:center; width:100%; margin-bottom:20px; letter-spacing:1px;">
+            
+            <button class="btn-save" style="margin:0; width:100%; background:var(--primary); font-size:16px;" onclick="doLogin()">LOGIN</button>
+            
+            <p id="msg" style="color:red; margin-top:15px; font-size:13px; font-weight:600; min-height:18px;"></p>
         </div>
     </div>
+
+
+
 
 
     <!-- COLOR PICKER -->
@@ -222,13 +243,26 @@
         });
     }
 
-    // --- DATA ---
+    // --- LOAD DATA (ANTI-CACHE FIX) ---
     function loadData() {
-        fetch(DB+"/apps.json").then(r=>r.json()).then(d=>{
-            const l = document.getElementById('listArea'); l.innerHTML="";
-            if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
-            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Found</p>";
-        });
+        // URL ke aage timestamp (?t=...) lagaya hai taaki cache na uthaye
+        fetch(DB + "/apps.json?t=" + Date.now())
+            .then(r => r.json())
+            .then(d => {
+                const l = document.getElementById('listArea'); 
+                l.innerHTML = "";
+                
+                if(d) {
+                    // Data hai to show karo
+                    Object.keys(d).reverse().forEach(k => drawSlot(k, d[k]));
+                } else {
+                    // Data nahi hai
+                    l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px; font-weight:600;'>No Slots Created</p>";
+                }
+            })
+            .catch(e => {
+                alert("Data Load Error: Check Internet");
+            });
     }
 
     function createNew() {
@@ -325,74 +359,52 @@
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
     }
+
     function handleFileUpload(inp) {
         if(inp.files[0]) {
             const f = inp.files[0];
-            const btn = document.getElementById(uploadCtx.btnId);
-            if(btn) btn.innerText = "🔒"; // Encrypting...
+            const btn = document.getElementById(uploadConfig.btnId);
+            if(btn) btn.innerText = "🚀"; // Encrypting
 
             const r = new FileReader();
-            r.readAsArrayBuffer(f); // Read file as binary
-
+            r.readAsArrayBuffer(f); // Read as Buffer for stability
             r.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
+                // XOR Encryption
+                for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ uploadConfig.pass.charCodeAt(i % uploadConfig.pass.length);
                 
-                // 1. XOR Encryption (Password se Lock karna)
-                for(let i=0; i<raw.length; i++) {
-                    raw[i] = raw[i] ^ uploadCtx.pass.charCodeAt(i % uploadCtx.pass.length);
-                }
-                
-                // 2. Convert Encrypted Data to Base64 (Fastest Way)
+                // Blob to Base64 (Safe for Large Files)
                 const blob = new Blob([raw]);
                 const reader2 = new FileReader();
                 reader2.readAsDataURL(blob);
-                
                 reader2.onloadend = function() {
-                    // Remove "data:application/octet-stream;base64," prefix
                     const base64data = reader2.result.split(',')[1];
-                    
-                    if(btn) btn.innerText = "☁️"; // Ready to Upload
+                    if(btn) btn.innerText = "📂"; // Uploading
                     uploadToGH(f.name, base64data, btn);
                 }
             };
         }
-        inp.value = ''; // Clear input
+        inp.value = '';
     }
 
     function uploadToGH(name, content, btn) {
-        const t = localStorage.getItem('gh_t');
-        const o = localStorage.getItem('gh_o');
-        const r = localStorage.getItem('gh_r');
-        
-        // File ka naam hamesha .zip rahega
-        const sName = "data_" + Date.now() + ".zip"; 
+        const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
+        const sName = "data_" + Date.now() + ".zip"; // Force ZIP extension
         
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
-            method: 'PUT',
-            headers: { 
-                'Authorization': `token ${t}`, 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({ 
-                message: "Secure Upload via CyberX", 
-                content: content 
-            })
+            method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message:"Secure Upload", content:content })
         })
         .then(async res => {
             const d = await res.json();
             if(!res.ok) throw new Error(d.message || res.statusText);
             
-            // Success: Link Box me daalo
-            document.getElementById(uploadCtx.inputId).value = d.content.download_url;
-            
-            if(btn) { 
-                btn.innerText = "✅"; 
-                setTimeout(() => btn.innerText = "☁️", 2000); 
-            }
+            document.getElementById(uploadConfig.inputId).value = d.content.download_url;
+            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="📂", 2000); }
         })
         .catch(e => { 
             alert("GitHub Error: " + e.message); 
-            if(btn) btn.innerText = "❌"; 
+            if(btn) btn.innerText="❌"; 
         });
     }
 
