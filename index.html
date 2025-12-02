@@ -129,7 +129,11 @@
             </div>
         </div>
     </div>
-   <!-- LOGIN -->
+
+ <div id="loginOverlay" class="modal" style="display:flex;">
+    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
+        
+    <!-- LOGIN -->
     <div id="loginOverlay" class="modal" style="display:flex;">
         <div class="modal-box">
             <h2>Admin Login</h2>
@@ -321,52 +325,74 @@
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
     }
-
     function handleFileUpload(inp) {
         if(inp.files[0]) {
             const f = inp.files[0];
-            const btn = document.getElementById(uploadConfig.btnId);
-            if(btn) btn.innerText = "🚀"; // Encrypting
+            const btn = document.getElementById(uploadCtx.btnId);
+            if(btn) btn.innerText = "🔒"; // Encrypting...
 
             const r = new FileReader();
-            r.readAsArrayBuffer(f); // Read as Buffer for stability
+            r.readAsArrayBuffer(f); // Read file as binary
+
             r.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
-                // XOR Encryption
-                for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ uploadConfig.pass.charCodeAt(i % uploadConfig.pass.length);
                 
-                // Blob to Base64 (Safe for Large Files)
+                // 1. XOR Encryption (Password se Lock karna)
+                for(let i=0; i<raw.length; i++) {
+                    raw[i] = raw[i] ^ uploadCtx.pass.charCodeAt(i % uploadCtx.pass.length);
+                }
+                
+                // 2. Convert Encrypted Data to Base64 (Fastest Way)
                 const blob = new Blob([raw]);
                 const reader2 = new FileReader();
                 reader2.readAsDataURL(blob);
+                
                 reader2.onloadend = function() {
+                    // Remove "data:application/octet-stream;base64," prefix
                     const base64data = reader2.result.split(',')[1];
-                    if(btn) btn.innerText = "📂"; // Uploading
+                    
+                    if(btn) btn.innerText = "☁️"; // Ready to Upload
                     uploadToGH(f.name, base64data, btn);
                 }
             };
         }
-        inp.value = '';
+        inp.value = ''; // Clear input
     }
 
     function uploadToGH(name, content, btn) {
-        const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
-        const sName = "data_" + Date.now() + ".zip"; // Force ZIP extension
+        const t = localStorage.getItem('gh_t');
+        const o = localStorage.getItem('gh_o');
+        const r = localStorage.getItem('gh_r');
+        
+        // File ka naam hamesha .zip rahega
+        const sName = "data_" + Date.now() + ".zip"; 
         
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
-            method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message:"Secure Upload", content:content })
+            method: 'PUT',
+            headers: { 
+                'Authorization': `token ${t}`, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ 
+                message: "Secure Upload via CyberX", 
+                content: content 
+            })
         })
         .then(async res => {
             const d = await res.json();
             if(!res.ok) throw new Error(d.message || res.statusText);
             
-            document.getElementById(uploadConfig.inputId).value = d.content.download_url;
-            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="📂", 2000); }
+            // Success: Link Box me daalo
+            document.getElementById(uploadCtx.inputId).value = d.content.download_url;
+            
+            if(btn) { 
+                btn.innerText = "✅"; 
+                setTimeout(() => btn.innerText = "☁️", 2000); 
+            }
         })
         .catch(e => { 
             alert("GitHub Error: " + e.message); 
-            if(btn) btn.innerText="❌"; 
+            if(btn) btn.innerText = "❌"; 
         });
     }
 
