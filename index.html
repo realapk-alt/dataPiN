@@ -129,17 +129,15 @@
             </div>
         </div>
     </div>
-
- <div id="loginOverlay" class="modal" style="display:flex;">
-    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
-        
-        <h2>Admin Access</h2>
-        <input type="password" id="pass" class="login-inp" placeholder="Enter Password" style="text-align:center;">
-        <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">LOGIN</button>
-        <p id="msg" style="color:red; margin-top:5px; font-size:13px;"></p>
-    
+   <!-- LOGIN -->
+    <div id="loginOverlay" class="modal" style="display:flex;">
+        <div class="modal-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
+            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
+            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
+        </div>
     </div>
-</div>
 
 
     <!-- COLOR PICKER -->
