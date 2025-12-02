@@ -14,8 +14,47 @@
         
         /* COMPONENTS */
         .container { max-width: 600px; margin: 0 auto; display: none; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .settings-btn { background: white; width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* --- NEW HEADER STYLES --- */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            padding: 10px 5px; 
+        }
+
+        .cyber-text {
+            font-size: 28px; 
+            font-weight: 900; 
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #007AFF, #00C6FF, #007AFF);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+            display: inline-block;
+        }
+
+        .gold-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #C49102 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+            box-shadow: 0 4px 10px rgba(218, 165, 32, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            display: inline-block;
+            transform: translateY(-3px);
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
 
         .card { background: var(--card); border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; }
         
@@ -95,7 +134,7 @@
     <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
         
         <h2>Admin Access</h2>
-        <input type="password" id="pass" class="login-inp" placeholder="Access Key" style="text-align:center;">
+        <input type="password" id="pass" class="login-inp" placeholder="Enter Password" style="text-align:center;">
         <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">LOGIN</button>
         <p id="msg" style="color:red; margin-top:5px; font-size:13px;"></p>
     
@@ -120,14 +159,17 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div class="container" id="mainUI">
-        <div class="header">
-            <h2>CyberX - ☣️</h2>
-            <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
+    <div class="header">
+        <div>
+            <span class="cyber-text">CyberX</span>
+            <span class="gold-badge">PRO</span>
         </div>
+        <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
+    </div>
+
 
         <div class="create-card">
-            <input type="text" id="newApp" class="input-new" placeholder="New App Name...">
+            <input type="text" id="newApp" class="input-new" placeholder="Create New App Slot..">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
@@ -142,13 +184,39 @@
 
     // --- LOGIN ---
     const pInp = document.getElementById('pass');
+    const msgLabel = document.getElementById('msg'); // Message Element Reference
+
     pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
+    pInp.addEventListener('input', () => msgLabel.innerText = ""); // Clear error on type
     
     function doLogin() {
         const p = pInp.value.trim();
+        if(!p) { msgLabel.innerText = "Enter Password"; return; }
+
+        msgLabel.style.color = "gray";
+        msgLabel.innerText = "Verifying...";
+
         fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
-            if(String(d)===p) { document.getElementById('loginOverlay').style.display='none'; document.getElementById('mainUI').style.display='block'; loadData(); }
-            else document.getElementById('msg').innerText="Wrong Password";
+            if(String(d)===p) { 
+                // LOGIN SUCCESS
+                msgLabel.style.color = "#34C759"; // Green Color
+                msgLabel.innerText = "Successfully!"; 
+                
+                // 1 Second Delay so user can see the success message
+                setTimeout(() => {
+                    document.getElementById('loginOverlay').style.display='none'; 
+                    document.getElementById('mainUI').style.display='block'; 
+                    loadData(); 
+                }, 1000);
+            }
+            else {
+                // LOGIN FAILED
+                msgLabel.style.color = "red";
+                msgLabel.innerText = "Wrong Password";
+            }
+        }).catch(() => {
+            msgLabel.style.color = "red";
+            msgLabel.innerText = "Connection Failed";
         });
     }
 
@@ -163,12 +231,19 @@
 
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
-        const id = 'slot_'+Math.random().toString(36).substr(2,8);
-        const data = { name:n, update:{active:false, title:"Update", msg:"join our telegram channel for more information", btn_text:"Update Now", url:"https//t.me/aboutofhcs", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        
+        // New ID Format: rlx-XXXXXXXXXX (10 Capital Letters/Numbers)
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let rand = "";
+        for(let i=0; i<10; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
+        const id = 'rlx-' + rand;
+
+        const data = { name:n, update:{active:false, title:"! REAL APK !", msg:"join our telegram channel for more information", btn_text:"Update Now", url:"https://telegram.me/aboutofhcs", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
     }
+
 
     function saveSlot(id) {
         const btn = document.getElementById('btn-'+id); btn.innerText="Saving...";
@@ -216,7 +291,7 @@
         const uid = Date.now();
         const div = document.createElement('div'); div.className = `srv-box srv-${id}`;
         div.innerHTML = `
-        <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
+        <div class="srv-head"><span>SERVER SLOTS</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
         <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
         <div class="upload-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
@@ -243,7 +318,7 @@
         if(!localStorage.getItem('gh_t')) { alert("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
         
         const pass = document.getElementById('pw-'+slotId).value.trim();
-        if(!pass) { alert("🔑 Encryption Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
+        if(!pass) { alert("🔑 Enter Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
         
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
