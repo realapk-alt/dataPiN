@@ -235,7 +235,7 @@
         // New ID Format: rlx-XXXXXXXXXX (10 Capital Letters/Numbers)
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let rand = "";
-        for(let i=0; i<10; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
+        for(let i=0; i<30; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
         const id = 'rlx-' + rand;
 
         const data = { name:n, update:{active:false, title:"! REAL APK !", msg:"join our telegram channel for more information", btn_text:"Update Now", url:"https://telegram.me/aboutofhcs", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
@@ -419,7 +419,7 @@
         const h = `
         <div class="card slot">
             <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
-                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">${id.substring(0,8)}...</div></div>
+                <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">${id.substring(0,15)}...</div></div>
                 <div style="font-size:16px; color:var(--primary);">edit</div>
             </div>
             <div class="slot-body" id="b_${id}">
