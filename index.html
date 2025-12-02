@@ -10,52 +10,19 @@
             --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; 
             --danger: #FF3B30; --success: #34C759; --text: #1C1C1E; --border: #C6C6C8;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; }
+
+        /* LAYOUT */
+        .container { max-width: 600px; margin: 0 auto; display: none; /* Hidden Initially */ }
         
-        /* COMPONENTS */
-        .container { max-width: 600px; margin: 0 auto; display: none; }
-        /* --- NEW HEADER STYLES --- */
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 25px; 
-            padding: 10px 5px; 
-        }
-
-        .cyber-text {
-            font-size: 28px; 
-            font-weight: 900; 
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #007AFF, #00C6FF, #007AFF);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite;
-            display: inline-block;
-        }
-
-        .gold-badge {
-            background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #C49102 100%);
-            color: white;
-            font-size: 11px;
-            font-weight: 900;
-            padding: 4px 10px;
-            border-radius: 12px;
-            margin-left: 8px;
-            vertical-align: middle;
-            box-shadow: 0 4px 10px rgba(218, 165, 32, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            display: inline-block;
-            transform: translateY(-3px);
-        }
-
-        @keyframes shine {
-            to { background-position: 200% center; }
-        }
+        /* HEADER */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 10px 5px; }
+        .cyber-text { font-size: 28px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(to right, #007AFF, #00C6FF, #007AFF); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; display: inline-block; }
+        .gold-badge { background: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #C49102 100%); color: white; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 12px; margin-left: 8px; vertical-align: middle; box-shadow: 0 4px 10px rgba(218, 165, 32, 0.4); border: 1px solid rgba(255, 255, 255, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; transform: translateY(-3px); }
+        @keyframes shine { to { background-position: 200% center; } }
         .settings-btn { background: white; width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
+        /* CARDS */
         .card { background: var(--card); border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; }
         
         /* CREATE */
@@ -72,16 +39,22 @@
 
         /* CONTROLS */
         .label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin: 20px 0 8px 0; display: block; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .inp-std { width: 100%; padding: 14px; background: #F9F9F9; border: 1px solid #eee; border-radius: 12px; font-size: 15px; margin-bottom: 10px; outline: none; color: var(--primary); font-weight: 600; box-sizing: border-box; }
-
+        
         /* UPLOAD ROW */
         .upload-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         .btn-icon { width: 50px; height: 46px; border-radius: 12px; border: none; color: white; font-size: 20px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .btn-up { background: var(--success); }
         .btn-tr { background: var(--danger); }
 
+        /* MULTI SERVER */
+        .srv-box { background: #f2f2f7; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #ddd; }
+        .srv-head { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; font-weight: bold; color: #888; }
+        .srv-row { display: flex; gap: 5px; }
+        .btn-mini { width: 40px; height: 40px; border-radius: 10px; border: none; color: white; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
         /* SWITCH */
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .switch { position: relative; display: inline-block; width: 46px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e4e4e4; transition: .3s; border-radius: 34px; }
@@ -100,12 +73,6 @@
         /* LOGIN */
         #loginOverlay { background: #F2F2F7; z-index: 2000; }
         .login-inp { width: 100%; padding: 15px; margin: 20px 0; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 18px; background: white; outline: none; }
-
-        /* MULTI SERVER */
-        .srv-box { background: #f2f2f7; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e5e5e5; }
-        .srv-head { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: bold; color: #888; }
-        .srv-row { display: flex; gap: 8px; }
-        .btn-mini { width: 44px; height: 44px; border-radius: 10px; border: none; color: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         
         /* COLORS */
         .color-row { display: flex; gap: 12px; justify-content: flex-end; margin: 15px 0; }
@@ -130,40 +97,19 @@
         </div>
     </div>
 
- <div id="loginOverlay" class="modal" style="display:flex;">
-    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
-        
-     <!-- LOGIN -->
+    <!-- LOGIN -->
     <div id="loginOverlay" class="modal" style="display:flex;">
         <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-            
-            <!-- Animation Style for this specific text -->
             <style>
-                .anim-header {
-                    font-size: 26px; margin: 0 0 20px 0; font-weight: 900; letter-spacing: -0.5px;
-                    background: linear-gradient(to right, #000000 20%, #007AFF 50%, #000000 80%);
-                    background-size: 200% auto;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    animation: shineMove 3s linear infinite;
-                }
+                .anim-header { font-size: 26px; margin: 0 0 20px 0; font-weight: 900; letter-spacing: -0.5px; background: linear-gradient(to right, #000000 20%, #007AFF 50%, #000000 80%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shineMove 3s linear infinite; }
                 @keyframes shineMove { to { background-position: 200% center; } }
             </style>
-
             <h2 class="anim-header">Admin Access</h2>
-            
-            <input type="password" id="pass" class="login-inp" placeholder="Enter Password" 
-                   style="text-align:center; width:100%; margin-bottom:20px; letter-spacing:1px;">
-            
-            <button class="btn-save" style="margin:0; width:100%; background:var(--primary); font-size:16px;" onclick="doLogin()">LOGIN</button>
-            
+            <input type="password" id="pass" class="login-inp" placeholder="Enter Password">
+            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">LOGIN</button>
             <p id="msg" style="color:red; margin-top:15px; font-size:13px; font-weight:600; min-height:18px;"></p>
         </div>
     </div>
-
-
-
-
 
     <!-- COLOR PICKER -->
     <div id="pickerModal" class="modal">
@@ -190,17 +136,9 @@
             </div>
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
-    <!-- DASHBOARD -->
-    <div class="header">
-        <div>
-            <span class="cyber-text">cYber-X</span>
-            <span class="gold-badge">PRO</span>
-        </div>
-        <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
-    </div>
 
         <div class="create-card">
-            <input type="text" id="newApp" class="input-new" placeholder="Create New App Slot..">
+            <input type="text" id="newApp" class="input-new" placeholder="Create New App Slot...">
             <button class="btn-add" onclick="createNew()">+</button>
         </div>
 
@@ -215,82 +153,58 @@
 
     // --- LOGIN ---
     const pInp = document.getElementById('pass');
-    const msgLabel = document.getElementById('msg'); // Message Element Reference
-
+    const msgLabel = document.getElementById('msg');
     pInp.addEventListener('paste', () => setTimeout(doLogin, 100));
-    pInp.addEventListener('input', () => msgLabel.innerText = ""); // Clear error on type
+    pInp.addEventListener('input', () => msgLabel.innerText = "");
     
     function doLogin() {
         const p = pInp.value.trim();
         if(!p) { msgLabel.innerText = "Enter Password"; return; }
 
-        msgLabel.style.color = "gray";
-        msgLabel.innerText = "Verifying...";
+        msgLabel.style.color = "gray"; msgLabel.innerText = "Verifying...";
 
         fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
             if(String(d)===p) { 
-                // LOGIN SUCCESS
-                msgLabel.style.color = "#34C759"; // Green Color
-                msgLabel.innerText = "Successfully!"; 
-                
-                // 1 Second Delay so user can see the success message
+                msgLabel.style.color = "#34C759"; msgLabel.innerText = "Successfully!"; 
                 setTimeout(() => {
                     document.getElementById('loginOverlay').style.display='none'; 
                     document.getElementById('mainUI').style.display='block'; 
                     loadData(); 
+                    
+                    // Load GH Config
+                    document.getElementById('ghToken').value = localStorage.getItem('gh_t')||'';
+                    document.getElementById('ghOwner').value = localStorage.getItem('gh_o')||'';
+                    document.getElementById('ghRepo').value = localStorage.getItem('gh_r')||'';
                 }, 1000);
             }
-            else {
-                // LOGIN FAILED
-                msgLabel.style.color = "red";
-                msgLabel.innerText = "Wrong Password";
-            }
-        }).catch(() => {
-            msgLabel.style.color = "red";
-            msgLabel.innerText = "Connection Failed";
-        });
+            else { msgLabel.style.color = "red"; msgLabel.innerText = "Wrong Password"; }
+        }).catch(() => { msgLabel.style.color = "red"; msgLabel.innerText = "Connection Failed"; });
     }
 
-    // --- LOAD DATA (ANTI-CACHE FIX) ---
+    // --- DATA ---
     function loadData() {
-        // URL ke aage timestamp (?t=...) lagaya hai taaki cache na uthaye
-        fetch(DB + "/apps.json?t=" + Date.now())
-            .then(r => r.json())
-            .then(d => {
-                const l = document.getElementById('listArea'); 
-                l.innerHTML = "";
-                
-                if(d) {
-                    // Data hai to show karo
-                    Object.keys(d).reverse().forEach(k => drawSlot(k, d[k]));
-                } else {
-                    // Data nahi hai
-                    l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px; font-weight:600;'>No Slots Created</p>";
-                }
-            })
-            .catch(e => {
-                alert("Data Load Error: Check Internet");
-            });
+        fetch(DB+"/apps.json?t="+Date.now()).then(r=>r.json()).then(d=>{
+            const l = document.getElementById('listArea'); l.innerHTML="";
+            if(d) Object.keys(d).reverse().forEach(k=>drawSlot(k,d[k]));
+            else l.innerHTML = "<p style='text-align:center; color:#999; margin-top:50px;'>No Slots Created</p>";
+        });
     }
 
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
-        
-        // New ID Format: rlx-XXXXXXXXXX (10 Capital Letters/Numbers)
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let rand = "";
-        for(let i=0; i<30; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
+        let rand = ""; for(let i=0; i<10; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
         const id = 'rlx-' + rand;
 
-        const data = { name:n, update:{active:false, title:"! REAL APK !", msg:"join our telegram channel for more information", btn_text:"Update Now", url:"https://telegram.me/aboutofhcs", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        const data = { name:n, update:{active:false, title:"Update", msg:"Msg", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
     }
 
-
     function saveSlot(id) {
         const btn = document.getElementById('btn-'+id); btn.innerText="Saving...";
+        
         let srvs = [];
         document.querySelectorAll(`.srv-${id}`).forEach(el => {
             srvs.push({name: el.querySelector('.nm').value, url: el.querySelector('.ur').value});
@@ -325,6 +239,7 @@
     function delSlot(id) { if(confirm("Delete Slot?")) fetch(DB+"/apps/"+id+".json",{method:'DELETE'}).then(loadData); }
     function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: "+t); }
 
+    // UI TOGGLES
     function toggleMulti(id) {
         const on = document.getElementById('im-'+id).checked;
         document.getElementById('single-'+id).style.display = on ? 'none' : 'block';
@@ -335,8 +250,8 @@
         const uid = Date.now();
         const div = document.createElement('div'); div.className = `srv-box srv-${id}`;
         div.innerHTML = `
-        <div class="srv-head"><span>SERVER SLOTS</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
-        <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
+        <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
+        <input class="inp-std nm" placeholder="Name" style="margin-bottom:5px">
         <div class="upload-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
             <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
@@ -344,7 +259,7 @@
         document.getElementById('srv-list-'+id).appendChild(div);
     }
 
-    // --- ROBUST GITHUB UPLOAD (BLOB METHOD) ---
+    // --- UPLOAD LOGIC (BLOB & ERROR HANDLING) ---
     function openGhSettings() {
         document.getElementById('ghToken').value = localStorage.getItem('gh_t')||'';
         document.getElementById('ghOwner').value = localStorage.getItem('gh_o')||'';
@@ -359,10 +274,9 @@
     }
 
     function triggerUpload(btnId, inputId, slotId) {
-        if(!localStorage.getItem('gh_t')) { alert("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
-        
+        if(!localStorage.getItem('gh_t')) { alert("⚠️ GitHub Config Missing (Click Gear Icon)"); openGhSettings(); return; }
         const pass = document.getElementById('pw-'+slotId).value.trim();
-        if(!pass) { alert("🔑 Enter Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
+        if(!pass) { alert("⚠️ Encryption Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
         
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
@@ -372,22 +286,21 @@
         if(inp.files[0]) {
             const f = inp.files[0];
             const btn = document.getElementById(uploadConfig.btnId);
-            if(btn) btn.innerText = "🚀"; // Encrypting
+            if(btn) btn.innerText = "🔒"; 
 
             const r = new FileReader();
-            r.readAsArrayBuffer(f); // Read as Buffer for stability
+            r.readAsArrayBuffer(f);
             r.onload = function(e) {
                 const raw = new Uint8Array(e.target.result);
-                // XOR Encryption
                 for(let i=0; i<raw.length; i++) raw[i] = raw[i] ^ uploadConfig.pass.charCodeAt(i % uploadConfig.pass.length);
                 
-                // Blob to Base64 (Safe for Large Files)
+                // BLOB CONVERSION (FIX FOR LARGE FILES)
                 const blob = new Blob([raw]);
                 const reader2 = new FileReader();
                 reader2.readAsDataURL(blob);
                 reader2.onloadend = function() {
                     const base64data = reader2.result.split(',')[1];
-                    if(btn) btn.innerText = "📂"; // Uploading
+                    if(btn) btn.innerText = "☁️"; 
                     uploadToGH(f.name, base64data, btn);
                 }
             };
@@ -397,7 +310,7 @@
 
     function uploadToGH(name, content, btn) {
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
-        const sName = "data_" + Date.now() + ".zip"; // Force ZIP extension
+        const sName = "data_" + Date.now() + ".zip"; 
         
         fetch(`https://api.github.com/repos/${o}/${r}/contents/${sName}`, {
             method:'PUT', headers: { 'Authorization': `token ${t}`, 'Content-Type': 'application/json' },
@@ -405,10 +318,10 @@
         })
         .then(async res => {
             const d = await res.json();
-            if(!res.ok) throw new Error(d.message || res.statusText);
+            if(!res.ok) throw new Error(d.message);
             
             document.getElementById(uploadConfig.inputId).value = d.content.download_url;
-            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="📂", 2000); }
+            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="☁️", 2000); }
         })
         .catch(e => { 
             alert("GitHub Error: " + e.message); 
@@ -417,11 +330,12 @@
     }
 
     function deleteFromGH(id) {
-        if(!confirm("Delete from GitHub?")) return;
-        const url = document.getElementById('iz-'+id).value;
+        if(!confirm("Delete File?")) return;
+        const inp = document.getElementById('iz-'+id);
+        const url = inp.value;
         if(!url) return;
-        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub First"); return; }
 
+        if(!localStorage.getItem('gh_t')) { alert("Setup GitHub First"); return; }
         const name = url.split('/').pop();
         const t=localStorage.getItem('gh_t'), o=localStorage.getItem('gh_o'), r=localStorage.getItem('gh_r');
         
@@ -431,11 +345,12 @@
                 fetch(`https://api.github.com/repos/${o}/${r}/contents/${name}`, {
                     method:'DELETE', headers:{'Authorization':`token ${t}`, 'Content-Type':'application/json'},
                     body:JSON.stringify({message:"Deleted", sha:d.sha})
-                }).then(()=>{ alert("Deleted!"); document.getElementById('iz-'+id).value=""; });
-            } else alert("File Not Found on GitHub");
+                }).then(()=>{ alert("Deleted!"); inp.value=""; });
+            } else alert("File Not Found");
         });
     }
 
+    // COLORS
     function showPicker(inp, el) { actInp=inp; actCirc=el; document.getElementById('pickerModal').style.display='flex'; }
     function updCol() {
         const hex = "#" + ((1<<24)+(parseInt(document.getElementById('rngR').value)<<16)+(parseInt(document.getElementById('rngG').value)<<8)+parseInt(document.getElementById('rngB').value)).toString(16).slice(1).toUpperCase();
@@ -443,6 +358,7 @@
     }
     function saveCol() { document.getElementById(actInp).value=document.getElementById('hexTxt').innerText; actCirc.style.background=document.getElementById('hexTxt').innerText; document.getElementById('pickerModal').style.display='none'; }
 
+    // RENDER
     function drawSlot(id, d) {
         const u = d.update||{}, i = d.inject||{};
         const isMulti = i.multi || false;
@@ -454,7 +370,7 @@
                 <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
                 <input class="inp-std nm" value="${s.name}" placeholder="Server Name" style="margin-bottom:5px">
                 <div class="upload-row">
-                    <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Encrypted Link" style="margin:0">
+                    <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Link" style="margin:0">
                     <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
                 </div>
             </div>`;
@@ -468,6 +384,8 @@
             </div>
             <div class="slot-body" id="b_${id}">
                 <div class="label">Update Config</div>
+
+
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ua-${id}" ${u.active?'checked':''}><span class="slider"></span></label></div>
                 <input class="inp-std" id="ut-${id}" value="${u.title}" placeholder="Title">
                 <input class="inp-std" id="um-${id}" value="${u.msg}" placeholder="Message">
@@ -508,12 +426,12 @@
                 </div>
 
                 <button class="btn-save" id="btn-${id}" onclick="saveSlot('${id}')">Save Changes</button>
-                <button class="btn-del" onclick="delSlot('${id}')">Delete Permanent</button>
+                <button class="btn-del" onclick="delSlot('${id}')">Delete Slot</button>
             </div>
         </div>`;
         document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
     }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied!"); }
+    function copyTxt(t) { navigator.clipboard.writeText(t); alert("ID Copied: "+t); }
 </script>
 </body>
 </html>
