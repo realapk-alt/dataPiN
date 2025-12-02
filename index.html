@@ -91,15 +91,17 @@
         </div>
     </div>
 
-    <!-- LOGIN -->
-  <div id="loginOverlay" class="modal" style="display:flex;">
-        <div class="modal-box">
-            <h2>Admin Login</h2>
-            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
-            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
-        </div>
+ <div id="loginOverlay" class="modal" style="display:flex;">
+    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
+        
+        <h2>Admin Access</h2>
+        <input type="password" id="pass" class="login-inp" placeholder="Access Key" style="text-align:center;">
+        <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">LOGIN</button>
+        <p id="msg" style="color:red; margin-top:5px; font-size:13px;"></p>
+    
     </div>
+</div>
+
 
     <!-- COLOR PICKER -->
     <div id="pickerModal" class="modal">
@@ -120,7 +122,7 @@
     <!-- DASHBOARD -->
     <div class="container" id="mainUI">
         <div class="header">
-            <h2>CyberX Panel</h2>
+            <h2>CyberX - ☣️</h2>
             <button class="settings-btn" onclick="openGhSettings()">⚙️</button>
         </div>
 
@@ -162,7 +164,7 @@
     function createNew() {
         const n = document.getElementById('newApp').value; if(!n) return;
         const id = 'slot_'+Math.random().toString(36).substr(2,8);
-        const data = { name:n, update:{active:false, title:"Update", msg:"Msg", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        const data = { name:n, update:{active:false, title:"Update", msg:"join our telegram channel for more information", btn_text:"Update Now", url:"https//t.me/aboutofhcs", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
         fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
             document.getElementById('newApp').value=""; loadData();
         });
@@ -174,7 +176,6 @@
         document.querySelectorAll(`.srv-${id}`).forEach(el => {
             srvs.push({name: el.querySelector('.nm').value, url: el.querySelector('.ur').value});
         });
-
 
         const d = {
             name: document.getElementById('n-'+id).innerText,
@@ -215,11 +216,11 @@
         const uid = Date.now();
         const div = document.createElement('div'); div.className = `srv-box srv-${id}`;
         div.innerHTML = `
-        <div class="srv-head"><span>SERVER LIST</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
+        <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
         <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
         <div class="upload-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
-            <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">📂</button>
+            <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
         </div>`;
         document.getElementById('srv-list-'+id).appendChild(div);
     }
@@ -239,10 +240,10 @@
     }
 
     function triggerUpload(btnId, inputId, slotId) {
-        if(!localStorage.getItem('gh_t')) { ⚠️ ("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
+        if(!localStorage.getItem('gh_t')) { alert("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
         
         const pass = document.getElementById('pw-'+slotId).value.trim();
-        if(!pass) { alert("🔑 Enter Password (Required!)"); document.getElementById('pw-'+slotId).focus(); return; }
+        if(!pass) { alert("🔑 Encryption Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
         
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
@@ -252,7 +253,7 @@
         if(inp.files[0]) {
             const f = inp.files[0];
             const btn = document.getElementById(uploadConfig.btnId);
-            if(btn) btn.innerText = "♻️"; // Encrypting
+            if(btn) btn.innerText = "🚀"; // Encrypting
 
             const r = new FileReader();
             r.readAsArrayBuffer(f); // Read as Buffer for stability
@@ -288,7 +289,7 @@
             if(!res.ok) throw new Error(d.message || res.statusText);
             
             document.getElementById(uploadConfig.inputId).value = d.content.download_url;
-            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="🚀", 2000); }
+            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="📂", 2000); }
         })
         .catch(e => { 
             alert("GitHub Error: " + e.message); 
@@ -335,7 +336,7 @@
                 <input class="inp-std nm" value="${s.name}" placeholder="Server Name" style="margin-bottom:5px">
                 <div class="upload-row">
                     <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Encrypted Link" style="margin:0">
-                    <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">📤</button>
+                    <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
                 </div>
             </div>`;
         });
@@ -363,13 +364,13 @@
 
                 <div class="label">Data Injection</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
-                <div class="row"><span>Multi Servers</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
+                <div class="row"><span>Multi-Server</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
                 
                 <input class="inp-std" id="pw-${id}" value="${i.pass}" placeholder="Encryption Password (REQUIRED)">
 
                 <div id="single-${id}" style="display:${isMulti?'none':'block'}">
                     <div class="upload-row">
-                        <button class="btn-icon btn-up" id="upmain-${id}" onclick="triggerUpload('upmain-${id}', 'iz-${id}', '${id}')">📤</button>
+                        <button class="btn-icon btn-up" id="upmain-${id}" onclick="triggerUpload('upmain-${id}', 'iz-${id}', '${id}')">☁️</button>
                         <input class="inp-std" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Link (Auto)">
                         <button class="btn-icon btn-tr" onclick="deleteFromGH('${id}')">🗑️</button>
                     </div>
@@ -388,7 +389,7 @@
                 </div>
 
                 <button class="btn-save" id="btn-${id}" onclick="saveSlot('${id}')">Save Changes</button>
-                <button class="btn-del" onclick="delSlot('${id}')">Delete Slot</button>
+                <button class="btn-del" onclick="delSlot('${id}')">Delete Permanent</button>
             </div>
         </div>`;
         document.getElementById('listArea').insertAdjacentHTML('beforeend', h);
