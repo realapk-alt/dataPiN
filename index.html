@@ -25,7 +25,7 @@
         .btn-add { width: 46px; height: 46px; background: var(--primary); color: white; border-radius: 12px; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* SLOTS */
-        .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 2px solid #f0f0f0; }
+        .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .slot-title { font-weight: 700; font-size: 17px; }
         .slot-id { font-size: 11px; color: #888; background: #f0f0f0; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; font-family: monospace; }
         .slot-body { display: none; padding: 20px; background: #fff; }
@@ -92,16 +92,14 @@
     </div>
 
     <!-- LOGIN -->
-<div id="loginOverlay" class="modal" style="display:flex;">
-    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
-        
-        <h2>Admin Login</h2>
-        <input type="password" id="pass" class="login-inp" placeholder="Access Key" style="text-align:center;">
-        <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
-        <p id="msg" style="color:red; margin-top:5px; font-size:13px;"></p>
-    
+  <div id="loginOverlay" class="modal" style="display:flex;">
+        <div class="modal-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
+            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
+            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
+        </div>
     </div>
-</div>
 
     <!-- COLOR PICKER -->
     <div id="pickerModal" class="modal">
