@@ -25,7 +25,7 @@
         .btn-add { width: 46px; height: 46px; background: var(--primary); color: white; border-radius: 12px; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* SLOTS */
-        .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .slot-head { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 2px solid #f0f0f0; }
         .slot-title { font-weight: 700; font-size: 17px; }
         .slot-id { font-size: 11px; color: #888; background: #f0f0f0; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; font-family: monospace; }
         .slot-body { display: none; padding: 20px; background: #fff; }
@@ -92,14 +92,16 @@
     </div>
 
     <!-- LOGIN -->
-    <div id="loginOverlay" class="modal" style="display:flex;">
-        <div class="modal-box">
-            <h2>Admin Login</h2>
-            <input type="password" id="pass" class="login-inp" placeholder="Access Key">
-            <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
-            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
-        </div>
+<div id="loginOverlay" class="modal" style="display:flex;">
+    <div class="modal-box" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding: 20px;">
+        
+        <h2>Admin Login</h2>
+        <input type="password" id="pass" class="login-inp" placeholder="Access Key" style="text-align:center;">
+        <button class="btn-save" style="margin:0; background:var(--primary);" onclick="doLogin()">UNLOCK</button>
+        <p id="msg" style="color:red; margin-top:5px; font-size:13px;"></p>
+    
     </div>
+</div>
 
     <!-- COLOR PICKER -->
     <div id="pickerModal" class="modal">
@@ -160,42 +162,21 @@
     }
 
     function createNew() {
-    const n = document.getElementById('newApp').value; 
-    if(!n) return;
-    
-    // Updated ID logic: Prefix 'rlx-' and convert random string to UpperCase
-    const id = 'rlx-' + Math.random().toString(36).substr(2,15).toUpperCase();
-    
-    const data = { 
-        name: n, 
-        update: {
-            active: false, 
-            title: "REAL APK", 
-            msg: "Join our telegram channel for more mods", 
-            btn_text: "Update Now", 
-            url: "https://t.me/aboutofhcs", 
-            bg: "#FFFFFF", 
-            txt: "#000000", 
-            btn: "#007AFF"
-        }, 
-        inject: {
-            active: false, 
-            multi: false, 
-            zip: "", 
-            pass: "", 
-            servers: [], 
-            ver: 1, 
-            bg: "#FFFFFF", 
-            txt: "#000000", 
-            prog: "#007AFF"
-        } 
-    };
+        const n = document.getElementById('newApp').value; if(!n) return;
+        const id = 'slot_'+Math.random().toString(36).substr(2,8);
+        const data = { name:n, update:{active:false, title:"Update", msg:"Msg", btn_text:"Update Now", url:"", bg:"#FFFFFF", txt:"#000000", btn:"#007AFF"}, inject:{active:false, multi:false, zip:"", pass:"", servers:[], ver:1, bg:"#FFFFFF", txt:"#000000", prog:"#007AFF"} };
+        fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
+            document.getElementById('newApp').value=""; loadData();
+        });
+    }
+
     function saveSlot(id) {
         const btn = document.getElementById('btn-'+id); btn.innerText="Saving...";
         let srvs = [];
         document.querySelectorAll(`.srv-${id}`).forEach(el => {
             srvs.push({name: el.querySelector('.nm').value, url: el.querySelector('.ur').value});
         });
+
 
         const d = {
             name: document.getElementById('n-'+id).innerText,
@@ -236,11 +217,11 @@
         const uid = Date.now();
         const div = document.createElement('div'); div.className = `srv-box srv-${id}`;
         div.innerHTML = `
-        <div class="srv-head"><span>SERVER SLOT</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
+        <div class="srv-head"><span>SERVER LIST</span><span style="color:#FF3B30;cursor:pointer;" onclick="this.parentElement.parentElement.remove()">✕</span></div>
         <input class="inp-std nm" placeholder="Server Name" style="margin-bottom:5px">
         <div class="upload-row">
             <input class="inp-std ur" id="u-${uid}" placeholder="Link" style="margin:0">
-            <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
+            <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">📂</button>
         </div>`;
         document.getElementById('srv-list-'+id).appendChild(div);
     }
@@ -260,10 +241,10 @@
     }
 
     function triggerUpload(btnId, inputId, slotId) {
-        if(!localStorage.getItem('gh_t')) { alert("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
+        if(!localStorage.getItem('gh_t')) { ⚠️ ("⚙️ Setup GitHub Settings First!"); openGhSettings(); return; }
         
         const pass = document.getElementById('pw-'+slotId).value.trim();
-        if(!pass) { alert("🔑 Encryption Password Required!"); document.getElementById('pw-'+slotId).focus(); return; }
+        if(!pass) { alert("🔑 Enter Password (Required!)"); document.getElementById('pw-'+slotId).focus(); return; }
         
         uploadConfig = { btnId: btnId, inputId: inputId, pass: pass };
         document.getElementById('fileInput').click();
@@ -273,7 +254,7 @@
         if(inp.files[0]) {
             const f = inp.files[0];
             const btn = document.getElementById(uploadConfig.btnId);
-            if(btn) btn.innerText = "🔒"; // Encrypting
+            if(btn) btn.innerText = "♻️"; // Encrypting
 
             const r = new FileReader();
             r.readAsArrayBuffer(f); // Read as Buffer for stability
@@ -288,7 +269,7 @@
                 reader2.readAsDataURL(blob);
                 reader2.onloadend = function() {
                     const base64data = reader2.result.split(',')[1];
-                    if(btn) btn.innerText = "☁️"; // Uploading
+                    if(btn) btn.innerText = "📂"; // Uploading
                     uploadToGH(f.name, base64data, btn);
                 }
             };
@@ -309,7 +290,7 @@
             if(!res.ok) throw new Error(d.message || res.statusText);
             
             document.getElementById(uploadConfig.inputId).value = d.content.download_url;
-            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="☁️", 2000); }
+            if(btn) { btn.innerText="✅"; setTimeout(()=>btn.innerText="🚀", 2000); }
         })
         .catch(e => { 
             alert("GitHub Error: " + e.message); 
@@ -356,7 +337,7 @@
                 <input class="inp-std nm" value="${s.name}" placeholder="Server Name" style="margin-bottom:5px">
                 <div class="upload-row">
                     <input class="inp-std ur" id="u-${uid}" value="${s.url}" placeholder="Encrypted Link" style="margin:0">
-                    <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">☁️</button>
+                    <button class="btn-mini" style="background:#34C759" onclick="triggerUpload('btn-${uid}', 'u-${uid}', '${id}')" id="btn-${uid}">📤</button>
                 </div>
             </div>`;
         });
@@ -365,7 +346,7 @@
         <div class="card slot">
             <div class="slot-head" onclick="document.getElementById('b_${id}').classList.toggle('show')">
                 <div><div class="slot-title" id="n-${id}">${d.name}</div><div class="slot-id" onclick="event.stopPropagation(); copyTxt('${id}')">${id.substring(0,8)}...</div></div>
-                <div style="font-size:18px; color:var(--primary);">⚙️</div>
+                <div style="font-size:16px; color:var(--primary);">edit</div>
             </div>
             <div class="slot-body" id="b_${id}">
                 <div class="label">Update Config</div>
@@ -384,13 +365,13 @@
 
                 <div class="label">Data Injection</div>
                 <div class="row"><span>Active</span><label class="switch"><input type="checkbox" id="ia-${id}" ${i.active?'checked':''}><span class="slider"></span></label></div>
-                <div class="row"><span>Multi-Server</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
+                <div class="row"><span>Multi Servers</span><label class="switch"><input type="checkbox" id="im-${id}" ${isMulti?'checked':''} onchange="toggleMulti('${id}')"><span class="slider"></span></label></div>
                 
                 <input class="inp-std" id="pw-${id}" value="${i.pass}" placeholder="Encryption Password (REQUIRED)">
 
                 <div id="single-${id}" style="display:${isMulti?'none':'block'}">
                     <div class="upload-row">
-                        <button class="btn-icon btn-up" id="upmain-${id}" onclick="triggerUpload('upmain-${id}', 'iz-${id}', '${id}')">☁️</button>
+                        <button class="btn-icon btn-up" id="upmain-${id}" onclick="triggerUpload('upmain-${id}', 'iz-${id}', '${id}')">📤</button>
                         <input class="inp-std" style="margin:0" id="iz-${id}" value="${i.zip}" placeholder="Link (Auto)">
                         <button class="btn-icon btn-tr" onclick="deleteFromGH('${id}')">🗑️</button>
                     </div>
