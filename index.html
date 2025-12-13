@@ -18,6 +18,8 @@
   --danger:#ff4d4f;
   --success:#22c55e;
 }
+const loginBox = document.getElementById("login");
+const panelBox = document.getElementById("panel");
 
 body{
   margin:0;
@@ -162,15 +164,19 @@ function toggleTheme(){document.body.classList.toggle('light')}
 
 function login(){
  fetch(BASE+"access_key.json").then(r=>r.json()).then(k=>{
-  if(key.value===k){loginBox()}
+  if(key.value === k){
+   loginSuccess();
+}else{
+   alert("Invalid key");
+}
   else alert("Invalid key")
  })
 }
 
-function loginBox(){
- login.classList.add('hidden');
- panel.classList.remove('hidden');
- loadSlots();
+function loginSuccess(){
+  loginBox.classList.add("hidden");
+  panelBox.classList.remove("hidden");
+  loadSlots();
 }
 
 function rand(){return 'SLOT_'+Math.random().toString(36).substr(2,8)}
