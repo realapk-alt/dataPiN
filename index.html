@@ -1,275 +1,162 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Slot Control Panel</title><style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slot Control Dashboard</title>
+
+<style>
 :root{
-  --bg-dark:#0b0b10;
-  --card-dark:#14141a;
-  --text-dark:#e8e8f0;
-  --muted-dark:#9a9ab0;
-
-  --bg-light:#f4f5f9;
-  --card-light:#ffffff;
-  --text-light:#1b1b1f;
-  --muted-light:#6b6b80;
-
-  --accent:#6c5cff;
-  --danger:#ff4d4f;
-  --success:#22c55e;
+ --bg:#0b0b10;--card:#14141a;--text:#e8e8f0;--muted:#9a9ab0;
+ --accent:#6c5cff;--success:#22c55e;--danger:#ff4d4f;
 }
-
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg-dark);
-  color:var(--text-dark);
-  transition:0.3s;
-}
-
-body.light{
-  background:var(--bg-light);
-  color:var(--text-light);
-}
-
-header{
-  padding:16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-header h1{
-  margin:0;
-  font-size:20px;
-  font-weight:600;
-  color:var(--accent);
-  text-shadow:0 0 14px rgba(108,92,255,0.7);
-}
-
-header button{
-  width:auto;
-  padding:8px 12px;
-  font-size:13px;
-}
-
-.container{
-  max-width:1000px;
-  margin:auto;
-  padding:0 14px 40px;
-}
-
-.card{
-  background:var(--card-dark);
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
-  transition:0.3s;
-}
-
-body.light .card{background:var(--card-light)}
-
-input,textarea,button{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:10px;
-  border:none;
-  outline:none;
-  font-size:14px;
-}
-
-input,textarea{
-  background:#1d1d26;
-  color:inherit;
-}
-
-body.light input,body.light textarea{background:#f1f1f5}
-
-button{
-  background:var(--accent);
-  color:white;
-  cursor:pointer;
-}
-
-.toggle{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:10px;
-}
-
-.switch{
-  width:52px;height:28px;
-  background:#444;
-  border-radius:20px;
-  position:relative;
-}
-
-.switch span{
-  width:22px;height:22px;
-  background:white;
-  position:absolute;
-  top:3px;left:3px;
-  border-radius:50%;
-  transition:0.3s;
-}
-
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
+header{padding:16px 20px}
+header h1{margin:0;color:var(--accent);text-shadow:0 0 14px rgba(108,92,255,.7)}
+.container{max-width:1100px;margin:auto;padding:14px}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:16px}
+input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none}
+input,textarea{background:#1d1d26;color:var(--text)}
+button{background:var(--accent);color:white}
+.slot{padding:14px;border-radius:12px;background:#1a1a22;margin-bottom:10px;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.switch{width:52px;height:28px;background:#444;border-radius:20px;position:relative}
+.switch span{width:22px;height:22px;background:#fff;position:absolute;top:3px;left:3px;border-radius:50%;transition:.3s}
 .switch.on{background:var(--success)}
 .switch.on span{left:27px}
-
-.slot{
-  padding:14px;
-  border-radius:12px;
-  background:#1a1a22;
-  margin-bottom:10px;
-  cursor:pointer;
-}
-
-body.light .slot{background:#f3f4f8}
-
-.small{font-size:13px;color:var(--muted-dark)}
-body.light .small{color:var(--muted-light)}
-
 .hidden{display:none}
+</style>
+</head>
 
-@media(max-width:600px){
-  header h1{font-size:18px}
-}
-</style></head>
-<body><header>
-  <h1>Access Login</h1>
-  <button onclick="toggleTheme()">Theme</button>
-</header><div class="container"><div id="login" class="card">
-  <h3>Login</h3>
-  <input id="key" placeholder="Access Key" />
-  <button onclick="login()">Login</button>
-</div><div id="panel" class="hidden"><div class="card">
-  <button onclick="createSlot()">Create New Slot</button>
-  <p class="small">Generated Slot ID</p>
-  <input id="slotId" readonly onclick="this.select();document.execCommand('copy')" />
-</div><div class="card hidden" id="editor">
-  <h3>Edit Slot</h3>
-  <input id="title" placeholder="App Name" />
-  <textarea id="desc" placeholder="Description"></textarea>
-  <input id="tg" placeholder="Telegram URL" />
-  <input id="verify" placeholder="Verification URL" />
-  <input id="how" placeholder="How To Verify URL" />
-  <input id="short" placeholder="Shortener API" />
-  <input id="hours" placeholder="Duration (hours)" />  <div class="toggle">
-    <span>Dialog Enabled</span>
-    <div id="state" class="switch on" onclick="toggleState()"><span></span></div>
-  </div><button onclick="saveSlot()">Save Slot</button>
+<body>
 
-</div><div class="card">
-  <h3>Slots</h3>
-  <div id="slots"></div>
-</div></div>
-</div><script>
-const BASE = "https://real-apk-pin-default-rtdb.firebaseio.com/";
+<header><h1>Access Login</h1></header>
 
-const loginBox = document.getElementById("login");
-const panelBox = document.getElementById("panel");
-const editor = document.getElementById("editor");
-const slotsDiv = document.getElementById("slots");
+<div class="container">
 
-let currentSlot = null;
-let enabled = true;
+<div id="loginBox" class="card">
+ <input id="accessKey" placeholder="Access Key">
+ <button onclick="login()">Login</button>
+</div>
 
-function toggleTheme(){document.body.classList.toggle('light')}
+<div id="panel" class="hidden">
+
+<div class="card">
+ <button onclick="createSlot()">Create Slot</button>
+ <p class="small">Slot ID (tap to copy)</p>
+ <input id="slotId" readonly onclick="this.select();document.execCommand('copy')">
+</div>
+
+<div id="editor" class="card hidden">
+ <input id="title" placeholder="App Name">
+ <textarea id="desc" placeholder="Description"></textarea>
+ <input id="tg" placeholder="Telegram URL">
+ <input id="verify" placeholder="Verification URL">
+ <input id="how" placeholder="How To Verify URL">
+ <input id="short" placeholder="Shortener API">
+ <input id="hours" placeholder="Duration (hours)">
+
+ <div style="display:flex;justify-content:space-between;align-items:center">
+  <span>Dialog Enabled</span>
+  <div id="state" class="switch on" onclick="toggleState()"><span></span></div>
+ </div>
+
+ <button onclick="saveSlot()">Save Slot</button>
+ <button style="background:#ff4d4f" onclick="deleteSlot()">Delete Slot Permanently</button>
+</div>
+
+<div class="card">
+ <div id="slots"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const BASE="https://real-apk-pin-default-rtdb.firebaseio.com/";
+let currentSlot=null,enabled=true;
 
 function login(){
- fetch(BASE+"access_key.json")
- .then(r=>r.json())
- .then(k=>{
-  if(key.value.trim() === String(k).trim()){
-    loginBox.classList.add('hidden');
-    panelBox.classList.remove('hidden');
-    loadSlots();
-  }else alert('Invalid key');
- })
+ fetch(BASE+"access_key.json").then(r=>r.json()).then(k=>{
+  if(accessKey.value.trim()===String(k).trim()){
+   loginBox.classList.add("hidden");
+   panel.classList.remove("hidden");
+   loadSlots();
+  }else alert("Invalid key");
+ });
 }
 
-function rand(){
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let out = "";
-  for(let i=0;i<10;i++) out += chars[Math.floor(Math.random()*chars.length)];
-  return out;
+function rid(){
+ const c="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+ let o="";
+ for(let i=0;i<10;i++) o+=c[Math.random()*c.length|0];
+ return o;
 }
 
 function createSlot(){
-  currentSlot = rand();
-  slotId.value = currentSlot;
-  editor.classList.add('hidden');
-  const temp = {
-    app_title: '',
-    app_description: '',
-    telegram_url: '',
-    verification_url: '',
-    how_to_verify_url: '',
-    shortener_api: '',
-    verification_duration_hours: 24,
-    enabled: true
-  };
-  fetch(BASE + "slots/" + currentSlot + ".json", {
-    method:'PUT',
-    body: JSON.stringify(temp)
-  }).then(()=>loadSlots());
+ currentSlot=rid();
+ slotId.value=currentSlot;
+ editor.classList.add("hidden");
+ fetch(BASE+"slots/"+currentSlot+".json",{
+  method:"PUT",
+  body:JSON.stringify({enabled:true,verification_duration_hours:24})
+ }).then(loadSlots);
 }
 
 function toggleState(){
- enabled = !enabled;
- state.classList.toggle('on', enabled);
+ enabled=!enabled;
+ state.classList.toggle("on",enabled);
 }
 
 function saveSlot(){
- const data = {
-  app_title: title.value,
-  app_description: desc.value,
-  telegram_url: tg.value,
-  verification_url: verify.value,
-  how_to_verify_url: how.value,
-  shortener_api: short.value,
-  verification_duration_hours: +hours.value || 24,
-  enabled: enabled
+ const d={
+  app_title:title.value,
+  app_description:desc.value,
+  telegram_url:tg.value,
+  verification_url:verify.value,
+  how_to_verify_url:how.value,
+  shortener_api:short.value,
+  verification_duration_hours:+hours.value||24,
+  enabled:enabled
  };
- fetch(BASE + "slots/" + currentSlot + ".json", {
-  method: 'PUT',
-  body: JSON.stringify(data)
- }).then(() => loadSlots());
+ fetch(BASE+"slots/"+currentSlot+".json",{method:"PUT",body:JSON.stringify(d)})
+ .then(loadSlots);
+}
+
+function deleteSlot(){
+ if(!confirm("Delete slot permanently?")) return;
+ fetch(BASE+"slots/"+currentSlot+".json",{method:"DELETE"})
+ .then(()=>{editor.classList.add("hidden");loadSlots();});
 }
 
 function loadSlots(){
- fetch(BASE+"slots.json")
- .then(r=>r.json())
- .then(d=>{
-  slotsDiv.innerHTML='';
+ fetch(BASE+"slots.json").then(r=>r.json()).then(d=>{
+  slots.innerHTML="";
   if(!d) return;
   Object.keys(d).forEach(id=>{
-   const s = document.createElement('div');
-   s.className = 'slot';
-   s.innerHTML = `<b>${d[id].app_title || id}</b><br><span class='small'>${id}</span>`;
-   s.onclick = ()=>editSlot(id,d[id]);
-   slotsDiv.appendChild(s);
-  })
- })
+   const s=document.createElement("div");
+   s.className="slot";
+   s.innerHTML="<b>"+(d[id].app_title||id)+"</b><br><span class='small'>"+id+"</span>";
+   s.onclick=()=>editSlot(id,d[id]);
+   slots.appendChild(s);
+  });
+ });
 }
 
 function editSlot(id,d){
- currentSlot = id;
- editor.classList.remove('hidden');
- slotId.value = id;
- title.value = d.app_title || '';
- desc.value = d.app_description || '';
- tg.value = d.telegram_url || '';
- verify.value = d.verification_url || '';
- how.value = d.how_to_verify_url || '';
- short.value = d.shortener_api || '';
- hours.value = d.verification_duration_hours || 24;
- enabled = d.enabled !== false;
- state.classList.toggle('on', enabled);
+ currentSlot=id;
+ editor.classList.remove("hidden");
+ slotId.value=id;
+ title.value=d.app_title||"";
+ desc.value=d.app_description||"";
+ tg.value=d.telegram_url||"";
+ verify.value=d.verification_url||"";
+ how.value=d.how_to_verify_url||"";
+ short.value=d.shortener_api||"";
+ hours.value=d.verification_duration_hours||24;
+ enabled=d.enabled!==false;
+ state.classList.toggle("on",enabled);
 }
-</script></body>
+</script>
+</body>
 </html>
