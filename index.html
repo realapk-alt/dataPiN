@@ -1,211 +1,234 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberX Ultimate Panel</title>
-    <style>
-        :root { --bg: #F2F2F7; --card: #FFFFFF; --primary: #007AFF; --danger: #FF3B30; --success: #34C759; --text: #1C1C1E; --border: #C6C6C8; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: var(--text); padding-bottom: 100px; user-select: none; }
-        
-        .container { max-width: 600px; margin: 0 auto; display: none; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .cyber-text { font-size: 24px; font-weight: 900; background: linear-gradient(to right, #007AFF, #00C6FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* TABS */
-        .tabs { display: flex; background: #E5E5EA; padding: 4px; border-radius: 12px; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 14px; border-radius: 9px; cursor: pointer; color: #8E8E93; transition: 0.2s; }
-        .tab.active { background: #fff; color: #007AFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Slot Control Panel</title><style>
+:root{
+  --bg-dark:#0b0b10;
+  --card-dark:#14141a;
+  --text-dark:#e8e8f0;
+  --muted-dark:#9a9ab0;
 
-        /* CARDS */
-        .card { background: var(--card); border-radius: 18px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; padding: 20px; position: relative; }
-        .inp-std { width: 100%; padding: 14px; background: #F9F9F9; border: 1px solid #eee; border-radius: 12px; font-size: 14px; margin-bottom: 12px; outline: none; box-sizing: border-box; font-weight: 600; color: #333; }
-        
-        /* BUTTONS */
-        .btn-main { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .btn-del { width: 100%; padding: 12px; background: transparent; color: var(--danger); border: none; font-weight: 600; margin-top: 5px; cursor: pointer; }
-        
-        /* TOGGLE SWITCH */
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 30px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e4e4e4; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { transform: translateX(20px); }
+  --bg-light:#f4f5f9;
+  --card-light:#ffffff;
+  --text-light:#1b1b1f;
+  --muted-light:#6b6b80;
 
-        /* ID BADGE */
-        .id-badge { background: #E3F2FD; color: #007AFF; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 12px; font-weight: bold; margin-bottom: 15px; text-align: center; border: 1px dashed #007AFF; cursor: pointer; }
-        .label { font-size: 11px; font-weight: 800; color: #aaa; text-transform: uppercase; margin: 10px 0 5px 0; }
+  --accent:#6c5cff;
+  --danger:#ff4d4f;
+  --success:#22c55e;
+}
 
-        /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-box { width: 85%; max-width: 320px; padding: 30px; background: white; border-radius: 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-    </style>
-</head>
-<body>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg-dark);
+  color:var(--text-dark);
+  transition:0.3s;
+}
 
-    <!-- LOGIN -->
-    <div id="loginOverlay" class="modal" style="display:flex; background:#F2F2F7;">
-        <div class="modal-box">
-            <h2 style="margin-top:0">Admin Access</h2>
-            <input type="password" id="pass" class="inp-std" placeholder="Enter Password" style="text-align:center;">
-            <button class="btn-main" onclick="doLogin()">LOGIN</button>
-            <p id="msg" style="color:red; margin-top:10px; font-size:13px;"></p>
-        </div>
-    </div>
+body.light{
+  background:var(--bg-light);
+  color:var(--text-light);
+}
 
-    <!-- MAIN DASHBOARD -->
-    <div class="container" id="mainUI">
-        <div class="header">
-            <span class="cyber-text">CyberX Panel</span>
-            <button class="btn-del" onclick="logout()" style="width:auto; margin:0;">Logout</button>
-        </div>
+header{
+  padding:18px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
 
-        <div class="tabs">
-            <div class="tab active" id="tab1" onclick="switchTab('inject')">💉 Injectors</div>
-            <div class="tab" id="tab2" onclick="switchTab('verify')">🔑 Get Pin</div>
-        </div>
+header h1{
+  margin:0;
+  font-size:22px;
+  font-weight:600;
+  color:var(--accent);
+  text-shadow:0 0 14px rgba(108,92,255,0.7);
+}
 
-        <!-- INJECTOR VIEW -->
-        <div id="injectView">
-            <div class="card" style="background:#fff; border:2px dashed #eee;">
-                <input type="text" id="newApp" class="inp-std" placeholder="New App Name..." style="margin:0;">
-                <button class="btn-main" onclick="createNew('app')">+ Create Injector</button>
-            </div>
-            <div id="appList"></div>
-        </div>
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:0 20px 40px;
+}
 
-        <!-- VERIFICATION VIEW -->
-        <div id="verifyView" style="display:none;">
-            <div class="card" style="background:#fff; border:2px dashed #eee;">
-                <input type="text" id="newVer" class="inp-std" placeholder="Config Name..." style="margin:0;">
-                <button class="btn-main" onclick="createNew('ver')">+ Create Pin Config</button>
-            </div>
-            <div id="verList"></div>
-        </div>
-    </div>
+.card{
+  background:var(--card-dark);
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:18px;
+  transition:0.3s;
+}
 
-<script>
-    const DB = "https://cyberxlink-db-default-rtdb.firebaseio.com"; // UPDATE YOUR URL
+body.light .card{background:var(--card-light)}
 
-    // --- LOGIN ---
-    function doLogin() {
-        const p = document.getElementById('pass').value.trim();
-        fetch(DB + "/admin_password.json").then(r=>r.json()).then(d=>{
-            if(String(d)===p) { 
-                document.getElementById('loginOverlay').style.display='none'; 
-                document.getElementById('mainUI').style.display='block'; 
-                loadData(); 
-            } else document.getElementById('msg').innerText="Wrong Password";
-        });
-    }
+input,textarea,button{
+  width:100%;
+  padding:12px 14px;
+  margin:6px 0;
+  border-radius:10px;
+  border:none;
+  outline:none;
+  font-size:14px;
+}
 
-    function switchTab(t) {
-        document.getElementById('tab1').className = t==='inject' ? 'tab active' : 'tab';
-        document.getElementById('tab2').className = t==='verify' ? 'tab active' : 'tab';
-        document.getElementById('injectView').style.display = t==='inject' ? 'block' : 'none';
-        document.getElementById('verifyView').style.display = t==='verify' ? 'block' : 'none';
-    }
+input,textarea{
+  background:#1d1d26;
+  color:inherit;
+}
 
-    function loadData() {
-        // Load Injectors
-        fetch(DB+"/apps.json?t="+Date.now()).then(r=>r.json()).then(d=>{
-            const l = document.getElementById('appList'); l.innerHTML="";
-            if(d) Object.keys(d).reverse().forEach(k=>l.innerHTML+=drawApp(k,d[k]));
-        });
-        // Load Verifiers
-        fetch(DB+"/verifiers.json?t="+Date.now()).then(r=>r.json()).then(d=>{
-            const l = document.getElementById('verList'); l.innerHTML="";
-            if(d) Object.keys(d).reverse().forEach(k=>l.innerHTML+=drawVer(k,d[k]));
-        });
-    }
+body.light input,body.light textarea{background:#f1f1f5}
 
-    function createNew(type) {
-        const n = document.getElementById(type==='app'?'newApp':'newVer').value; if(!n) return;
-        const id = (type==='app'?'rlx-':'vrf-') + Math.random().toString(36).substr(2,10).toUpperCase();
-        
-        let data = {};
-        if(type === 'app') {
-            data = { name:n, update:{active:false}, inject:{active:false, zip:"", pass:""} };
-            fetch(DB+"/apps/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(loadData);
-        } else {
-            data = { 
-                name:n, active:true, 
-                title:"Verification Required", desc:"Please verify your device to continue.",
-                short_api:"", verify_url:"https://realapk.online/verify", 
-                telegram:"https://t.me/yourchannel", tutorial:"",
-                hours:24
-            };
-            fetch(DB+"/verifiers/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(loadData);
-        }
-        document.getElementById(type==='app'?'newApp':'newVer').value = "";
-    }
+button{
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+}
 
-    // --- DRAW CARDS ---
-    function drawApp(id, d) {
-        // (Simplified for brevity - Add your existing Injector HTML here inside the return backticks)
-        return `<div class="card">
-            <div class="row"><b>${d.name}</b> <span class="tag">INJECTOR</span></div>
-            <div class="id-badge" onclick="copyTxt('${id}')">ID: ${id}</div>
-            <p style="color:#888; font-size:12px;">(Use existing code for full edit options)</p>
-            <button class="btn-del" onclick="delItem('apps','${id}')">Delete</button>
-        </div>`;
-    }
+.toggle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    function drawVer(id, d) {
-        return `<div class="card">
-            <div class="row">
-                <span style="font-weight:bold; font-size:18px;">${d.name}</span>
-                <label class="switch"><input type="checkbox" id="va-${id}" ${d.active?'checked':''}><span class="slider"></span></label>
-            </div>
-            
-            <div class="id-badge" onclick="copyTxt('${id}')">ID: ${id} (Copy to RLX.txt)</div>
-            
-            <div class="label">Dialog Texts</div>
-            <input class="inp-std" id="vt-${id}" value="${d.title}" placeholder="Title">
-            <input class="inp-std" id="vd-${id}" value="${d.desc}" placeholder="Description">
-            
-            <div class="label">Link Configuration</div>
-            <input class="inp-std" id="vu-${id}" value="${d.verify_url}" placeholder="Your Website (e.g. realapk.online/verify)">
-            <input class="inp-std" id="vs-${id}" value="${d.short_api}" placeholder="Shortener API (https://api.com?api=x&url=)">
-            
-            <div class="label">Settings</div>
-            <div class="row">
-                <input class="inp-std" id="vh-${id}" type="number" value="${d.hours}" placeholder="Hours" style="width:48%">
-                <input class="inp-std" id="vg-${id}" value="${d.telegram}" placeholder="Telegram Link" style="width:48%">
-            </div>
-            <input class="inp-std" id="vtu-${id}" value="${d.tutorial}" placeholder="Tutorial Video URL">
+.switch{
+  width:52px;height:28px;
+  background:#444;
+  border-radius:20px;
+  position:relative;
+}
 
-            <button class="btn-main" id="btn-${id}" onclick="saveVer('${id}')">Save Settings</button>
-            <button class="btn-del" onclick="delItem('verifiers','${id}')">Delete Config</button>
-        </div>`;
-    }
+.switch span{
+  width:22px;height:22px;
+  background:white;
+  position:absolute;
+  top:3px;left:3px;
+  border-radius:50%;
+  transition:0.3s;
+}
 
-    function saveVer(id) {
-        const btn = document.getElementById('btn-'+id); btn.innerText="Saving...";
-        const data = {
-            name: "Config " + id.substr(4,4), // Keep name simple or add input
-            active: document.getElementById('va-'+id).checked,
-            title: document.getElementById('vt-'+id).value,
-            desc: document.getElementById('vd-'+id).value,
-            verify_url: document.getElementById('vu-'+id).value,
-            short_api: document.getElementById('vs-'+id).value,
-            hours: parseInt(document.getElementById('vh-'+id).value),
-            telegram: document.getElementById('vg-'+id).value,
-            tutorial: document.getElementById('vtu-'+id).value
-        };
-        fetch(DB+"/verifiers/"+id+".json",{method:'PUT',body:JSON.stringify(data)}).then(()=>{
-            btn.innerText="Saved!"; btn.style.background="#34C759";
-            setTimeout(()=>{ btn.innerText="Save Settings"; btn.style.background=""; }, 1500);
-        });
-    }
+.switch.on{background:var(--success)}
+.switch.on span{left:27px}
 
-    function delItem(path, id) { if(confirm("Delete?")) fetch(DB+"/"+path+"/"+id+".json",{method:'DELETE'}).then(loadData); }
-    function copyTxt(t) { navigator.clipboard.writeText(t); alert("Copied ID: "+t); }
-    function logout() { location.reload(); }
-</script>
-</body>
+.slot{
+  padding:14px;
+  border-radius:12px;
+  background:#1a1a22;
+  margin-bottom:10px;
+}
+
+body.light .slot{background:#f3f4f8}
+
+.small{color:var(--muted-dark);font-size:13px}
+body.light .small{color:var(--muted-light)}
+
+.hidden{display:none}
+</style></head>
+<body><header>
+  <h1>Access Login</h1>
+  <button onclick="toggleTheme()">Toggle Theme</button>
+</header><div class="container"><div id="login" class="card">
+  <h3>Login</h3>
+  <input id="key" placeholder="Access Key" />
+  <button onclick="login()">Login</button>
+</div><div id="panel" class="hidden"><div class="card">
+  <button onclick="createSlot()">Create New Slot</button>
+  <p class="small">Generated Slot ID</p>
+  <input id="slotId" readonly />
+</div><div class="card hidden" id="editor">
+  <h3>Edit Slot</h3>
+  <input id="title" placeholder="App Name" />
+  <textarea id="desc" placeholder="Description"></textarea>
+  <input id="tg" placeholder="Telegram URL" />
+  <input id="verify" placeholder="Verification URL" />
+  <input id="how" placeholder="How To Verify URL" />
+  <input id="short" placeholder="Shortener API" />
+  <input id="hours" placeholder="Duration (hours)" />  <div class="toggle">
+    <span>Dialog Enabled</span>
+    <div id="state" class="switch on" onclick="toggleState()"><span></span></div>
+  </div><button onclick="saveSlot()">Save Slot</button>
+
+</div><div class="card">
+  <h3>Slots</h3>
+  <div id="slots"></div>
+</div></div>
+</div><script>
+const BASE = "https://real-apk-pin-default-rtdb.firebaseio.com/";
+let currentSlot = null;
+let enabled = true;
+
+function toggleTheme(){document.body.classList.toggle('light')}
+
+function login(){
+ fetch(BASE+"access_key.json").then(r=>r.json()).then(k=>{
+  if(key.value===k){loginBox()}
+  else alert("Invalid key")
+ })
+}
+
+function loginBox(){
+ login.classList.add('hidden');
+ panel.classList.remove('hidden');
+ loadSlots();
+}
+
+function rand(){return 'SLOT_'+Math.random().toString(36).substr(2,8)}
+
+function createSlot(){
+ currentSlot=rand();
+ slotId.value=currentSlot;
+ editor.classList.remove('hidden');
+ enabled=true;
+}
+
+function toggleState(){
+ enabled=!enabled;
+ state.classList.toggle('on',enabled);
+}
+
+function saveSlot(){
+ const data={
+  app_title:title.value,
+  app_description:desc.value,
+  telegram_url:tg.value,
+  verification_url:verify.value,
+  how_to_verify_url:how.value,
+  shortener_api:short.value,
+  verification_duration_hours:+hours.value||24,
+  enabled:enabled
+ };
+ fetch(BASE+"slots/"+currentSlot+".json",{method:'PUT',body:JSON.stringify(data)})
+ .then(()=>loadSlots())
+}
+
+function loadSlots(){
+ fetch(BASE+"slots.json").then(r=>r.json()).then(d=>{
+  slots.innerHTML='';
+  if(!d)return;
+  Object.keys(d).forEach(id=>{
+   const s=document.createElement('div');
+   s.className='slot';
+   s.innerHTML=`<b>${d[id].app_title||id}</b><br><span class="small">${id}</span>`;
+   s.onclick=()=>editSlot(id,d[id]);
+   slots.appendChild(s);
+  })
+ })
+}
+
+function editSlot(id,d){
+ currentSlot=id;
+ editor.classList.remove('hidden');
+ slotId.value=id;
+ title.value=d.app_title||'';
+ desc.value=d.app_description||'';
+ tg.value=d.telegram_url||'';
+ verify.value=d.verification_url||'';
+ how.value=d.how_to_verify_url||'';
+ short.value=d.shortener_api||'';
+ hours.value=d.verification_duration_hours||24;
+ enabled=d.enabled!==false;
+ state.classList.toggle('on',enabled);
+}
+</script></body>
 </html>
-
-
