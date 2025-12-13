@@ -149,7 +149,7 @@ body.light .small{color:var(--muted-light)}
 </div><div id="panel" class="hidden"><div class="card">
   <button onclick="createSlot()">Create New Slot</button>
   <p class="small">Generated Slot ID</p>
-  <input id="slotId" readonly />
+  <input id="slotId" readonly onclick="this.select();document.execCommand('copy')" />
 </div><div class="card hidden" id="editor">
   <h3>Edit Slot</h3>
   <input id="title" placeholder="App Name" />
@@ -192,13 +192,31 @@ function login(){
  })
 }
 
-function rand(){return 'SLOT_'+Math.random().toString(36).substr(2,8)}
+function rand(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let out = "";
+  for(let i=0;i<10;i++) out += chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
 
 function createSlot(){
- currentSlot = rand();
- slotId.value = currentSlot;
- editor.classList.remove('hidden');
- enabled = true;
+  currentSlot = rand();
+  slotId.value = currentSlot;
+  editor.classList.add('hidden');
+  const temp = {
+    app_title: '',
+    app_description: '',
+    telegram_url: '',
+    verification_url: '',
+    how_to_verify_url: '',
+    shortener_api: '',
+    verification_duration_hours: 24,
+    enabled: true
+  };
+  fetch(BASE + "slots/" + currentSlot + ".json", {
+    method:'PUT',
+    body: JSON.stringify(temp)
+  }).then(()=>loadSlots());
 }
 
 function toggleState(){
