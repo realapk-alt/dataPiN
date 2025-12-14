@@ -2,1807 +2,676 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>RLX PIN Manager - Firebase Slot Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RLX Manager Ultra</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
             --primary: #6366f1;
             --primary-dark: #4f46e5;
-            --secondary: #10b981;
+            --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1f2937;
-            --darker: #111827;
-            --light: #f9fafb;
-            --gray: #6b7280;
-            --gray-light: #e5e7eb;
-            --gray-dark: #374151;
-            --border: #4b5563;
-            --card-bg: rgba(30, 41, 59, 0.8);
-            --sidebar-bg: rgba(15, 23, 42, 0.95);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, var(--darker) 0%, #0f172a 100%);
-            color: var(--light);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             min-height: 100vh;
-            line-height: 1.6;
-            overflow-x: hidden;
+            padding-bottom: 80px; /* Space for bottom bar */
         }
-        
-        .app-container {
+
+        /* --- Helper Classes --- */
+        .container { max-width: 900px; margin: 0 auto; padding: 1rem; }
+        .hidden { display: none !important; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+
+        /* --- Animations --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+
+        /* --- Dashboard View --- */
+        .app-header {
             display: flex;
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-        
-        .logo {
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border);
         }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
+
+        .brand { font-size: 1.4rem; font-weight: 800; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Slot Grid System */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
         }
-        
-        .logo-text h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .logo-text p {
-            font-size: 0.75rem;
-            color: var(--gray);
-        }
-        
-        .slot-list {
-            margin-bottom: 2rem;
-        }
-        
-        .slot-list h3 {
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--gray);
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        
-        .slot-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 0.875rem;
-            margin-bottom: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+
+        .slot-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
             position: relative;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        
-        .slot-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--primary);
-            transform: translateX(5px);
+
+        .slot-card:active { transform: scale(0.98); }
+        .slot-card:hover { border-color: var(--primary); }
+
+        .slot-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.8rem;
         }
-        
-        .slot-item.active {
+
+        .slot-icon {
+            width: 40px; height: 40px;
             background: rgba(99, 102, 241, 0.15);
-            border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
         }
-        
-        .slot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
+
+        .slot-info h3 { font-size: 1.1rem; font-weight: 600; line-height: 1.2; margin-bottom: 0.2rem; }
+        .slot-info p { font-size: 0.8rem; color: var(--text-muted); font-family: monospace; }
+
+        .status-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--bg-input);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
-        
-        .slot-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: white;
-        }
-        
-        .slot-status {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .status-active {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--secondary);
-        }
-        
-        .status-inactive {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-        
-        .slot-id {
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.75rem;
-            color: var(--gray);
-            word-break: break-all;
-            margin-top: 0.25rem;
-        }
-        
-        .create-slot-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .status-dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .status-dot.inactive { background: var(--danger); }
+
+        .btn-edit {
             margin-top: 1rem;
-        }
-        
-        .create-slot-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 2rem;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        .content-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .content-title h2 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        
-        .content-title p {
-            color: var(--gray);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-        
-        .action-btn {
-            padding: 0.625rem 1.25rem;
-            border-radius: 6px;
-            border: none;
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.3);
-        }
-        
-        .btn-success {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--secondary);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-success:hover {
-            background: rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-warning {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-        
-        .btn-warning:hover {
-            background: rgba(245, 158, 11, 0.3);
-        }
-        
-        /* Slot Content */
-        .slot-content {
-            display: none;
-        }
-        
-        .slot-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .slot-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .info-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .card-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(99, 102, 241, 0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-        
-        .card-title {
-            font-weight: 600;
-            font-size: 1.125rem;
-        }
-        
-        .info-item {
-            margin-bottom: 1rem;
-        }
-        
-        .info-label {
-            font-size: 0.875rem;
-            color: var(--gray);
-            margin-bottom: 0.375rem;
-            font-weight: 500;
-        }
-        
-        .info-value {
-            font-size: 0.95rem;
-            color: white;
-            font-weight: 500;
-            word-break: break-all;
-        }
-        
-        .id-display {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px dashed var(--primary);
-            border-radius: 8px;
-            padding: 1rem;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-top: 0.5rem;
-            word-break: break-all;
-        }
-        
-        /* Tabs */
-        .config-tabs {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .tab-header {
-            display: flex;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(15, 23, 42, 0.8);
-        }
-        
-        .tab-btn {
-            padding: 1rem 1.5rem;
-            background: transparent;
-            border: none;
-            color: var(--gray);
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .tab-btn:hover {
-            color: white;
-        }
-        
-        .tab-btn.active {
-            color: var(--primary);
-        }
-        
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 3px 3px 0 0;
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 2rem;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Forms */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: white;
-            font-size: 0.875rem;
-        }
-        
-        .form-label span {
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-left: 0.25rem;
-        }
-        
-        .form-input {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: white;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: none;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: background 0.2s;
         }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        .btn-edit:hover { background: #475569; }
+
+        /* --- Editor View --- */
+        .editor-container {
+            display: none;
         }
-        
-        .color-input-group {
+        .editor-container.active { display: block; }
+
+        .editor-header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            padding: 1rem;
+            margin: 0 -1rem 1.5rem -1rem; /* Negative margin to stick full width */
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             gap: 1rem;
         }
+
+        .back-btn {
+            background: transparent; border: none; color: var(--text-main);
+            font-size: 1.2rem; padding: 0.5rem; cursor: pointer;
+        }
+
+        .live-preview { flex: 1; }
+        .live-preview h2 { font-size: 1.1rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .live-preview span { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+
+        /* Tabs */
+        .tabs-wrapper {
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 1.5rem;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Forms */
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.3s; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
         
-        .color-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        input[type="text"], input[type="url"], input[type="number"] {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        /* Custom Color Picker UI */
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .color-circle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
             flex-shrink: 0;
         }
-        
-        .color-input {
+
+        /* Hide the ugly default input but keep functionality */
+        input[type="color"] {
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            opacity: 0; cursor: pointer;
+        }
+
+        .color-hex {
             flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
         }
-        
-        /* Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 52px;
-            height: 26px;
-        }
-        
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--gray-dark);
-            transition: .4s;
-            border-radius: 34px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
+        .color-hex:focus { outline: none; }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem; right: 1.5rem;
+            width: 60px; height: 60px;
+            background: var(--primary);
+            color: white;
             border-radius: 50%;
+            border: none;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 90;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
         }
-        
-        input:checked + .slider {
-            background-color: var(--secondary);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
+        .fab:active { transform: scale(0.9); }
+
+        /* Save Bar */
+        .save-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            bottom: 0; left: 0; width: 100%;
+            background: var(--bg-card);
             padding: 1rem;
-            backdrop-filter: blur(5px);
+            border-top: 1px solid var(--border);
+            display: flex; gap: 1rem;
+            z-index: 100;
         }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--darker);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-            animation: modalSlide 0.3s ease;
-        }
-        
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-        }
-        
-        .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-        }
-        
-        /* Status */
-        .status-message {
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            display: none;
-        }
-        
-        .status-success {
-            background: rgba(16, 185, 129, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--secondary);
-        }
-        
-        .status-error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--danger);
-        }
-        
-        .status-warning {
-            background: rgba(245, 158, 11, 0.2);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            color: var(--warning);
-        }
-        
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1001;
+
+        .btn-primary {
+            flex: 1;
             background: var(--primary);
             color: white;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 99;
-        }
-        
-        .sidebar-overlay.active {
-            display: block;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes modalSlide {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-                padding-top: 5rem;
-            }
-            
-            .mobile-menu-btn {
-                display: flex;
-            }
-            
-            .content-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .header-actions {
-                width: 100%;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
-            }
-        }
-        
-        @media (max-width: 640px) {
-            .tab-header {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
-            
-            .tab-btn {
-                white-space: nowrap;
-                padding: 1rem;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .slot-info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Copy Button */
-        .copy-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .copy-btn.copied {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--secondary);
-            border-color: var(--secondary);
-        }
-        
-        /* Instructions */
-        .instructions {
-            background: rgba(30, 41, 59, 0.5);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .instructions h4 {
-            margin-bottom: 1rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .instructions ol {
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .instructions li {
-            margin-bottom: 0.5rem;
-            color: var(--gray-light);
-        }
-        
-        .code-block {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
             padding: 1rem;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.875rem;
-            color: var(--secondary);
-            overflow-x: auto;
-            margin: 1rem 0;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
         }
         
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--gray);
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: none;
+            align-items: center; justify-content: center;
         }
+        .modal-overlay.active { display: flex; }
         
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        .modal-box {
+            background: var(--bg-card);
+            width: 90%; max-width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
         }
-        
-        .empty-state h3 {
-            margin-bottom: 0.5rem;
-            color: white;
+
+        /* Toast */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-input); padding: 10px 20px; border-radius: 30px;
+            border: 1px solid var(--border);
+            z-index: 300; display: none; font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- Sidebar Overlay -->
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-        
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <div class="logo-text">
-                    <h1>RLX PIN Manager</h1>
-                    <p>Firebase Slot Control Panel</p>
-                </div>
+
+    <div id="toast" class="toast">Action Successful</div>
+
+    <div id="view-dashboard" class="container animate-in">
+        <header class="app-header">
+            <div class="brand"><i class="fas fa-cube"></i> RLX Ultra</div>
+            <div style="font-size: 0.8rem; color: var(--success);">
+                <i class="fas fa-wifi"></i> Online
             </div>
-            
-            <div class="slot-list">
-                <h3><i class="fas fa-layer-group"></i> Firebase Slots</h3>
-                <div id="slotList">
-                    <!-- Slots will be loaded here -->
-                </div>
-            </div>
-            
-            <button class="create-slot-btn" id="createSlotBtn">
-                <i class="fas fa-plus-circle"></i> Create New Slot
-            </button>
-            
-            <div class="instructions" style="margin-top: 2rem; font-size: 0.75rem;">
-                <p><strong>How to use:</strong></p>
-                <p>1. Create slots for different apps</p>
-                <p>2. Configure each slot's settings</p>
-                <p>3. Toggle dialog ON/OFF as needed</p>
-                <p>4. Put Slot ID in app's pin.txt file</p>
-            </div>
+        </header>
+
+        <div id="loading" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <i class="fas fa-circle-notch fa-spin"></i> Loading slots...
         </div>
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-header">
-                <div class="content-title">
-                    <h2 id="selectedSlotTitle">No Slot Selected</h2>
-                    <p id="selectedSlotDesc">Select a slot from the sidebar to configure it</p>
+
+        <div id="slot-list" class="slot-grid">
+            </div>
+    </div>
+
+    <button class="fab" onclick="openCreateModal()" id="fabBtn">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="view-editor" class="editor-container">
+        <div class="container" style="padding-top: 0;">
+            <div class="editor-header">
+                <button class="back-btn" onclick="closeEditor()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="live-preview">
+                    <h2 id="live-title-display">App Name</h2>
+                    <span id="live-id-display">ID: ...</span>
                 </div>
-                <div class="header-actions" id="slotActions" style="display: none;">
-                    <button class="action-btn btn-success" id="saveBtn">
-                        <i class="fas fa-save"></i> Save Changes
+            </div>
+
+            <div class="tabs-wrapper">
+                <button class="tab-btn active" onclick="switchTab('general')">General</button>
+                <button class="tab-btn" onclick="switchTab('colors')">UI Colors</button>
+                <button class="tab-btn" onclick="switchTab('urls')">Links</button>
+                <button class="tab-btn" onclick="switchTab('system')">System</button>
+            </div>
+
+            <div id="tab-general" class="form-section active">
+                <div class="form-group">
+                    <label>Dialog Status</label>
+                    <select id="inp_enabled" style="width:100%; padding:1rem; border-radius:12px; background:var(--bg-card); color:white; border:1px solid var(--border);">
+                        <option value="true">Active (Show Dialog)</option>
+                        <option value="false">Disabled (Hide Dialog)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>App Title</label>
+                    <input type="text" id="inp_title" placeholder="e.g. Premium Mod" oninput="updateLiveHeader()">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="inp_desc" placeholder="Details about the app..." oninput="updateLiveHeader()">
+                </div>
+                <div class="form-group">
+                    <label>Installation</label>
+                    <button class="btn-edit" onclick="downloadPin()" style="background: var(--primary-dark); color: white;">
+                        <i class="fas fa-download"></i> Download pin.txt
                     </button>
-                    <button class="action-btn btn-warning" id="toggleDialogBtn">
-                        <i class="fas fa-toggle-on"></i> Dialog: ON
-                    </button>
-                    <button class="action-btn btn-danger" id="deleteSlotBtn">
+                </div>
+            </div>
+
+            <div id="tab-colors" class="form-section">
+                
+                <div class="form-group">
+                    <label>Border Color</label>
+                    <div class="color-picker-wrapper">
+                        <div class="color-circle" id="preview_border">
+                            <input type="color" id="picker_border" oninput="syncColor('border', this.value)">
+                        </div>
+                        <input type="text" class="color-hex" id="text_border" oninput="syncColor('border', this.value)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Neon / Success Color</label>
+                    <div class="color-picker-wrapper">
+                        <div class="color-circle" id="preview_neon">
+                            <input type="color" id="picker_neon" oninput="syncColor('neon', this.value)">
+                        </div>
+                        <input type="text" class="color-hex" id="text_neon" oninput="syncColor('neon', this.value)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Warning Color</label>
+                    <div class="color-picker-wrapper">
+                        <div class="color-circle" id="preview_warning">
+                            <input type="color" id="picker_warning" oninput="syncColor('warning', this.value)">
+                        </div>
+                        <input type="text" class="color-hex" id="text_warning" oninput="syncColor('warning', this.value)">
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-urls" class="form-section">
+                <div class="form-group"><label>Verify URL</label><input type="url" id="inp_verify"></div>
+                <div class="form-group"><label>Tutorial URL</label><input type="url" id="inp_tutorial"></div>
+                <div class="form-group"><label>Telegram URL</label><input type="url" id="inp_telegram"></div>
+                <div class="form-group"><label>Join URL</label><input type="url" id="inp_join"></div>
+            </div>
+
+            <div id="tab-system" class="form-section">
+                <div class="form-group">
+                    <label>Check Interval (ms)</label>
+                    <input type="number" id="inp_interval" value="500">
+                </div>
+                <div class="form-group">
+                    <label>Code Length</label>
+                    <input type="number" id="inp_len" value="12">
+                </div>
+                <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <button class="btn-edit" onclick="deleteSlot()" style="background: rgba(239, 68, 68, 0.2); color: var(--danger);">
                         <i class="fas fa-trash"></i> Delete Slot
                     </button>
                 </div>
             </div>
-            
-            <!-- Status Message -->
-            <div id="statusMessage" class="status-message"></div>
-            
-            <!-- Slot Content -->
-            <div id="slotContent" class="slot-content">
-                <!-- Slot Info -->
-                <div class="slot-info-grid">
-                    <div class="info-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-info-circle"></i>
-                            </div>
-                            <div class="card-title">Slot Information</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Slot ID (for pin.txt)</div>
-                            <div class="id-display" id="slotIdDisplay">rlx-pin-xxxxxxxxxxxxxxxxxxxx</div>
-                            <button class="copy-btn" data-copy="slotIdDisplay">
-                                <i class="fas fa-copy"></i> Copy ID
-                            </button>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Dialog Status</div>
-                            <div class="info-value">
-                                <span id="dialogStatus" class="status-active">Active</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Created</div>
-                            <div class="info-value" id="slotCreated">Just now</div>
-                        </div>
-                    </div>
-                    
-                    <div class="info-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <div class="card-title">Android App Setup</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Step 1: Download pin.txt</div>
-                            <button class="action-btn btn-primary" id="downloadPinBtn" style="width: 100%; margin-top: 0.5rem;">
-                                <i class="fas fa-download"></i> Download pin.txt
-                            </button>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Step 2: Place in Assets</div>
-                            <div class="code-block">
-                                app/src/main/assets/pin.txt
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">Step 3: Dialog will read</div>
-                            <div class="info-value">Slot ID from pin.txt → Firebase config</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Configuration Tabs -->
-                <div class="config-tabs">
-                    <div class="tab-header">
-                        <button class="tab-btn active" data-tab="general">
-                            <i class="fas fa-cog"></i> General
-                        </button>
-                        <button class="tab-btn" data-tab="urls">
-                            <i class="fas fa-link"></i> URLs
-                        </button>
-                        <button class="tab-btn" data-tab="colors">
-                            <i class="fas fa-palette"></i> Colors
-                        </button>
-                        <button class="tab-btn" data-tab="verification">
-                            <i class="fas fa-shield-alt"></i> Verification
-                        </button>
-                    </div>
-                    
-                    <!-- General Tab -->
-                    <div class="tab-content active" id="generalTab">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">App Title <span>(shown in dialog)</span></label>
-                                <input type="text" class="form-input" id="appTitle" placeholder="e.g., Premium Access">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">App Description</label>
-                                <input type="text" class="form-input" id="appDescription" placeholder="Describe your app features">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Verification Duration <span>(hours)</span></label>
-                                <input type="number" class="form-input" id="verificationDuration" min="1" max="720" value="24">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Dialog Enabled</label>
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <label class="switch">
-                                        <input type="checkbox" id="dialogEnabled" checked>
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="dialogStatusText" style="color: var(--secondary);">Enabled</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- URLs Tab -->
-                    <div class="tab-content" id="urlsTab">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Verification URL <span>(where users go to verify)</span></label>
-                                <input type="url" class="form-input" id="verificationUrl" placeholder="https://example.com/verify">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">How to Verify URL <span>(tutorial page)</span></label>
-                                <input type="url" class="form-input" id="howToVerifyUrl" placeholder="https://example.com/tutorial">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Join Us URL <span>(Telegram/WhatsApp)</span></label>
-                                <input type="url" class="form-input" id="joinUsUrl" placeholder="https://t.me/yourchannel">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Shortener API <span>(for link shortening)</span></label>
-                                <input type="url" class="form-input" id="shortenerApi" placeholder="https://api.shorten.com/api">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Telegram URL</label>
-                                <input type="url" class="form-input" id="telegramUrl" placeholder="https://t.me/yourgroup">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Colors Tab -->
-                    <div class="tab-content" id="colorsTab">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Border Color</label>
-                                <div class="color-input-group">
-                                    <div class="color-preview" id="borderColorPreview" style="background: #FF3AC8;"></div>
-                                    <input type="text" class="form-input color-input" id="borderColor" value="#FF3AC8">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Neon Status Color</label>
-                                <div class="color-input-group">
-                                    <div class="color-preview" id="neonColorPreview" style="background: #00FF88;"></div>
-                                    <input type="text" class="form-input color-input" id="neonColor" value="#00FF88">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Warning Status Color</label>
-                                <div class="color-input-group">
-                                    <div class="color-preview" id="warningColorPreview" style="background: #FFAA00;"></div>
-                                    <input type="text" class="form-input color-input" id="warningColor" value="#FFAA00">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Error Status Color</label>
-                                <div class="color-input-group">
-                                    <div class="color-preview" id="errorColorPreview" style="background: #FF4757;"></div>
-                                    <input type="text" class="form-input color-input" id="errorColor" value="#FF4757">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Verification Tab -->
-                    <div class="tab-content" id="verificationTab">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Firebase Monitor Interval <span>(ms)</span></label>
-                                <input type="number" class="form-input" id="monitorInterval" min="100" max="10000" value="500">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Verification Code Length</label>
-                                <input type="number" class="form-input" id="codeLength" min="8" max="32" value="12">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Auto Close After Verification <span>(seconds)</span></label>
-                                <input type="number" class="form-input" id="autoCloseDelay" min="1" max="60" value="3">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Instructions -->
-                <div class="instructions">
-                    <h4><i class="fas fa-lightbulb"></i> Quick Instructions</h4>
-                    <ol>
-                        <li>Configure each tab with your desired settings</li>
-                        <li>Click "Save Changes" to update Firebase</li>
-                        <li>Toggle Dialog ON/OFF to enable/disable verification</li>
-                        <li>Download pin.txt file for Android app</li>
-                        <li>Place pin.txt in app's assets folder</li>
-                    </ol>
-                    <div class="code-block">
-                        // When dialog is disabled from web, app will show loading<br>
-                        // and then automatically close without showing dialog
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h3>No Slots Created Yet</h3>
-                <p>Create your first slot to start managing Firebase configurations</p>
-                <button class="create-slot-btn" id="createFirstSlotBtn" style="width: auto; margin-top: 1.5rem;">
-                    <i class="fas fa-plus-circle"></i> Create Your First Slot
-                </button>
-            </div>
+
+        </div>
+
+        <div class="save-bar">
+            <button class="btn-primary" onclick="saveSlot()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
         </div>
     </div>
-    
-    <!-- Create Slot Modal -->
-    <div class="modal" id="createModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-plus-circle"></i> Create New Slot
-                </div>
+
+    <div id="createModal" class="modal-overlay">
+        <div class="modal-box animate-in">
+            <h2 style="margin-bottom: 1rem;">Create New Slot</h2>
+            <div class="form-group">
+                <label>App Name</label>
+                <input type="text" id="newSlotName" placeholder="Enter name...">
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Slot Name</label>
-                    <input type="text" class="form-input" id="slotNameInput" placeholder="e.g., Premium App Users">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Slot Description (Optional)</label>
-                    <input type="text" class="form-input" id="slotDescInput" placeholder="Describe what this slot is for">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Slot ID (Auto-generated)</label>
-                    <div class="id-display" id="generatedSlotId">Generating...</div>
-                    <button class="copy-btn" id="regenerateIdBtn">
-                        <i class="fas fa-redo"></i> Regenerate ID
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="action-btn" style="background: var(--gray-dark); color: white;" id="cancelCreateBtn">
-                    Cancel
-                </button>
-                <button class="action-btn btn-primary" id="confirmCreateBtn">
-                    <i class="fas fa-check"></i> Create Slot
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Delete Confirmation Modal -->
-    <div class="modal" id="deleteModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" style="color: var(--danger);">
-                    <i class="fas fa-exclamation-triangle"></i> Delete Slot Permanently
-                </div>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this slot? This action cannot be undone.</p>
-                <div class="info-card" style="margin-top: 1rem;">
-                    <div class="info-item">
-                        <div class="info-label">Slot Name</div>
-                        <div class="info-value" id="deleteSlotName">Unknown</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Slot ID</div>
-                        <div class="info-value" id="deleteSlotId">Unknown</div>
-                    </div>
-                </div>
-                <div class="status-message status-warning" style="display: block; margin-top: 1rem;">
-                    <i class="fas fa-exclamation-circle"></i> All data for this slot will be permanently removed from Firebase.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="action-btn" style="background: var(--gray-dark); color: white;" id="cancelDeleteBtn">
-                    Cancel
-                </button>
-                <button class="action-btn btn-danger" id="confirmDeleteBtn">
-                    <i class="fas fa-trash"></i> Delete Permanently
-                </button>
+            <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+                <button class="btn-edit" onclick="closeCreateModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmCreate()">Create</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const FIREBASE_URL = "https://real-apk-pin-default-rtdb.firebaseio.com/";
-        const BASE_PATH = "users/";
+        // --- Configuration ---
+        const API_URL = "https://real-apk-pin-default-rtdb.firebaseio.com/users/";
         
-        // State
-        let slots = [];
-        let currentSlotId = null;
-        let currentSlotData = null;
-        let slotToDelete = null;
-        
-        // DOM Elements
-        const sidebar = document.getElementById('sidebar');
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const slotList = document.getElementById('slotList');
-        const slotContent = document.getElementById('slotContent');
-        const emptyState = document.getElementById('emptyState');
-        const selectedSlotTitle = document.getElementById('selectedSlotTitle');
-        const selectedSlotDesc = document.getElementById('selectedSlotDesc');
-        const slotActions = document.getElementById('slotActions');
-        const saveBtn = document.getElementById('saveBtn');
-        const toggleDialogBtn = document.getElementById('toggleDialogBtn');
-        const deleteSlotBtn = document.getElementById('deleteSlotBtn');
-        const createSlotBtn = document.getElementById('createSlotBtn');
-        const createFirstSlotBtn = document.getElementById('createFirstSlotBtn');
-        const downloadPinBtn = document.getElementById('downloadPinBtn');
-        const slotIdDisplay = document.getElementById('slotIdDisplay');
-        const dialogStatus = document.getElementById('dialogStatus');
-        const slotCreated = document.getElementById('slotCreated');
-        const statusMessage = document.getElementById('statusMessage');
-        const dialogEnabled = document.getElementById('dialogEnabled');
-        const dialogStatusText = document.getElementById('dialogStatusText');
-        
-        // Tab Elements
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Form Elements
-        const appTitle = document.getElementById('appTitle');
-        const appDescription = document.getElementById('appDescription');
-        const verificationDuration = document.getElementById('verificationDuration');
-        const verificationUrl = document.getElementById('verificationUrl');
-        const howToVerifyUrl = document.getElementById('howToVerifyUrl');
-        const joinUsUrl = document.getElementById('joinUsUrl');
-        const shortenerApi = document.getElementById('shortenerApi');
-        const telegramUrl = document.getElementById('telegramUrl');
-        const borderColor = document.getElementById('borderColor');
-        const neonColor = document.getElementById('neonColor');
-        const warningColor = document.getElementById('warningColor');
-        const errorColor = document.getElementById('errorColor');
-        const monitorInterval = document.getElementById('monitorInterval');
-        const codeLength = document.getElementById('codeLength');
-        const autoCloseDelay = document.getElementById('autoCloseDelay');
-        
-        // Color Previews
-        const borderColorPreview = document.getElementById('borderColorPreview');
-        const neonColorPreview = document.getElementById('neonColorPreview');
-        const warningColorPreview = document.getElementById('warningColorPreview');
-        const errorColorPreview = document.getElementById('errorColorPreview');
-        
-        // Modal Elements
-        const createModal = document.getElementById('createModal');
-        const deleteModal = document.getElementById('deleteModal');
-        const slotNameInput = document.getElementById('slotNameInput');
-        const slotDescInput = document.getElementById('slotDescInput');
-        const generatedSlotId = document.getElementById('generatedSlotId');
-        const regenerateIdBtn = document.getElementById('regenerateIdBtn');
-        const cancelCreateBtn = document.getElementById('cancelCreateBtn');
-        const confirmCreateBtn = document.getElementById('confirmCreateBtn');
-        const deleteSlotName = document.getElementById('deleteSlotName');
-        const deleteSlotId = document.getElementById('deleteSlotId');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initEventListeners();
-            checkFirebaseConnection();
-        });
-        
-        // Event Listeners
-        function initEventListeners() {
-            // Mobile Menu
-            mobileMenuBtn.addEventListener('click', toggleSidebar);
-            sidebarOverlay.addEventListener('click', closeSidebar);
-            
-            // Create Slot Buttons
-            createSlotBtn.addEventListener('click', showCreateModal);
-            createFirstSlotBtn.addEventListener('click', showCreateModal);
-            
-            // Tabs
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    switchTab(tabId);
-                });
-            });
-            
-            // Color Inputs
-            borderColor.addEventListener('input', function() {
-                borderColorPreview.style.background = this.value;
-            });
-            
-            neonColor.addEventListener('input', function() {
-                neonColorPreview.style.background = this.value;
-            });
-            
-            warningColor.addEventListener('input', function() {
-                warningColorPreview.style.background = this.value;
-            });
-            
-            errorColor.addEventListener('input', function() {
-                errorColorPreview.style.background = this.value;
-            });
-            
-            // Dialog Enabled Toggle
-            dialogEnabled.addEventListener('change', function() {
-                dialogStatusText.textContent = this.checked ? 'Enabled' : 'Disabled';
-                dialogStatusText.style.color = this.checked ? 'var(--secondary)' : 'var(--danger)';
-            });
-            
-            // Action Buttons
-            saveBtn.addEventListener('click', saveSlotChanges);
-            toggleDialogBtn.addEventListener('click', toggleDialogStatus);
-            deleteSlotBtn.addEventListener('click', showDeleteModal);
-            downloadPinBtn.addEventListener('click', downloadPinFile);
-            
-            // Copy Buttons
-            document.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-copy');
-                    const targetElement = document.getElementById(targetId);
-                    copyToClipboard(targetElement.textContent, this);
-                });
-            });
-            
-            // Create Modal
-            regenerateIdBtn.addEventListener('click', generateSlotId);
-            cancelCreateBtn.addEventListener('click', closeCreateModal);
-            confirmCreateBtn.addEventListener('click', createSlotInFirebase);
-            
-            // Delete Modal
-            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-            confirmDeleteBtn.addEventListener('click', confirmDeleteSlot);
-            
-            // Close modals on escape
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeCreateModal();
-                    closeDeleteModal();
-                }
-            });
-        }
-        
-        // Firebase Connection
-        async function checkFirebaseConnection() {
-            showStatus('Connecting to Firebase...', 'warning');
-            
+        let slotsData = {};
+        let currentId = null;
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', loadSlots);
+
+        // --- Data Loading ---
+        async function loadSlots() {
             try {
-                const response = await fetch(`${FIREBASE_URL}.json`);
+                const res = await fetch(API_URL + '.json');
+                const data = await res.json();
+                const list = document.getElementById('slot-list');
                 
-                if (response.ok) {
-                    showStatus('Connected to Firebase successfully', 'success');
-                    loadAllSlots();
-                } else {
-                    showStatus('Failed to connect to Firebase', 'error');
-                }
-            } catch (error) {
-                showStatus(`Connection error: ${error.message}`, 'error');
-            }
-        }
-        
-        // Load Slots from Firebase
-        async function loadAllSlots() {
-            try {
-                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}.json`);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    slots = [];
-                    slotList.innerHTML = '';
-                    
-                    if (data) {
-                        for (const slotId in data) {
-                            if (data.hasOwnProperty(slotId)) {
-                                const slotData = data[slotId];
-                                const slot = {
-                                    id: slotId,
-                                    name: slotData.app_title || slotId,
-                                    description: slotData.app_description || '',
-                                    enabled: slotData.enabled !== false,
-                                    created: slotData.created_at || Date.now(),
-                                    data: slotData
-                                };
-                                
-                                slots.push(slot);
-                                
-                                // Create slot item in sidebar
-                                const slotItem = document.createElement('div');
-                                slotItem.className = 'slot-item';
-                                slotItem.innerHTML = `
-                                    <div class="slot-header">
-                                        <div class="slot-name">${slot.name}</div>
-                                        <div class="slot-status ${slot.enabled ? 'status-active' : 'status-inactive'}">
-                                            ${slot.enabled ? 'ON' : 'OFF'}
-                                        </div>
-                                    </div>
-                                    <div class="slot-id">${slotId}</div>
-                                `;
-                                
-                                slotItem.addEventListener('click', () => selectSlot(slotId));
-                                slotList.appendChild(slotItem);
-                            }
-                        }
-                        
-                        // Show empty state if no slots
-                        if (slots.length === 0) {
-                            emptyState.style.display = 'block';
-                            slotContent.style.display = 'none';
-                        } else {
-                            emptyState.style.display = 'none';
-                            
-                            // Select first slot if none selected
-                            if (!currentSlotId) {
-                                selectSlot(slots[0].id);
-                            }
-                        }
-                    } else {
-                        emptyState.style.display = 'block';
-                        slotContent.style.display = 'none';
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading slots:', error);
-                showStatus('Error loading slots from Firebase', 'error');
-            }
-        }
-        
-        // Select Slot
-        function selectSlot(slotId) {
-            closeSidebar();
-            currentSlotId = slotId;
-            currentSlotData = slots.find(s => s.id === slotId);
-            
-            if (!currentSlotData) return;
-            
-            // Update UI
-            selectedSlotTitle.textContent = currentSlotData.name;
-            selectedSlotDesc.textContent = currentSlotData.description || 'Configure slot settings';
-            slotActions.style.display = 'flex';
-            slotContent.classList.add('active');
-            emptyState.style.display = 'none';
-            
-            // Update slot info
-            slotIdDisplay.textContent = currentSlotData.id;
-            dialogStatus.textContent = currentSlotData.enabled ? 'Active' : 'Inactive';
-            dialogStatus.className = currentSlotData.enabled ? 'status-active' : 'status-inactive';
-            slotCreated.textContent = formatDate(currentSlotData.created);
-            
-            // Update toggle button
-            toggleDialogBtn.innerHTML = currentSlotData.enabled ? 
-                '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
-                '<i class="fas fa-toggle-off"></i> Dialog: OFF';
-            
-            // Update form fields from slot data
-            loadSlotDataIntoForms(currentSlotData.data);
-            
-            // Update active state in sidebar
-            document.querySelectorAll('.slot-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.slot-item').forEach(item => {
-                if (item.querySelector('.slot-id').textContent === slotId) {
-                    item.classList.add('active');
-                }
-            });
-        }
-        
-        // Load slot data into forms
-        function loadSlotDataIntoForms(data) {
-            // General Tab
-            appTitle.value = data.app_title || '';
-            appDescription.value = data.app_description || '';
-            verificationDuration.value = data.verification_duration_hours || 24;
-            dialogEnabled.checked = data.enabled !== false;
-            dialogStatusText.textContent = dialogEnabled.checked ? 'Enabled' : 'Disabled';
-            dialogStatusText.style.color = dialogEnabled.checked ? 'var(--secondary)' : 'var(--danger)';
-            
-            // URLs Tab
-            verificationUrl.value = data.verification_url || '';
-            howToVerifyUrl.value = data.how_to_verify_url || '';
-            joinUsUrl.value = data.join_us_url || '';
-            shortenerApi.value = data.shortener_api || '';
-            telegramUrl.value = data.telegram_url || '';
-            
-            // Colors Tab
-            const colors = data.colors || {};
-            borderColor.value = colors.border || '#FF3AC8';
-            neonColor.value = colors.status_neon || '#00FF88';
-            warningColor.value = colors.status_warning || '#FFAA00';
-            errorColor.value = colors.status_error || '#FF4757';
-            
-            // Update color previews
-            borderColorPreview.style.background = borderColor.value;
-            neonColorPreview.style.background = neonColor.value;
-            warningColorPreview.style.background = warningColor.value;
-            errorColorPreview.style.background = errorColor.value;
-            
-            // Verification Tab
-            monitorInterval.value = data.firebase_check_interval || 500;
-            codeLength.value = data.verification_code_length || 12;
-            autoCloseDelay.value = data.auto_close_delay || 3;
-        }
-        
-        // Save Slot Changes
-        async function saveSlotChanges() {
-            if (!currentSlotId || !currentSlotData) return;
-            
-            const slotData = {
-                app_title: appTitle.value.trim(),
-                app_description: appDescription.value.trim(),
-                verification_duration_hours: parseInt(verificationDuration.value),
-                verification_url: verificationUrl.value.trim(),
-                how_to_verify_url: howToVerifyUrl.value.trim(),
-                join_us_url: joinUsUrl.value.trim(),
-                shortener_api: shortenerApi.value.trim(),
-                telegram_url: telegramUrl.value.trim(),
-                enabled: dialogEnabled.checked,
-                created_at: currentSlotData.created,
-                updated_at: Date.now(),
-                colors: {
-                    border: borderColor.value.trim(),
-                    status_neon: neonColor.value.trim(),
-                    status_warning: warningColor.value.trim(),
-                    status_error: errorColor.value.trim()
-                },
-                firebase_check_interval: parseInt(monitorInterval.value),
-                verification_code_length: parseInt(codeLength.value),
-                auto_close_delay: parseInt(autoCloseDelay.value)
-            };
-            
-            showStatus('Saving changes to Firebase...', 'warning');
-            
-            try {
-                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(slotData)
-                });
-                
-                if (response.ok) {
-                    showStatus('Changes saved successfully', 'success');
-                    
-                    // Update local data
-                    currentSlotData.data = slotData;
-                    currentSlotData.name = slotData.app_title;
-                    currentSlotData.description = slotData.app_description;
-                    currentSlotData.enabled = slotData.enabled;
-                    
-                    // Update sidebar
-                    const slotItem = Array.from(document.querySelectorAll('.slot-item')).find(item => 
-                        item.querySelector('.slot-id').textContent === currentSlotId
-                    );
-                    
-                    if (slotItem) {
-                        slotItem.querySelector('.slot-name').textContent = slotData.app_title;
-                        const statusElement = slotItem.querySelector('.slot-status');
-                        statusElement.textContent = slotData.enabled ? 'ON' : 'OFF';
-                        statusElement.className = `slot-status ${slotData.enabled ? 'status-active' : 'status-inactive'}`;
-                    }
-                    
-                    selectedSlotTitle.textContent = slotData.app_title;
-                    selectedSlotDesc.textContent = slotData.app_description;
-                    
-                    // Update dialog status display
-                    dialogStatus.textContent = slotData.enabled ? 'Active' : 'Inactive';
-                    dialogStatus.className = slotData.enabled ? 'status-active' : 'status-inactive';
-                    toggleDialogBtn.innerHTML = slotData.enabled ? 
-                        '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
-                        '<i class="fas fa-toggle-off"></i> Dialog: OFF';
-                } else {
-                    showStatus('Failed to save changes', 'error');
-                }
-            } catch (error) {
-                console.error('Error saving slot:', error);
-                showStatus(`Error: ${error.message}`, 'error');
-            }
-        }
-        
-        // Toggle Dialog Status
-        async function toggleDialogStatus() {
-            if (!currentSlotId || !currentSlotData) return;
-            
-            const newStatus = !currentSlotData.enabled;
-            
-            showStatus(newStatus ? 'Enabling dialog...' : 'Disabling dialog...', 'warning');
-            
-            try {
-                // Get current config
-                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`);
-                const config = await response.json();
-                
-                // Update enabled status
-                config.enabled = newStatus;
-                config.updated_at = Date.now();
-                
-                // Save back to Firebase
-                const saveResponse = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(config)
-                });
-                
-                if (saveResponse.ok) {
-                    currentSlotData.enabled = newStatus;
-                    currentSlotData.data = config;
-                    
-                    // Update UI
-                    dialogStatus.textContent = newStatus ? 'Active' : 'Inactive';
-                    dialogStatus.className = newStatus ? 'status-active' : 'status-inactive';
-                    dialogEnabled.checked = newStatus;
-                    dialogStatusText.textContent = newStatus ? 'Enabled' : 'Disabled';
-                    dialogStatusText.style.color = newStatus ? 'var(--secondary)' : 'var(--danger)';
-                    
-                    toggleDialogBtn.innerHTML = newStatus ? 
-                        '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
-                        '<i class="fas fa-toggle-off"></i> Dialog: OFF';
-                    
-                    // Update sidebar status
-                    const slotItem = Array.from(document.querySelectorAll('.slot-item')).find(item => 
-                        item.querySelector('.slot-id').textContent === currentSlotId
-                    );
-                    
-                    if (slotItem) {
-                        const statusElement = slotItem.querySelector('.slot-status');
-                        statusElement.textContent = newStatus ? 'ON' : 'OFF';
-                        statusElement.className = `slot-status ${newStatus ? 'status-active' : 'status-inactive'}`;
-                    }
-                    
-                    showStatus(`Dialog ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
-                } else {
-                    showStatus('Failed to update dialog status', 'error');
-                }
-            } catch (error) {
-                console.error('Error toggling dialog:', error);
-                showStatus(`Error: ${error.message}`, 'error');
-            }
-        }
-        
-        // Download pin.txt file
-        function downloadPinFile() {
-            if (!currentSlotId) return;
-            
-            const content = currentSlotId;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pin.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showStatus('pin.txt downloaded. Place in app/assets folder', 'success');
-        }
-        
-        // Generate Slot ID
-        function generateSlotId() {
-            const prefix = 'rlx-pin-';
-            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            let id = '';
-            
-            for (let i = 0; i < 20; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            generatedSlotId.textContent = prefix + id;
-        }
-        
-        // Create Slot in Firebase
-        async function createSlotInFirebase() {
-            const slotName = slotNameInput.value.trim();
-            const slotDesc = slotDescInput.value.trim();
-            const slotId = generatedSlotId.textContent;
-            
-            if (!slotName) {
-                alert('Please enter a slot name');
-                return;
-            }
-            
-            if (slotId === 'Generating...') {
-                alert('Please generate a slot ID first');
-                return;
-            }
-            
-            showStatus('Creating slot in Firebase...', 'warning');
-            
-            const slotData = {
-                app_title: slotName,
-                app_description: slotDesc,
-                verification_duration_hours: 24,
-                verification_url: "https://example.com/verify",
-                how_to_verify_url: "https://example.com/tutorial",
-                join_us_url: "https://t.me/yourchannel",
-                shortener_api: "https://api.shorten.com/api",
-                telegram_url: "https://t.me/yourgroup",
-                enabled: true,
-                created_at: Date.now(),
-                updated_at: Date.now(),
-                colors: {
-                    border: "#FF3AC8",
-                    status_neon: "#00FF88",
-                    status_warning: "#FFAA00",
-                    status_error: "#FF4757"
-                },
-                firebase_check_interval: 500,
-                verification_code_length: 12,
-                auto_close_delay: 3
-            };
-            
-            try {
-                // Check if slot already exists
-                const checkResponse = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotId}/.json`);
-                const existingData = await checkResponse.json();
-                
-                if (existingData !== null) {
-                    showStatus('Slot ID already exists. Please regenerate.', 'error');
+                document.getElementById('loading').style.display = 'none';
+                list.innerHTML = '';
+                slotsData = data || {};
+
+                if (!data) {
+                    list.innerHTML = `<div style="text-align:center; grid-column: 1/-1; padding: 2rem; color: var(--text-muted);">No slots found. Tap + to create one.</div>`;
                     return;
                 }
-                
-                // Create slot
-                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotId}/config.json`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(slotData)
+
+                Object.keys(data).forEach(id => {
+                    const slot = data[id];
+                    const isActive = slot.enabled !== false;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'slot-card';
+                    card.innerHTML = `
+                        <div class="slot-top">
+                            <div class="slot-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="status-dot ${isActive ? 'active' : 'inactive'}"></div>
+                        </div>
+                        <div class="slot-info">
+                            <h3>${slot.app_title || 'Untitled'}</h3>
+                            <p>${id}</p>
+                        </div>
+                        <button class="btn-edit" onclick="openEditor('${id}')">
+                            <i class="fas fa-sliders-h"></i> Configure
+                        </button>
+                    `;
+                    list.appendChild(card);
                 });
-                
-                if (response.ok) {
-                    showStatus('Slot created successfully', 'success');
-                    closeCreateModal();
-                    loadAllSlots();
-                    selectSlot(slotId);
-                } else {
-                    showStatus('Failed to create slot', 'error');
-                }
-            } catch (error) {
-                console.error('Error creating slot:', error);
-                showStatus(`Error: ${error.message}`, 'error');
+            } catch (err) {
+                showToast("Error loading data");
             }
         }
+
+        // --- Editor Logic ---
+        function openEditor(id) {
+            currentId = id;
+            const data = slotsData[id];
+
+            // Switch Views
+            document.getElementById('view-dashboard').style.display = 'none';
+            document.getElementById('fabBtn').style.display = 'none';
+            document.getElementById('view-editor').classList.add('active');
+
+            // Populate Live Header
+            updateLiveHeader(data.app_title || 'Untitled');
+            document.getElementById('live-id-display').textContent = id;
+
+            // Populate Fields
+            document.getElementById('inp_enabled').value = (data.enabled !== false).toString();
+            document.getElementById('inp_title').value = data.app_title || '';
+            document.getElementById('inp_desc').value = data.app_description || '';
+            
+            document.getElementById('inp_verify').value = data.verification_url || '';
+            document.getElementById('inp_tutorial').value = data.how_to_verify_url || '';
+            document.getElementById('inp_telegram').value = data.telegram_url || '';
+            document.getElementById('inp_join').value = data.join_us_url || '';
+            
+            document.getElementById('inp_interval').value = data.firebase_check_interval || 500;
+            document.getElementById('inp_len').value = data.verification_code_length || 12;
+
+            // Populate Colors
+            const colors = data.colors || {};
+            syncColor('border', colors.border || '#FF3AC8');
+            syncColor('neon', colors.status_neon || '#00FF88');
+            syncColor('warning', colors.status_warning || '#FFAA00');
+
+            switchTab('general');
+            window.scrollTo(0,0);
+        }
+
+        function closeEditor() {
+            document.getElementById('view-editor').classList.remove('active');
+            document.getElementById('view-dashboard').style.display = 'block';
+            document.getElementById('fabBtn').style.display = 'flex';
+            currentId = null;
+            loadSlots(); // Refresh grid to show changes
+        }
+
+        // --- Live Preview & Color Sync ---
         
-        // Delete Slot
-        async function confirmDeleteSlot() {
-            if (!slotToDelete) return;
+        // This function runs whenever you type in Title/Desc inputs
+        function updateLiveHeader() {
+            const titleInput = document.getElementById('inp_title').value;
+            // If input is empty, fall back to "Untitled", otherwise show input
+            document.getElementById('live-title-display').textContent = titleInput || "Untitled App";
+        }
+
+        // This function handles the 2-way binding between Color Picker and Text Input
+        function syncColor(type, value) {
+            // Ensure hex format
+            if(!value.startsWith('#')) value = '#' + value;
             
-            showStatus('Deleting slot from Firebase...', 'warning');
+            // Update Text Field
+            document.getElementById(`text_${type}`).value = value;
             
+            // Update Color Picker
+            document.getElementById(`picker_${type}`).value = value;
+            
+            // Update Preview Circle Background
+            document.getElementById(`preview_${type}`).style.backgroundColor = value;
+        }
+
+        // --- Saving ---
+        async function saveSlot() {
+            if(!currentId) return;
+            
+            const payload = {
+                ...slotsData[currentId], // Keep existing data
+                app_title: document.getElementById('inp_title').value,
+                app_description: document.getElementById('inp_desc').value,
+                enabled: document.getElementById('inp_enabled').value === 'true',
+                
+                verification_url: document.getElementById('inp_verify').value,
+                how_to_verify_url: document.getElementById('inp_tutorial').value,
+                telegram_url: document.getElementById('inp_telegram').value,
+                join_us_url: document.getElementById('inp_join').value,
+                
+                firebase_check_interval: parseInt(document.getElementById('inp_interval').value),
+                verification_code_length: parseInt(document.getElementById('inp_len').value),
+                
+                colors: {
+                    border: document.getElementById('text_border').value,
+                    status_neon: document.getElementById('text_neon').value,
+                    status_warning: document.getElementById('text_warning').value,
+                    status_error: "#FF4757" // Default
+                },
+                updated_at: Date.now()
+            };
+
             try {
-                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotToDelete}/.json`, {
-                    method: 'DELETE'
+                await fetch(`${API_URL}${currentId}/config.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
                 });
-                
-                if (response.ok) {
-                    showStatus('Slot deleted permanently', 'success');
-                    closeDeleteModal();
-                    
-                    // If deleted slot was selected, clear selection
-                    if (currentSlotId === slotToDelete) {
-                        currentSlotId = null;
-                        currentSlotData = null;
-                        slotActions.style.display = 'none';
-                        slotContent.classList.remove('active');
-                        selectedSlotTitle.textContent = 'No Slot Selected';
-                        selectedSlotDesc.textContent = 'Select a slot from the sidebar to configure it';
-                    }
-                    
-                    loadAllSlots();
-                } else {
-                    showStatus('Failed to delete slot', 'error');
-                }
-            } catch (error) {
-                console.error('Error deleting slot:', error);
-                showStatus(`Error: ${error.message}`, 'error');
+                slotsData[currentId] = payload; // Local update
+                showToast("Settings Saved!");
+            } catch(e) {
+                showToast("Save Failed");
             }
         }
-        
-        // Helper Functions
-        function showCreateModal() {
-            slotNameInput.value = '';
-            slotDescInput.value = '';
-            generateSlotId();
-            createModal.classList.add('active');
-        }
-        
-        function closeCreateModal() {
-            createModal.classList.remove('active');
-        }
-        
-        function showDeleteModal() {
-            if (!currentSlotId || !currentSlotData) return;
+
+        // --- Actions ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
             
-            slotToDelete = currentSlotId;
-            deleteSlotName.textContent = currentSlotData.name;
-            deleteSlotId.textContent = currentSlotId;
-            deleteModal.classList.add('active');
+            // Find specific button (using text content logic or order would be cleaner, but this works)
+            const buttons = document.querySelectorAll('.tab-btn');
+            if(tabName === 'general') buttons[0].classList.add('active');
+            if(tabName === 'colors') buttons[1].classList.add('active');
+            if(tabName === 'urls') buttons[2].classList.add('active');
+            if(tabName === 'system') buttons[3].classList.add('active');
+
+            document.getElementById(`tab-${tabName}`).classList.add('active');
         }
-        
-        function closeDeleteModal() {
-            slotToDelete = null;
-            deleteModal.classList.remove('active');
+
+        function downloadPin() {
+            const blob = new Blob([currentId], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'pin.txt';
+            a.click();
         }
-        
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            sidebarOverlay.classList.toggle('active');
+
+        async function deleteSlot() {
+            if(confirm("Delete this slot permanently?")) {
+                await fetch(`${API_URL}${currentId}.json`, { method: 'DELETE' });
+                closeEditor();
+                showToast("Slot Deleted");
+            }
         }
+
+        // --- Creation ---
+        function openCreateModal() { document.getElementById('createModal').classList.add('active'); }
+        function closeCreateModal() { document.getElementById('createModal').classList.remove('active'); }
         
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            sidebarOverlay.classList.remove('active');
-        }
-        
-        function switchTab(tabId) {
-            // Update tab buttons
-            tabBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-tab') === tabId) {
-                    btn.classList.add('active');
-                }
-            });
+        async function confirmCreate() {
+            const name = document.getElementById('newSlotName').value;
+            if(!name) return;
             
-            // Update tab contents
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === tabId + 'Tab') {
-                    content.classList.add('active');
-                }
-            });
-        }
-        
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = `status-message status-${type}`;
-            statusMessage.style.display = 'block';
+            const newId = 'rlx-pin-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const payload = {
+                app_title: name,
+                enabled: true,
+                created_at: Date.now(),
+                colors: { border: "#FF3AC8", status_neon: "#00FF88", status_warning: "#FFAA00" }
+            };
             
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                statusMessage.style.display = 'none';
-            }, 5000);
+            await fetch(`${API_URL}${newId}/config.json`, { method: 'PUT', body: JSON.stringify(payload) });
+            closeCreateModal();
+            loadSlots();
+            showToast("Created Successfully");
         }
-        
-        function formatDate(timestamp) {
-            if (!timestamp) return 'Unknown';
-            
-            const date = new Date(timestamp);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        }
-        
-        function copyToClipboard(text, button) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                button.classList.add('copied');
-                
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-            });
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
         }
     </script>
 </body>
