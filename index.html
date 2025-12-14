@@ -1,162 +1,975 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slot Control Dashboard</title>
-
-<style>
-:root{
- --bg:#0b0b10;--card:#14141a;--text:#e8e8f0;--muted:#9a9ab0;
- --accent:#6c5cff;--success:#22c55e;--danger:#ff4d4f;
-}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
-header{padding:16px 20px}
-header h1{margin:0;color:var(--accent);text-shadow:0 0 14px rgba(108,92,255,.7)}
-.container{max-width:1100px;margin:auto;padding:14px}
-.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:16px}
-input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none}
-input,textarea{background:#1d1d26;color:var(--text)}
-button{background:var(--accent);color:white}
-.slot{padding:14px;border-radius:12px;background:#1a1a22;margin-bottom:10px;cursor:pointer}
-.small{font-size:13px;color:var(--muted)}
-.switch{width:52px;height:28px;background:#444;border-radius:20px;position:relative}
-.switch span{width:22px;height:22px;background:#fff;position:absolute;top:3px;left:3px;border-radius:50%;transition:.3s}
-.switch.on{background:var(--success)}
-.switch.on span{left:27px}
-.hidden{display:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Slot Manager - HackerTMM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #00ff88;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .firebase-config {
+            background: rgba(0, 100, 255, 0.1);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .config-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .config-label {
+            width: 150px;
+            color: #00ccff;
+            font-weight: bold;
+        }
+        
+        .config-input {
+            flex: 1;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-family: monospace;
+        }
+        
+        .config-input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .tab-btn {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .create-slot-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        
+        .create-slot-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .slot-details {
+            display: none;
+        }
+        
+        .slot-details.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .slot-title {
+            font-size: 1.8rem;
+            color: #00ff88;
+        }
+        
+        .slot-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .edit-btn {
+            background: #00ccff;
+            color: #000;
+        }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .save-btn {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .test-btn {
+            background: #ffaa00;
+            color: #000;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .json-editor {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .json-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .json-label {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .json-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        .firebase-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-label {
+            width: 200px;
+            color: #aaa;
+            font-weight: bold;
+        }
+        
+        .info-value {
+            flex: 1;
+            color: #fff;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .id-display {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #00ff88;
+            word-break: break-all;
+            margin: 10px 0;
+            border: 1px dashed #00ff88;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #00ff88;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #00ff88;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        
+        .confirm-btn {
+            background: #ff4757;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .cancel-btn {
+            background: #555;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .status-success {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        
+        .status-error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid #ff4757;
+        }
+        
+        .status-warning {
+            background: rgba(255, 170, 0, 0.1);
+            color: #ffaa00;
+            border: 1px solid #ffaa00;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <h1>🔥 Firebase Slot Manager</h1>
+            <p class="subtitle">Directly manage JSON slots in Firebase Realtime Database</p>
+        </header>
+        
+        <div class="firebase-config">
+            <div class="config-row">
+                <div class="config-label">Firebase URL:</div>
+                <input type="text" class="config-input" id="firebaseUrl" value="https://real-apk-pin-default-rtdb.firebaseio.com/" readonly>
+            </div>
+            <div class="config-row">
+                <div class="config-label">Base Path:</div>
+                <input type="text" class="config-input" id="basePath" value="users/">
+            </div>
+            <div class="config-row">
+                <button class="btn btn-primary" onclick="testFirebaseConnection()">🔗 Test Connection</button>
+                <button class="btn btn-primary" onclick="loadAllSlots()">🔄 Refresh Slots</button>
+            </div>
+            <div id="connectionStatus" class="status-message"></div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="sidebar">
+                <h3 style="margin-bottom: 15px; color: #00ccff;">📁 Firebase Slots</h3>
+                <div class="tab-buttons" id="slotTabs">
+                    <!-- Slots will be loaded here -->
+                </div>
+                <button class="create-slot-btn" onclick="showCreateModal()">
+                    ➕ Create New Slot
+                </button>
+                
+                <div style="margin-top: 30px; color: #aaa; font-size: 0.9rem;">
+                    <p><strong>Note:</strong> Each slot is a folder in Firebase under "users/"</p>
+                    <p>Dialog will read from: users/SLOT_ID/config.json</p>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="slotDetailsContainer">
+                    <div style="text-align: center; padding: 50px 20px; color: #888;">
+                        <h3>No Slot Selected</h3>
+                        <p>Select a slot from the sidebar or create a new one</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Slot Modal -->
+    <div class="modal" id="createModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Create New Firebase Slot</h2>
+            <div class="form-group">
+                <label class="form-label">Slot ID (20-digit):</label>
+                <input type="text" class="config-input" id="newSlotId" value="" placeholder="Will be auto-generated" readonly>
+                <button class="btn" onclick="generateNewSlotId()" style="margin-top: 10px; background: #555; color: white;">Generate ID</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Slot Name:</label>
+                <input type="text" class="config-input" id="newSlotName" placeholder="Enter slot name (e.g., Premium Users)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Default JSON:</label>
+                <textarea id="defaultJson" style="min-height: 200px;">{
+    "verification_url": "https://your-website.com/verify",
+    "how_to_verify_url": "https://your-website.com/tutorial",
+    "join_us_url": "https://t.me/your_channel",
+    "shortener_api": "https://api.shorten.com/api",
+    "telegram_url": "https://t.me/your_group",
+    "app_title": "Premium Access",
+    "app_description": "Unlock premium features with verification",
+    "verification_duration_hours": 24,
+    "colors": {
+        "border": "#FF3AC8",
+        "status_neon": "#00FF88",
+        "status_warning": "#FFAA00",
+        "status_error": "#FF4757"
+    }
+}</textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="confirm-btn" style="background: #00ff88; color: #000;" onclick="createSlotInFirebase()">Create in Firebase</button>
+                <button class="cancel-btn" onclick="closeCreateModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Delete Slot Permanently</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #ff4757;">
+                ⚠️ WARNING: This will delete the slot from Firebase!<br>
+                All data will be lost and cannot be recovered.
+            </p>
+            <p id="deleteSlotInfo" style="text-align: center; margin-bottom: 20px;"></p>
+            <div class="modal-buttons">
+                <button class="confirm-btn" onclick="confirmDelete()">Yes, Delete Permanently</button>
+                <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-<header><h1>Access Login</h1></header>
-
-<div class="container">
-
-<div id="loginBox" class="card">
- <input id="accessKey" placeholder="Access Key">
- <button onclick="login()">Login</button>
-</div>
-
-<div id="panel" class="hidden">
-
-<div class="card">
- <button onclick="createSlot()">Create Slot</button>
- <p class="small">Slot ID (tap to copy)</p>
- <input id="slotId" readonly onclick="this.select();document.execCommand('copy')">
-</div>
-
-<div id="editor" class="card hidden">
- <input id="title" placeholder="App Name">
- <textarea id="desc" placeholder="Description"></textarea>
- <input id="tg" placeholder="Telegram URL">
- <input id="verify" placeholder="Verification URL">
- <input id="how" placeholder="How To Verify URL">
- <input id="short" placeholder="Shortener API">
- <input id="hours" placeholder="Duration (hours)">
-
- <div style="display:flex;justify-content:space-between;align-items:center">
-  <span>Dialog Enabled</span>
-  <div id="state" class="switch on" onclick="toggleState()"><span></span></div>
- </div>
-
- <button onclick="saveSlot()">Save Slot</button>
- <button style="background:#ff4d4f" onclick="deleteSlot()">Delete Slot Permanently</button>
-</div>
-
-<div class="card">
- <div id="slots"></div>
-</div>
-
-</div>
-</div>
-
-<script>
-const BASE="https://real-apk-pin-default-rtdb.firebaseio.com/";
-let currentSlot=null,enabled=true;
-
-function login(){
- fetch(BASE+"access_key.json").then(r=>r.json()).then(k=>{
-  if(accessKey.value.trim()===String(k).trim()){
-   loginBox.classList.add("hidden");
-   panel.classList.remove("hidden");
-   loadSlots();
-  }else alert("Invalid key");
- });
-}
-
-function rid(){
- const c="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
- let o="";
- for(let i=0;i<10;i++) o+=c[Math.random()*c.length|0];
- return o;
-}
-
-function createSlot(){
- currentSlot=rid();
- slotId.value=currentSlot;
- editor.classList.add("hidden");
- fetch(BASE+"slots/"+currentSlot+".json",{
-  method:"PUT",
-  body:JSON.stringify({enabled:true,verification_duration_hours:24})
- }).then(loadSlots);
-}
-
-function toggleState(){
- enabled=!enabled;
- state.classList.toggle("on",enabled);
-}
-
-function saveSlot(){
- const d={
-  app_title:title.value,
-  app_description:desc.value,
-  telegram_url:tg.value,
-  verification_url:verify.value,
-  how_to_verify_url:how.value,
-  shortener_api:short.value,
-  verification_duration_hours:+hours.value||24,
-  enabled:enabled
- };
- fetch(BASE+"slots/"+currentSlot+".json",{method:"PUT",body:JSON.stringify(d)})
- .then(loadSlots);
-}
-
-function deleteSlot(){
- if(!confirm("Delete slot permanently?")) return;
- fetch(BASE+"slots/"+currentSlot+".json",{method:"DELETE"})
- .then(()=>{editor.classList.add("hidden");loadSlots();});
-}
-
-function loadSlots(){
- fetch(BASE+"slots.json").then(r=>r.json()).then(d=>{
-  slots.innerHTML="";
-  if(!d) return;
-  Object.keys(d).forEach(id=>{
-   const s=document.createElement("div");
-   s.className="slot";
-   s.innerHTML="<b>"+(d[id].app_title||id)+"</b><br><span class='small'>"+id+"</span>";
-   s.onclick=()=>editSlot(id,d[id]);
-   slots.appendChild(s);
-  });
- });
-}
-
-function editSlot(id,d){
- currentSlot=id;
- editor.classList.remove("hidden");
- slotId.value=id;
- title.value=d.app_title||"";
- desc.value=d.app_description||"";
- tg.value=d.telegram_url||"";
- verify.value=d.verification_url||"";
- how.value=d.how_to_verify_url||"";
- short.value=d.shortener_api||"";
- hours.value=d.verification_duration_hours||24;
- enabled=d.enabled!==false;
- state.classList.toggle("on",enabled);
-}
-</script>
+    <script>
+        // Configuration
+        let firebaseUrl = "https://real-apk-pin-default-rtdb.firebaseio.com/";
+        let basePath = "users/";
+        let currentSlotId = null;
+        let slotToDelete = null;
+        let slots = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            testFirebaseConnection();
+        });
+        
+        // Test Firebase connection
+        async function testFirebaseConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.className = "status-message status-warning";
+            statusDiv.innerHTML = "Testing Firebase connection...";
+            statusDiv.style.display = "block";
+            
+            try {
+                const response = await fetch(`${firebaseUrl}.json`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    statusDiv.className = "status-message status-success";
+                    statusDiv.innerHTML = "✅ Firebase connection successful!";
+                    loadAllSlots();
+                } else {
+                    statusDiv.className = "status-message status-error";
+                    statusDiv.innerHTML = `❌ Firebase connection failed (Status: ${response.status})`;
+                }
+            } catch (error) {
+                console.error('Firebase test error:', error);
+                statusDiv.className = "status-message status-error";
+                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // Load all slots from Firebase
+        async function loadAllSlots() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.className = "status-message status-warning";
+            statusDiv.innerHTML = "Loading slots from Firebase...";
+            statusDiv.style.display = "block";
+            
+            try {
+                const response = await fetch(`${firebaseUrl}${basePath}.json`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    slots = [];
+                    const slotTabs = document.getElementById('slotTabs');
+                    slotTabs.innerHTML = '';
+                    
+                    if (data) {
+                        for (const slotId in data) {
+                            if (data.hasOwnProperty(slotId)) {
+                                const slotData = data[slotId];
+                                slots.push({
+                                    id: slotId,
+                                    name: slotData.config?.app_title || slotId,
+                                    data: slotData
+                                });
+                                
+                                // Add to tabs
+                                const btn = document.createElement('button');
+                                btn.className = 'tab-btn';
+                                btn.innerHTML = `
+                                    <div style="font-weight: bold;">${slotData.config?.app_title || slotId}</div>
+                                    <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">
+                                        ID: ${slotId}
+                                    </div>
+                                `;
+                                btn.onclick = () => showSlotDetails(slotId);
+                                slotTabs.appendChild(btn);
+                            }
+                        }
+                        
+                        statusDiv.className = "status-message status-success";
+                        statusDiv.innerHTML = `✅ Loaded ${slots.length} slot(s) from Firebase`;
+                        
+                        // Show first slot if exists
+                        if (slots.length > 0 && !currentSlotId) {
+                            showSlotDetails(slots[0].id);
+                        }
+                    } else {
+                        statusDiv.className = "status-message status-warning";
+                        statusDiv.innerHTML = "ℹ️ No slots found in Firebase. Create your first slot.";
+                    }
+                } else {
+                    statusDiv.className = "status-message status-error";
+                    statusDiv.innerHTML = `❌ Failed to load slots (Status: ${response.status})`;
+                }
+            } catch (error) {
+                console.error('Load slots error:', error);
+                statusDiv.className = "status-message status-error";
+                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // Show slot details
+        async function showSlotDetails(slotId) {
+            currentSlotId = slotId;
+            
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.textContent.includes(slotId)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Load slot data
+            try {
+                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const slotData = await response.json();
+                    const slotName = slotData.app_title || slotId;
+                    
+                    // Display slot details
+                    const container = document.getElementById('slotDetailsContainer');
+                    container.innerHTML = `
+                        <div class="slot-details active">
+                            <div class="slot-header">
+                                <h2 class="slot-title">${slotName}</h2>
+                                <div class="slot-actions">
+                                    <button class="action-btn save-btn" onclick="saveSlotChanges()">
+                                        💾 Save Changes
+                                    </button>
+                                    <button class="action-btn test-btn" onclick="testSlotConnection('${slotId}')">
+                                        🔗 Test Dialog
+                                    </button>
+                                    <button class="action-btn edit-btn" onclick="downloadSlotJson('${slotId}')">
+                                        ⬇️ Download JSON
+                                    </button>
+                                    <button class="action-btn delete-btn" onclick="showDeleteModal('${slotId}')">
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="firebase-info">
+                                <div class="info-row">
+                                    <div class="info-label">Firebase Path:</div>
+                                    <div class="info-value">${basePath}${slotId}/config.json</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Full URL:</div>
+                                    <div class="info-value">${firebaseUrl}${basePath}${slotId}/config.json</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">Slot ID (for pin.txt):</div>
+                                    <div class="id-display">${slotId}</div>
+                                </div>
+                                <div style="color: #ffaa00; margin-top: 15px; padding: 10px; background: rgba(255, 170, 0, 0.1); border-radius: 5px;">
+                                    <strong>Note for Android App:</strong> Put this ID in your app's assets/pin.txt file
+                                </div>
+                            </div>
+                            
+                            <div class="json-editor">
+                                <div class="json-header">
+                                    <div class="json-label">config.json Editor</div>
+                                    <div class="json-actions">
+                                        <button class="btn" onclick="formatJson()" style="background: #555; color: white;">Format JSON</button>
+                                        <button class="btn" onclick="validateJson()" style="background: #00ccff; color: #000;">Validate</button>
+                                    </div>
+                                </div>
+                                <textarea id="jsonEditor" style="min-height: 500px;">${JSON.stringify(slotData, null, 2)}</textarea>
+                                <div id="jsonStatus" class="status-message"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Show slot details error:', error);
+                alert(`Error loading slot: ${error.message}`);
+            }
+        }
+        
+        // Save changes to Firebase
+        async function saveSlotChanges() {
+            if (!currentSlotId) return;
+            
+            const jsonEditor = document.getElementById('jsonEditor');
+            const statusDiv = document.getElementById('jsonStatus');
+            
+            try {
+                const jsonData = JSON.parse(jsonEditor.value);
+                
+                statusDiv.className = "status-message status-warning";
+                statusDiv.innerHTML = "Saving to Firebase...";
+                statusDiv.style.display = "block";
+                
+                const response = await fetch(`${firebaseUrl}${basePath}${currentSlotId}/config.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+                
+                if (response.ok) {
+                    statusDiv.className = "status-message status-success";
+                    statusDiv.innerHTML = "✅ Successfully saved to Firebase!";
+                    
+                    // Update slot name in tabs
+                    const slotName = jsonData.app_title || currentSlotId;
+                    document.querySelectorAll('.tab-btn').forEach(btn => {
+                        if (btn.textContent.includes(currentSlotId)) {
+                            btn.innerHTML = `
+                                <div style="font-weight: bold;">${slotName}</div>
+                                <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">
+                                    ID: ${currentSlotId}
+                                </div>
+                            `;
+                        }
+                    });
+                } else {
+                    statusDiv.className = "status-message status-error";
+                    statusDiv.innerHTML = `❌ Failed to save (Status: ${response.status})`;
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                statusDiv.className = "status-message status-error";
+                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
+            }
+        }
+        
+        // Format JSON
+        function formatJson() {
+            const jsonEditor = document.getElementById('jsonEditor');
+            try {
+                const jsonData = JSON.parse(jsonEditor.value);
+                jsonEditor.value = JSON.stringify(jsonData, null, 2);
+                
+                const statusDiv = document.getElementById('jsonStatus');
+                statusDiv.className = "status-message status-success";
+                statusDiv.innerHTML = "✅ JSON formatted successfully";
+                statusDiv.style.display = "block";
+            } catch (error) {
+                const statusDiv = document.getElementById('jsonStatus');
+                statusDiv.className = "status-message status-error";
+                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
+                statusDiv.style.display = "block";
+            }
+        }
+        
+        // Validate JSON
+        function validateJson() {
+            const jsonEditor = document.getElementById('jsonEditor');
+            try {
+                JSON.parse(jsonEditor.value);
+                const statusDiv = document.getElementById('jsonStatus');
+                statusDiv.className = "status-message status-success";
+                statusDiv.innerHTML = "✅ JSON is valid";
+                statusDiv.style.display = "block";
+            } catch (error) {
+                const statusDiv = document.getElementById('jsonStatus');
+                statusDiv.className = "status-message status-error";
+                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
+                statusDiv.style.display = "block";
+            }
+        }
+        
+        // Generate new slot ID
+        function generateNewSlotId() {
+            let id = '';
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (let i = 0; i < 20; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('newSlotId').value = id;
+        }
+        
+        // Show create modal
+        function showCreateModal() {
+            generateNewSlotId();
+            document.getElementById('createModal').classList.add('active');
+        }
+        
+        // Close create modal
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+        
+        // Create slot in Firebase
+        async function createSlotInFirebase() {
+            const slotId = document.getElementById('newSlotId').value.trim();
+            const slotName = document.getElementById('newSlotName').value.trim();
+            
+            if (!slotId || slotId.length !== 20) {
+                alert('Please generate a valid 20-digit ID');
+                return;
+            }
+            
+            if (!slotName) {
+                alert('Please enter a slot name');
+                return;
+            }
+            
+            try {
+                const jsonData = JSON.parse(document.getElementById('defaultJson').value);
+                jsonData.app_title = slotName;
+                
+                // First, check if slot already exists
+                const checkResponse = await fetch(`${firebaseUrl}${basePath}${slotId}/.json`, {
+                    method: 'GET'
+                });
+                
+                if (checkResponse.ok) {
+                    const existingData = await checkResponse.json();
+                    if (existingData !== null) {
+                        alert(`Slot ${slotId} already exists in Firebase!`);
+                        return;
+                    }
+                }
+                
+                // Create the slot
+                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+                
+                if (response.ok) {
+                    alert(`✅ Slot created successfully!\n\nSlot ID: ${slotId}\n\nPut this ID in your app's assets/pin.txt file`);
+                    closeCreateModal();
+                    loadAllSlots();
+                    showSlotDetails(slotId);
+                } else {
+                    alert(`Failed to create slot (Status: ${response.status})`);
+                }
+            } catch (error) {
+                console.error('Create slot error:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+        
+        // Show delete modal
+        function showDeleteModal(slotId) {
+            slotToDelete = slotId;
+            const slot = slots.find(s => s.id === slotId);
+            document.getElementById('deleteSlotInfo').innerHTML = `
+                Slot: <strong>${slot?.name || slotId}</strong><br>
+                ID: <code>${slotId}</code><br><br>
+                This will delete: <code>${basePath}${slotId}/</code>
+            `;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        
+        // Close delete modal
+        function closeDeleteModal() {
+            slotToDelete = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        // Confirm delete
+        async function confirmDelete() {
+            if (!slotToDelete) return;
+            
+            try {
+                const response = await fetch(`${firebaseUrl}${basePath}${slotToDelete}/.json`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    alert(`✅ Slot ${slotToDelete} deleted from Firebase!`);
+                    closeDeleteModal();
+                    loadAllSlots();
+                    
+                    // Clear details if deleted slot was selected
+                    if (currentSlotId === slotToDelete) {
+                        currentSlotId = null;
+                        document.getElementById('slotDetailsContainer').innerHTML = `
+                            <div style="text-align: center; padding: 50px 20px; color: #888;">
+                                <h3>No Slot Selected</h3>
+                                <p>Select a slot from the sidebar or create a new one</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    alert(`Failed to delete slot (Status: ${response.status})`);
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+        
+        // Test dialog connection
+        async function testSlotConnection(slotId) {
+            try {
+                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`✅ Dialog connection test successful!\n\nSlot ID: ${slotId}\nApp Title: ${data.app_title}\n\nDialog can read this configuration.`);
+                } else {
+                    alert(`❌ Dialog connection failed (Status: ${response.status})`);
+                }
+            } catch (error) {
+                console.error('Test connection error:', error);
+                alert(`Error: ${error.message}`);
+            }
+        }
+        
+        // Download JSON file
+        function downloadSlotJson(slotId) {
+            const jsonEditor = document.getElementById('jsonEditor');
+            const slot = slots.find(s => s.id === slotId);
+            const slotName = slot?.name || slotId;
+            
+            const content = jsonEditor ? jsonEditor.value : JSON.stringify(slot?.data, null, 2);
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `slot_${slotId}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html>
