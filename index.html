@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>RLX PIN Manager - GetPIN Control</title>
+    <title>RLX PIN Manager - Firebase Slot Control</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -931,6 +931,16 @@
                                 <label class="form-label">Verification Duration <span>(hours)</span></label>
                                 <input type="number" class="form-input" id="verificationDuration" min="1" max="720" value="24">
                             </div>
+                            <div class="form-group">
+                                <label class="form-label">Dialog Enabled</label>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <label class="switch">
+                                        <input type="checkbox" id="dialogEnabled" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span id="dialogStatusText" style="color: var(--secondary);">Enabled</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1024,9 +1034,8 @@
                         <li>Place pin.txt in app's assets folder</li>
                     </ol>
                     <div class="code-block">
-                        // Firebase Path Structure<br>
-                        users/{SLOT_ID}/config.json<br>
-                        users/{SLOT_ID}/app_users/{DEVICE_ID}/verification_time.json
+                        // When dialog is disabled from web, app will show loading<br>
+                        // and then automatically close without showing dialog
                     </div>
                 </div>
             </div>
@@ -1145,6 +1154,8 @@
         const dialogStatus = document.getElementById('dialogStatus');
         const slotCreated = document.getElementById('slotCreated');
         const statusMessage = document.getElementById('statusMessage');
+        const dialogEnabled = document.getElementById('dialogEnabled');
+        const dialogStatusText = document.getElementById('dialogStatusText');
         
         // Tab Elements
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1226,6 +1237,12 @@
             
             errorColor.addEventListener('input', function() {
                 errorColorPreview.style.background = this.value;
+            });
+            
+            // Dialog Enabled Toggle
+            dialogEnabled.addEventListener('change', function() {
+                dialogStatusText.textContent = this.checked ? 'Enabled' : 'Disabled';
+                dialogStatusText.style.color = this.checked ? 'var(--secondary)' : 'var(--danger)';
             });
             
             // Action Buttons
@@ -1392,6 +1409,9 @@
             appTitle.value = data.app_title || '';
             appDescription.value = data.app_description || '';
             verificationDuration.value = data.verification_duration_hours || 24;
+            dialogEnabled.checked = data.enabled !== false;
+            dialogStatusText.textContent = dialogEnabled.checked ? 'Enabled' : 'Disabled';
+            dialogStatusText.style.color = dialogEnabled.checked ? 'var(--secondary)' : 'var(--danger)';
             
             // URLs Tab
             verificationUrl.value = data.verification_url || '';
@@ -1432,7 +1452,7 @@
                 join_us_url: joinUsUrl.value.trim(),
                 shortener_api: shortenerApi.value.trim(),
                 telegram_url: telegramUrl.value.trim(),
-                enabled: currentSlotData.enabled,
+                enabled: dialogEnabled.checked,
                 created_at: currentSlotData.created,
                 updated_at: Date.now(),
                 colors: {
@@ -1464,6 +1484,7 @@
                     currentSlotData.data = slotData;
                     currentSlotData.name = slotData.app_title;
                     currentSlotData.description = slotData.app_description;
+                    currentSlotData.enabled = slotData.enabled;
                     
                     // Update sidebar
                     const slotItem = Array.from(document.querySelectorAll('.slot-item')).find(item => 
@@ -1472,10 +1493,20 @@
                     
                     if (slotItem) {
                         slotItem.querySelector('.slot-name').textContent = slotData.app_title;
+                        const statusElement = slotItem.querySelector('.slot-status');
+                        statusElement.textContent = slotData.enabled ? 'ON' : 'OFF';
+                        statusElement.className = `slot-status ${slotData.enabled ? 'status-active' : 'status-inactive'}`;
                     }
                     
                     selectedSlotTitle.textContent = slotData.app_title;
                     selectedSlotDesc.textContent = slotData.app_description;
+                    
+                    // Update dialog status display
+                    dialogStatus.textContent = slotData.enabled ? 'Active' : 'Inactive';
+                    dialogStatus.className = slotData.enabled ? 'status-active' : 'status-inactive';
+                    toggleDialogBtn.innerHTML = slotData.enabled ? 
+                        '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
+                        '<i class="fas fa-toggle-off"></i> Dialog: OFF';
                 } else {
                     showStatus('Failed to save changes', 'error');
                 }
@@ -1518,6 +1549,9 @@
                     // Update UI
                     dialogStatus.textContent = newStatus ? 'Active' : 'Inactive';
                     dialogStatus.className = newStatus ? 'status-active' : 'status-inactive';
+                    dialogEnabled.checked = newStatus;
+                    dialogStatusText.textContent = newStatus ? 'Enabled' : 'Disabled';
+                    dialogStatusText.style.color = newStatus ? 'var(--secondary)' : 'var(--danger)';
                     
                     toggleDialogBtn.innerHTML = newStatus ? 
                         '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
