@@ -2,320 +2,520 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Slot Manager - HackerTMM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>RLX PIN Manager - GetPIN Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f9fafb;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --gray-dark: #374151;
+            --border: #4b5563;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --sidebar-bg: rgba(15, 23, 42, 0.95);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, #0f172a 100%);
+            color: var(--light);
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
         }
         
-        header {
-            text-align: center;
-            padding: 30px 0;
-            border-bottom: 2px solid #00ff88;
-            margin-bottom: 30px;
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
         
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #aaa;
-            font-size: 1.1rem;
-        }
-        
-        .firebase-config {
-            background: rgba(0, 100, 255, 0.1);
-            border: 1px solid rgba(0, 150, 255, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .config-row {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
         
-        .config-label {
-            width: 150px;
-            color: #00ccff;
-            font-weight: bold;
-        }
-        
-        .config-input {
-            flex: 1;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
-            font-family: monospace;
-        }
-        
-        .config-input:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            color: #000;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
-        }
-        
-        .sidebar {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .tab-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .tab-btn {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.08);
-            border: none;
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 10px;
-            color: #fff;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.3s;
-            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
         }
         
-        .tab-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .logo-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .slot-list {
+            margin-bottom: 2rem;
+        }
+        
+        .slot-list h3 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .slot-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.875rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .slot-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
             transform: translateX(5px);
         }
         
-        .tab-btn.active {
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            color: #000;
-            font-weight: bold;
-        }
-        
-        .create-slot-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(90deg, #ff0080, #ff8c00);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-        
-        .create-slot-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .main-content {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .slot-details {
-            display: none;
-        }
-        
-        .slot-details.active {
-            display: block;
-            animation: fadeIn 0.5s;
+        .slot-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
         }
         
         .slot-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
         }
         
-        .slot-title {
-            font-size: 1.8rem;
-            color: #00ff88;
-        }
-        
-        .slot-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .action-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .edit-btn {
-            background: #00ccff;
-            color: #000;
-        }
-        
-        .delete-btn {
-            background: #ff4757;
+        .slot-name {
+            font-weight: 600;
+            font-size: 0.95rem;
             color: white;
         }
         
-        .save-btn {
-            background: #00ff88;
-            color: #000;
+        .slot-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
         }
         
-        .test-btn {
-            background: #ffaa00;
-            color: #000;
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
         }
         
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
         }
         
-        .json-editor {
-            background: #1a1a1a;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 25px;
+        .slot-id {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: var(--gray);
+            word-break: break-all;
+            margin-top: 0.25rem;
         }
         
-        .json-header {
+        .create-slot-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .create-slot-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .json-label {
-            color: #00ff88;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .json-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 400px;
-            background: #000;
-            color: #0f0;
-            font-family: monospace;
-            padding: 15px;
-            border: 1px solid #333;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
-            resize: vertical;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
-        
-        .firebase-info {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 25px;
-        }
-        
-        .info-row {
-            display: flex;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
+        .content-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .content-title p {
+            color: var(--gray);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .action-btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-warning:hover {
+            background: rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Slot Content */
+        .slot-content {
+            display: none;
+        }
+        
+        .slot-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .slot-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .info-item {
+            margin-bottom: 1rem;
+        }
+        
         .info-label {
-            width: 200px;
-            color: #aaa;
-            font-weight: bold;
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.375rem;
+            font-weight: 500;
         }
         
         .info-value {
-            flex: 1;
-            color: #fff;
-            font-family: monospace;
+            font-size: 0.95rem;
+            color: white;
+            font-weight: 500;
             word-break: break-all;
         }
         
         .id-display {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed var(--primary);
             border-radius: 8px;
-            font-family: monospace;
-            font-size: 1.2rem;
-            color: #00ff88;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-top: 0.5rem;
             word-break: break-all;
-            margin: 10px 0;
-            border: 1px dashed #00ff88;
         }
         
+        /* Tabs */
+        .config-tabs {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab-btn:hover {
+            color: white;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: white;
+            font-size: 0.875rem;
+        }
+        
+        .form-label span {
+            color: var(--gray);
+            font-size: 0.8rem;
+            margin-left: 0.25rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .color-input {
+            flex: 1;
+        }
+        
+        /* Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-dark);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--secondary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -325,141 +525,520 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(5px);
         }
         
         .modal.active {
             display: flex;
-            animation: fadeIn 0.3s;
         }
         
         .modal-content {
-            background: #1a1a2e;
-            border-radius: 15px;
-            padding: 30px;
-            width: 90%;
+            background: var(--darker);
+            border-radius: 16px;
+            width: 100%;
             max-width: 500px;
-            border: 2px solid #00ff88;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: modalSlide 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .modal-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #00ff88;
-            text-align: center;
-        }
-        
-        .modal-buttons {
+            font-size: 1.25rem;
+            font-weight: 700;
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 25px;
+            align-items: center;
+            gap: 0.75rem;
         }
         
-        .confirm-btn {
-            background: #ff4757;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
+        .modal-body {
+            padding: 1.5rem;
         }
         
-        .cancel-btn {
-            background: #555;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
         }
         
+        /* Status */
         .status-message {
-            padding: 10px 15px;
+            padding: 1rem;
             border-radius: 8px;
-            margin: 10px 0;
+            margin: 1rem 0;
             display: none;
         }
         
         .status-success {
-            background: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            border: 1px solid #00ff88;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--secondary);
         }
         
         .status-error {
-            background: rgba(255, 71, 87, 0.1);
-            color: #ff4757;
-            border: 1px solid #ff4757;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
         }
         
         .status-warning {
-            background: rgba(255, 170, 0, 0.1);
-            color: #ffaa00;
-            border: 1px solid #ffaa00;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--warning);
         }
         
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 99;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        @media (max-width: 768px) {
-            .dashboard {
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+                padding-top: 5rem;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-actions {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .tab-header {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .tab-btn {
+                white-space: nowrap;
+                padding: 1rem;
+            }
+            
+            .form-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .slot-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Copy Button */
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .copy-btn.copied {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+            border-color: var(--secondary);
+        }
+        
+        /* Instructions */
+        .instructions {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .instructions h4 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            color: var(--gray-light);
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🔥 Firebase Slot Manager</h1>
-            <p class="subtitle">Directly manage JSON slots in Firebase Realtime Database</p>
-        </header>
+    <div class="app-container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
         
-        <div class="firebase-config">
-            <div class="config-row">
-                <div class="config-label">Firebase URL:</div>
-                <input type="text" class="config-input" id="firebaseUrl" value="https://real-apk-pin-default-rtdb.firebaseio.com/" readonly>
-            </div>
-            <div class="config-row">
-                <div class="config-label">Base Path:</div>
-                <input type="text" class="config-input" id="basePath" value="users/">
-            </div>
-            <div class="config-row">
-                <button class="btn btn-primary" onclick="testFirebaseConnection()">🔗 Test Connection</button>
-                <button class="btn btn-primary" onclick="loadAllSlots()">🔄 Refresh Slots</button>
-            </div>
-            <div id="connectionStatus" class="status-message"></div>
-        </div>
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
         
-        <div class="dashboard">
-            <div class="sidebar">
-                <h3 style="margin-bottom: 15px; color: #00ccff;">📁 Firebase Slots</h3>
-                <div class="tab-buttons" id="slotTabs">
-                    <!-- Slots will be loaded here -->
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-key"></i>
                 </div>
-                <button class="create-slot-btn" onclick="showCreateModal()">
-                    ➕ Create New Slot
-                </button>
-                
-                <div style="margin-top: 30px; color: #aaa; font-size: 0.9rem;">
-                    <p><strong>Note:</strong> Each slot is a folder in Firebase under "users/"</p>
-                    <p>Dialog will read from: users/SLOT_ID/config.json</p>
+                <div class="logo-text">
+                    <h1>RLX PIN Manager</h1>
+                    <p>Firebase Slot Control Panel</p>
                 </div>
             </div>
             
-            <div class="main-content">
-                <div id="slotDetailsContainer">
-                    <div style="text-align: center; padding: 50px 20px; color: #888;">
-                        <h3>No Slot Selected</h3>
-                        <p>Select a slot from the sidebar or create a new one</p>
+            <div class="slot-list">
+                <h3><i class="fas fa-layer-group"></i> Firebase Slots</h3>
+                <div id="slotList">
+                    <!-- Slots will be loaded here -->
+                </div>
+            </div>
+            
+            <button class="create-slot-btn" id="createSlotBtn">
+                <i class="fas fa-plus-circle"></i> Create New Slot
+            </button>
+            
+            <div class="instructions" style="margin-top: 2rem; font-size: 0.75rem;">
+                <p><strong>How to use:</strong></p>
+                <p>1. Create slots for different apps</p>
+                <p>2. Configure each slot's settings</p>
+                <p>3. Toggle dialog ON/OFF as needed</p>
+                <p>4. Put Slot ID in app's pin.txt file</p>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title">
+                    <h2 id="selectedSlotTitle">No Slot Selected</h2>
+                    <p id="selectedSlotDesc">Select a slot from the sidebar to configure it</p>
+                </div>
+                <div class="header-actions" id="slotActions" style="display: none;">
+                    <button class="action-btn btn-success" id="saveBtn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button class="action-btn btn-warning" id="toggleDialogBtn">
+                        <i class="fas fa-toggle-on"></i> Dialog: ON
+                    </button>
+                    <button class="action-btn btn-danger" id="deleteSlotBtn">
+                        <i class="fas fa-trash"></i> Delete Slot
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Status Message -->
+            <div id="statusMessage" class="status-message"></div>
+            
+            <!-- Slot Content -->
+            <div id="slotContent" class="slot-content">
+                <!-- Slot Info -->
+                <div class="slot-info-grid">
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="card-title">Slot Information</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Slot ID (for pin.txt)</div>
+                            <div class="id-display" id="slotIdDisplay">rlx-pin-xxxxxxxxxxxxxxxxxxxx</div>
+                            <button class="copy-btn" data-copy="slotIdDisplay">
+                                <i class="fas fa-copy"></i> Copy ID
+                            </button>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Dialog Status</div>
+                            <div class="info-value">
+                                <span id="dialogStatus" class="status-active">Active</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Created</div>
+                            <div class="info-value" id="slotCreated">Just now</div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="card-title">Android App Setup</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Step 1: Download pin.txt</div>
+                            <button class="action-btn btn-primary" id="downloadPinBtn" style="width: 100%; margin-top: 0.5rem;">
+                                <i class="fas fa-download"></i> Download pin.txt
+                            </button>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Step 2: Place in Assets</div>
+                            <div class="code-block">
+                                app/src/main/assets/pin.txt
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Step 3: Dialog will read</div>
+                            <div class="info-value">Slot ID from pin.txt → Firebase config</div>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Configuration Tabs -->
+                <div class="config-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="general">
+                            <i class="fas fa-cog"></i> General
+                        </button>
+                        <button class="tab-btn" data-tab="urls">
+                            <i class="fas fa-link"></i> URLs
+                        </button>
+                        <button class="tab-btn" data-tab="colors">
+                            <i class="fas fa-palette"></i> Colors
+                        </button>
+                        <button class="tab-btn" data-tab="verification">
+                            <i class="fas fa-shield-alt"></i> Verification
+                        </button>
+                    </div>
+                    
+                    <!-- General Tab -->
+                    <div class="tab-content active" id="generalTab">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">App Title <span>(shown in dialog)</span></label>
+                                <input type="text" class="form-input" id="appTitle" placeholder="e.g., Premium Access">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">App Description</label>
+                                <input type="text" class="form-input" id="appDescription" placeholder="Describe your app features">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Verification Duration <span>(hours)</span></label>
+                                <input type="number" class="form-input" id="verificationDuration" min="1" max="720" value="24">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- URLs Tab -->
+                    <div class="tab-content" id="urlsTab">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Verification URL <span>(where users go to verify)</span></label>
+                                <input type="url" class="form-input" id="verificationUrl" placeholder="https://example.com/verify">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">How to Verify URL <span>(tutorial page)</span></label>
+                                <input type="url" class="form-input" id="howToVerifyUrl" placeholder="https://example.com/tutorial">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Join Us URL <span>(Telegram/WhatsApp)</span></label>
+                                <input type="url" class="form-input" id="joinUsUrl" placeholder="https://t.me/yourchannel">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Shortener API <span>(for link shortening)</span></label>
+                                <input type="url" class="form-input" id="shortenerApi" placeholder="https://api.shorten.com/api">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telegram URL</label>
+                                <input type="url" class="form-input" id="telegramUrl" placeholder="https://t.me/yourgroup">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Colors Tab -->
+                    <div class="tab-content" id="colorsTab">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Border Color</label>
+                                <div class="color-input-group">
+                                    <div class="color-preview" id="borderColorPreview" style="background: #FF3AC8;"></div>
+                                    <input type="text" class="form-input color-input" id="borderColor" value="#FF3AC8">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Neon Status Color</label>
+                                <div class="color-input-group">
+                                    <div class="color-preview" id="neonColorPreview" style="background: #00FF88;"></div>
+                                    <input type="text" class="form-input color-input" id="neonColor" value="#00FF88">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Warning Status Color</label>
+                                <div class="color-input-group">
+                                    <div class="color-preview" id="warningColorPreview" style="background: #FFAA00;"></div>
+                                    <input type="text" class="form-input color-input" id="warningColor" value="#FFAA00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Error Status Color</label>
+                                <div class="color-input-group">
+                                    <div class="color-preview" id="errorColorPreview" style="background: #FF4757;"></div>
+                                    <input type="text" class="form-input color-input" id="errorColor" value="#FF4757">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Tab -->
+                    <div class="tab-content" id="verificationTab">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Firebase Monitor Interval <span>(ms)</span></label>
+                                <input type="number" class="form-input" id="monitorInterval" min="100" max="10000" value="500">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Verification Code Length</label>
+                                <input type="number" class="form-input" id="codeLength" min="8" max="32" value="12">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Auto Close After Verification <span>(seconds)</span></label>
+                                <input type="number" class="form-input" id="autoCloseDelay" min="1" max="60" value="3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                <div class="instructions">
+                    <h4><i class="fas fa-lightbulb"></i> Quick Instructions</h4>
+                    <ol>
+                        <li>Configure each tab with your desired settings</li>
+                        <li>Click "Save Changes" to update Firebase</li>
+                        <li>Toggle Dialog ON/OFF to enable/disable verification</li>
+                        <li>Download pin.txt file for Android app</li>
+                        <li>Place pin.txt in app's assets folder</li>
+                    </ol>
+                    <div class="code-block">
+                        // Firebase Path Structure<br>
+                        users/{SLOT_ID}/config.json<br>
+                        users/{SLOT_ID}/app_users/{DEVICE_ID}/verification_time.json
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Slots Created Yet</h3>
+                <p>Create your first slot to start managing Firebase configurations</p>
+                <button class="create-slot-btn" id="createFirstSlotBtn" style="width: auto; margin-top: 1.5rem;">
+                    <i class="fas fa-plus-circle"></i> Create Your First Slot
+                </button>
             </div>
         </div>
     </div>
@@ -467,38 +1046,35 @@
     <!-- Create Slot Modal -->
     <div class="modal" id="createModal">
         <div class="modal-content">
-            <h2 class="modal-title">Create New Firebase Slot</h2>
-            <div class="form-group">
-                <label class="form-label">Slot ID (20-digit):</label>
-                <input type="text" class="config-input" id="newSlotId" value="" placeholder="Will be auto-generated" readonly>
-                <button class="btn" onclick="generateNewSlotId()" style="margin-top: 10px; background: #555; color: white;">Generate ID</button>
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-plus-circle"></i> Create New Slot
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Slot Name:</label>
-                <input type="text" class="config-input" id="newSlotName" placeholder="Enter slot name (e.g., Premium Users)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Slot Name</label>
+                    <input type="text" class="form-input" id="slotNameInput" placeholder="e.g., Premium App Users">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Slot Description (Optional)</label>
+                    <input type="text" class="form-input" id="slotDescInput" placeholder="Describe what this slot is for">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Slot ID (Auto-generated)</label>
+                    <div class="id-display" id="generatedSlotId">Generating...</div>
+                    <button class="copy-btn" id="regenerateIdBtn">
+                        <i class="fas fa-redo"></i> Regenerate ID
+                    </button>
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Default JSON:</label>
-                <textarea id="defaultJson" style="min-height: 200px;">{
-    "verification_url": "https://your-website.com/verify",
-    "how_to_verify_url": "https://your-website.com/tutorial",
-    "join_us_url": "https://t.me/your_channel",
-    "shortener_api": "https://api.shorten.com/api",
-    "telegram_url": "https://t.me/your_group",
-    "app_title": "Premium Access",
-    "app_description": "Unlock premium features with verification",
-    "verification_duration_hours": 24,
-    "colors": {
-        "border": "#FF3AC8",
-        "status_neon": "#00FF88",
-        "status_warning": "#FFAA00",
-        "status_error": "#FF4757"
-    }
-}</textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="confirm-btn" style="background: #00ff88; color: #000;" onclick="createSlotInFirebase()">Create in Firebase</button>
-                <button class="cancel-btn" onclick="closeCreateModal()">Cancel</button>
+            <div class="modal-footer">
+                <button class="action-btn" style="background: var(--gray-dark); color: white;" id="cancelCreateBtn">
+                    Cancel
+                </button>
+                <button class="action-btn btn-primary" id="confirmCreateBtn">
+                    <i class="fas fa-check"></i> Create Slot
+                </button>
             </div>
         </div>
     </div>
@@ -506,469 +1082,693 @@
     <!-- Delete Confirmation Modal -->
     <div class="modal" id="deleteModal">
         <div class="modal-content">
-            <h2 class="modal-title">Delete Slot Permanently</h2>
-            <p style="text-align: center; margin-bottom: 20px; color: #ff4757;">
-                ⚠️ WARNING: This will delete the slot from Firebase!<br>
-                All data will be lost and cannot be recovered.
-            </p>
-            <p id="deleteSlotInfo" style="text-align: center; margin-bottom: 20px;"></p>
-            <div class="modal-buttons">
-                <button class="confirm-btn" onclick="confirmDelete()">Yes, Delete Permanently</button>
-                <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+            <div class="modal-header">
+                <div class="modal-title" style="color: var(--danger);">
+                    <i class="fas fa-exclamation-triangle"></i> Delete Slot Permanently
+                </div>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this slot? This action cannot be undone.</p>
+                <div class="info-card" style="margin-top: 1rem;">
+                    <div class="info-item">
+                        <div class="info-label">Slot Name</div>
+                        <div class="info-value" id="deleteSlotName">Unknown</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Slot ID</div>
+                        <div class="info-value" id="deleteSlotId">Unknown</div>
+                    </div>
+                </div>
+                <div class="status-message status-warning" style="display: block; margin-top: 1rem;">
+                    <i class="fas fa-exclamation-circle"></i> All data for this slot will be permanently removed from Firebase.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" style="background: var(--gray-dark); color: white;" id="cancelDeleteBtn">
+                    Cancel
+                </button>
+                <button class="action-btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete Permanently
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         // Configuration
-        let firebaseUrl = "https://real-apk-pin-default-rtdb.firebaseio.com/";
-        let basePath = "users/";
-        let currentSlotId = null;
-        let slotToDelete = null;
+        const FIREBASE_URL = "https://real-apk-pin-default-rtdb.firebaseio.com/";
+        const BASE_PATH = "users/";
+        
+        // State
         let slots = [];
+        let currentSlotId = null;
+        let currentSlotData = null;
+        let slotToDelete = null;
+        
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const slotList = document.getElementById('slotList');
+        const slotContent = document.getElementById('slotContent');
+        const emptyState = document.getElementById('emptyState');
+        const selectedSlotTitle = document.getElementById('selectedSlotTitle');
+        const selectedSlotDesc = document.getElementById('selectedSlotDesc');
+        const slotActions = document.getElementById('slotActions');
+        const saveBtn = document.getElementById('saveBtn');
+        const toggleDialogBtn = document.getElementById('toggleDialogBtn');
+        const deleteSlotBtn = document.getElementById('deleteSlotBtn');
+        const createSlotBtn = document.getElementById('createSlotBtn');
+        const createFirstSlotBtn = document.getElementById('createFirstSlotBtn');
+        const downloadPinBtn = document.getElementById('downloadPinBtn');
+        const slotIdDisplay = document.getElementById('slotIdDisplay');
+        const dialogStatus = document.getElementById('dialogStatus');
+        const slotCreated = document.getElementById('slotCreated');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // Tab Elements
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Form Elements
+        const appTitle = document.getElementById('appTitle');
+        const appDescription = document.getElementById('appDescription');
+        const verificationDuration = document.getElementById('verificationDuration');
+        const verificationUrl = document.getElementById('verificationUrl');
+        const howToVerifyUrl = document.getElementById('howToVerifyUrl');
+        const joinUsUrl = document.getElementById('joinUsUrl');
+        const shortenerApi = document.getElementById('shortenerApi');
+        const telegramUrl = document.getElementById('telegramUrl');
+        const borderColor = document.getElementById('borderColor');
+        const neonColor = document.getElementById('neonColor');
+        const warningColor = document.getElementById('warningColor');
+        const errorColor = document.getElementById('errorColor');
+        const monitorInterval = document.getElementById('monitorInterval');
+        const codeLength = document.getElementById('codeLength');
+        const autoCloseDelay = document.getElementById('autoCloseDelay');
+        
+        // Color Previews
+        const borderColorPreview = document.getElementById('borderColorPreview');
+        const neonColorPreview = document.getElementById('neonColorPreview');
+        const warningColorPreview = document.getElementById('warningColorPreview');
+        const errorColorPreview = document.getElementById('errorColorPreview');
+        
+        // Modal Elements
+        const createModal = document.getElementById('createModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const slotNameInput = document.getElementById('slotNameInput');
+        const slotDescInput = document.getElementById('slotDescInput');
+        const generatedSlotId = document.getElementById('generatedSlotId');
+        const regenerateIdBtn = document.getElementById('regenerateIdBtn');
+        const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+        const confirmCreateBtn = document.getElementById('confirmCreateBtn');
+        const deleteSlotName = document.getElementById('deleteSlotName');
+        const deleteSlotId = document.getElementById('deleteSlotId');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            testFirebaseConnection();
+            initEventListeners();
+            checkFirebaseConnection();
         });
         
-        // Test Firebase connection
-        async function testFirebaseConnection() {
-            const statusDiv = document.getElementById('connectionStatus');
-            statusDiv.className = "status-message status-warning";
-            statusDiv.innerHTML = "Testing Firebase connection...";
-            statusDiv.style.display = "block";
+        // Event Listeners
+        function initEventListeners() {
+            // Mobile Menu
+            mobileMenuBtn.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            
+            // Create Slot Buttons
+            createSlotBtn.addEventListener('click', showCreateModal);
+            createFirstSlotBtn.addEventListener('click', showCreateModal);
+            
+            // Tabs
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Color Inputs
+            borderColor.addEventListener('input', function() {
+                borderColorPreview.style.background = this.value;
+            });
+            
+            neonColor.addEventListener('input', function() {
+                neonColorPreview.style.background = this.value;
+            });
+            
+            warningColor.addEventListener('input', function() {
+                warningColorPreview.style.background = this.value;
+            });
+            
+            errorColor.addEventListener('input', function() {
+                errorColorPreview.style.background = this.value;
+            });
+            
+            // Action Buttons
+            saveBtn.addEventListener('click', saveSlotChanges);
+            toggleDialogBtn.addEventListener('click', toggleDialogStatus);
+            deleteSlotBtn.addEventListener('click', showDeleteModal);
+            downloadPinBtn.addEventListener('click', downloadPinFile);
+            
+            // Copy Buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-copy');
+                    const targetElement = document.getElementById(targetId);
+                    copyToClipboard(targetElement.textContent, this);
+                });
+            });
+            
+            // Create Modal
+            regenerateIdBtn.addEventListener('click', generateSlotId);
+            cancelCreateBtn.addEventListener('click', closeCreateModal);
+            confirmCreateBtn.addEventListener('click', createSlotInFirebase);
+            
+            // Delete Modal
+            cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+            confirmDeleteBtn.addEventListener('click', confirmDeleteSlot);
+            
+            // Close modals on escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeCreateModal();
+                    closeDeleteModal();
+                }
+            });
+        }
+        
+        // Firebase Connection
+        async function checkFirebaseConnection() {
+            showStatus('Connecting to Firebase...', 'warning');
             
             try {
-                const response = await fetch(`${firebaseUrl}.json`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
+                const response = await fetch(`${FIREBASE_URL}.json`);
                 
                 if (response.ok) {
-                    statusDiv.className = "status-message status-success";
-                    statusDiv.innerHTML = "✅ Firebase connection successful!";
+                    showStatus('Connected to Firebase successfully', 'success');
                     loadAllSlots();
                 } else {
-                    statusDiv.className = "status-message status-error";
-                    statusDiv.innerHTML = `❌ Firebase connection failed (Status: ${response.status})`;
+                    showStatus('Failed to connect to Firebase', 'error');
                 }
             } catch (error) {
-                console.error('Firebase test error:', error);
-                statusDiv.className = "status-message status-error";
-                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+                showStatus(`Connection error: ${error.message}`, 'error');
             }
         }
         
-        // Load all slots from Firebase
+        // Load Slots from Firebase
         async function loadAllSlots() {
-            const statusDiv = document.getElementById('connectionStatus');
-            statusDiv.className = "status-message status-warning";
-            statusDiv.innerHTML = "Loading slots from Firebase...";
-            statusDiv.style.display = "block";
-            
             try {
-                const response = await fetch(`${firebaseUrl}${basePath}.json`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
+                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}.json`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     slots = [];
-                    const slotTabs = document.getElementById('slotTabs');
-                    slotTabs.innerHTML = '';
+                    slotList.innerHTML = '';
                     
                     if (data) {
                         for (const slotId in data) {
                             if (data.hasOwnProperty(slotId)) {
                                 const slotData = data[slotId];
-                                slots.push({
+                                const slot = {
                                     id: slotId,
-                                    name: slotData.config?.app_title || slotId,
+                                    name: slotData.app_title || slotId,
+                                    description: slotData.app_description || '',
+                                    enabled: slotData.enabled !== false,
+                                    created: slotData.created_at || Date.now(),
                                     data: slotData
-                                });
+                                };
                                 
-                                // Add to tabs
-                                const btn = document.createElement('button');
-                                btn.className = 'tab-btn';
-                                btn.innerHTML = `
-                                    <div style="font-weight: bold;">${slotData.config?.app_title || slotId}</div>
-                                    <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">
-                                        ID: ${slotId}
+                                slots.push(slot);
+                                
+                                // Create slot item in sidebar
+                                const slotItem = document.createElement('div');
+                                slotItem.className = 'slot-item';
+                                slotItem.innerHTML = `
+                                    <div class="slot-header">
+                                        <div class="slot-name">${slot.name}</div>
+                                        <div class="slot-status ${slot.enabled ? 'status-active' : 'status-inactive'}">
+                                            ${slot.enabled ? 'ON' : 'OFF'}
+                                        </div>
                                     </div>
+                                    <div class="slot-id">${slotId}</div>
                                 `;
-                                btn.onclick = () => showSlotDetails(slotId);
-                                slotTabs.appendChild(btn);
+                                
+                                slotItem.addEventListener('click', () => selectSlot(slotId));
+                                slotList.appendChild(slotItem);
                             }
                         }
                         
-                        statusDiv.className = "status-message status-success";
-                        statusDiv.innerHTML = `✅ Loaded ${slots.length} slot(s) from Firebase`;
-                        
-                        // Show first slot if exists
-                        if (slots.length > 0 && !currentSlotId) {
-                            showSlotDetails(slots[0].id);
+                        // Show empty state if no slots
+                        if (slots.length === 0) {
+                            emptyState.style.display = 'block';
+                            slotContent.style.display = 'none';
+                        } else {
+                            emptyState.style.display = 'none';
+                            
+                            // Select first slot if none selected
+                            if (!currentSlotId) {
+                                selectSlot(slots[0].id);
+                            }
                         }
                     } else {
-                        statusDiv.className = "status-message status-warning";
-                        statusDiv.innerHTML = "ℹ️ No slots found in Firebase. Create your first slot.";
+                        emptyState.style.display = 'block';
+                        slotContent.style.display = 'none';
                     }
-                } else {
-                    statusDiv.className = "status-message status-error";
-                    statusDiv.innerHTML = `❌ Failed to load slots (Status: ${response.status})`;
                 }
             } catch (error) {
-                console.error('Load slots error:', error);
-                statusDiv.className = "status-message status-error";
-                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+                console.error('Error loading slots:', error);
+                showStatus('Error loading slots from Firebase', 'error');
             }
         }
         
-        // Show slot details
-        async function showSlotDetails(slotId) {
+        // Select Slot
+        function selectSlot(slotId) {
+            closeSidebar();
             currentSlotId = slotId;
+            currentSlotData = slots.find(s => s.id === slotId);
             
-            // Update active tab
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
+            if (!currentSlotData) return;
+            
+            // Update UI
+            selectedSlotTitle.textContent = currentSlotData.name;
+            selectedSlotDesc.textContent = currentSlotData.description || 'Configure slot settings';
+            slotActions.style.display = 'flex';
+            slotContent.classList.add('active');
+            emptyState.style.display = 'none';
+            
+            // Update slot info
+            slotIdDisplay.textContent = currentSlotData.id;
+            dialogStatus.textContent = currentSlotData.enabled ? 'Active' : 'Inactive';
+            dialogStatus.className = currentSlotData.enabled ? 'status-active' : 'status-inactive';
+            slotCreated.textContent = formatDate(currentSlotData.created);
+            
+            // Update toggle button
+            toggleDialogBtn.innerHTML = currentSlotData.enabled ? 
+                '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
+                '<i class="fas fa-toggle-off"></i> Dialog: OFF';
+            
+            // Update form fields from slot data
+            loadSlotDataIntoForms(currentSlotData.data);
+            
+            // Update active state in sidebar
+            document.querySelectorAll('.slot-item').forEach(item => {
+                item.classList.remove('active');
             });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                if (btn.textContent.includes(slotId)) {
-                    btn.classList.add('active');
+            
+            document.querySelectorAll('.slot-item').forEach(item => {
+                if (item.querySelector('.slot-id').textContent === slotId) {
+                    item.classList.add('active');
                 }
             });
-            
-            // Load slot data
-            try {
-                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                if (response.ok) {
-                    const slotData = await response.json();
-                    const slotName = slotData.app_title || slotId;
-                    
-                    // Display slot details
-                    const container = document.getElementById('slotDetailsContainer');
-                    container.innerHTML = `
-                        <div class="slot-details active">
-                            <div class="slot-header">
-                                <h2 class="slot-title">${slotName}</h2>
-                                <div class="slot-actions">
-                                    <button class="action-btn save-btn" onclick="saveSlotChanges()">
-                                        💾 Save Changes
-                                    </button>
-                                    <button class="action-btn test-btn" onclick="testSlotConnection('${slotId}')">
-                                        🔗 Test Dialog
-                                    </button>
-                                    <button class="action-btn edit-btn" onclick="downloadSlotJson('${slotId}')">
-                                        ⬇️ Download JSON
-                                    </button>
-                                    <button class="action-btn delete-btn" onclick="showDeleteModal('${slotId}')">
-                                        🗑️ Delete
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="firebase-info">
-                                <div class="info-row">
-                                    <div class="info-label">Firebase Path:</div>
-                                    <div class="info-value">${basePath}${slotId}/config.json</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Full URL:</div>
-                                    <div class="info-value">${firebaseUrl}${basePath}${slotId}/config.json</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Slot ID (for pin.txt):</div>
-                                    <div class="id-display">${slotId}</div>
-                                </div>
-                                <div style="color: #ffaa00; margin-top: 15px; padding: 10px; background: rgba(255, 170, 0, 0.1); border-radius: 5px;">
-                                    <strong>Note for Android App:</strong> Put this ID in your app's assets/pin.txt file
-                                </div>
-                            </div>
-                            
-                            <div class="json-editor">
-                                <div class="json-header">
-                                    <div class="json-label">config.json Editor</div>
-                                    <div class="json-actions">
-                                        <button class="btn" onclick="formatJson()" style="background: #555; color: white;">Format JSON</button>
-                                        <button class="btn" onclick="validateJson()" style="background: #00ccff; color: #000;">Validate</button>
-                                    </div>
-                                </div>
-                                <textarea id="jsonEditor" style="min-height: 500px;">${JSON.stringify(slotData, null, 2)}</textarea>
-                                <div id="jsonStatus" class="status-message"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Show slot details error:', error);
-                alert(`Error loading slot: ${error.message}`);
-            }
         }
         
-        // Save changes to Firebase
-        async function saveSlotChanges() {
-            if (!currentSlotId) return;
+        // Load slot data into forms
+        function loadSlotDataIntoForms(data) {
+            // General Tab
+            appTitle.value = data.app_title || '';
+            appDescription.value = data.app_description || '';
+            verificationDuration.value = data.verification_duration_hours || 24;
             
-            const jsonEditor = document.getElementById('jsonEditor');
-            const statusDiv = document.getElementById('jsonStatus');
+            // URLs Tab
+            verificationUrl.value = data.verification_url || '';
+            howToVerifyUrl.value = data.how_to_verify_url || '';
+            joinUsUrl.value = data.join_us_url || '';
+            shortenerApi.value = data.shortener_api || '';
+            telegramUrl.value = data.telegram_url || '';
+            
+            // Colors Tab
+            const colors = data.colors || {};
+            borderColor.value = colors.border || '#FF3AC8';
+            neonColor.value = colors.status_neon || '#00FF88';
+            warningColor.value = colors.status_warning || '#FFAA00';
+            errorColor.value = colors.status_error || '#FF4757';
+            
+            // Update color previews
+            borderColorPreview.style.background = borderColor.value;
+            neonColorPreview.style.background = neonColor.value;
+            warningColorPreview.style.background = warningColor.value;
+            errorColorPreview.style.background = errorColor.value;
+            
+            // Verification Tab
+            monitorInterval.value = data.firebase_check_interval || 500;
+            codeLength.value = data.verification_code_length || 12;
+            autoCloseDelay.value = data.auto_close_delay || 3;
+        }
+        
+        // Save Slot Changes
+        async function saveSlotChanges() {
+            if (!currentSlotId || !currentSlotData) return;
+            
+            const slotData = {
+                app_title: appTitle.value.trim(),
+                app_description: appDescription.value.trim(),
+                verification_duration_hours: parseInt(verificationDuration.value),
+                verification_url: verificationUrl.value.trim(),
+                how_to_verify_url: howToVerifyUrl.value.trim(),
+                join_us_url: joinUsUrl.value.trim(),
+                shortener_api: shortenerApi.value.trim(),
+                telegram_url: telegramUrl.value.trim(),
+                enabled: currentSlotData.enabled,
+                created_at: currentSlotData.created,
+                updated_at: Date.now(),
+                colors: {
+                    border: borderColor.value.trim(),
+                    status_neon: neonColor.value.trim(),
+                    status_warning: warningColor.value.trim(),
+                    status_error: errorColor.value.trim()
+                },
+                firebase_check_interval: parseInt(monitorInterval.value),
+                verification_code_length: parseInt(codeLength.value),
+                auto_close_delay: parseInt(autoCloseDelay.value)
+            };
+            
+            showStatus('Saving changes to Firebase...', 'warning');
             
             try {
-                const jsonData = JSON.parse(jsonEditor.value);
-                
-                statusDiv.className = "status-message status-warning";
-                statusDiv.innerHTML = "Saving to Firebase...";
-                statusDiv.style.display = "block";
-                
-                const response = await fetch(`${firebaseUrl}${basePath}${currentSlotId}/config.json`, {
+                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(jsonData)
+                    body: JSON.stringify(slotData)
                 });
                 
                 if (response.ok) {
-                    statusDiv.className = "status-message status-success";
-                    statusDiv.innerHTML = "✅ Successfully saved to Firebase!";
+                    showStatus('Changes saved successfully', 'success');
                     
-                    // Update slot name in tabs
-                    const slotName = jsonData.app_title || currentSlotId;
-                    document.querySelectorAll('.tab-btn').forEach(btn => {
-                        if (btn.textContent.includes(currentSlotId)) {
-                            btn.innerHTML = `
-                                <div style="font-weight: bold;">${slotName}</div>
-                                <div style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">
-                                    ID: ${currentSlotId}
-                                </div>
-                            `;
-                        }
-                    });
+                    // Update local data
+                    currentSlotData.data = slotData;
+                    currentSlotData.name = slotData.app_title;
+                    currentSlotData.description = slotData.app_description;
+                    
+                    // Update sidebar
+                    const slotItem = Array.from(document.querySelectorAll('.slot-item')).find(item => 
+                        item.querySelector('.slot-id').textContent === currentSlotId
+                    );
+                    
+                    if (slotItem) {
+                        slotItem.querySelector('.slot-name').textContent = slotData.app_title;
+                    }
+                    
+                    selectedSlotTitle.textContent = slotData.app_title;
+                    selectedSlotDesc.textContent = slotData.app_description;
                 } else {
-                    statusDiv.className = "status-message status-error";
-                    statusDiv.innerHTML = `❌ Failed to save (Status: ${response.status})`;
+                    showStatus('Failed to save changes', 'error');
                 }
             } catch (error) {
-                console.error('Save error:', error);
-                statusDiv.className = "status-message status-error";
-                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
+                console.error('Error saving slot:', error);
+                showStatus(`Error: ${error.message}`, 'error');
             }
         }
         
-        // Format JSON
-        function formatJson() {
-            const jsonEditor = document.getElementById('jsonEditor');
+        // Toggle Dialog Status
+        async function toggleDialogStatus() {
+            if (!currentSlotId || !currentSlotData) return;
+            
+            const newStatus = !currentSlotData.enabled;
+            
+            showStatus(newStatus ? 'Enabling dialog...' : 'Disabling dialog...', 'warning');
+            
             try {
-                const jsonData = JSON.parse(jsonEditor.value);
-                jsonEditor.value = JSON.stringify(jsonData, null, 2);
+                // Get current config
+                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`);
+                const config = await response.json();
                 
-                const statusDiv = document.getElementById('jsonStatus');
-                statusDiv.className = "status-message status-success";
-                statusDiv.innerHTML = "✅ JSON formatted successfully";
-                statusDiv.style.display = "block";
+                // Update enabled status
+                config.enabled = newStatus;
+                config.updated_at = Date.now();
+                
+                // Save back to Firebase
+                const saveResponse = await fetch(`${FIREBASE_URL}${BASE_PATH}${currentSlotId}/config.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (saveResponse.ok) {
+                    currentSlotData.enabled = newStatus;
+                    currentSlotData.data = config;
+                    
+                    // Update UI
+                    dialogStatus.textContent = newStatus ? 'Active' : 'Inactive';
+                    dialogStatus.className = newStatus ? 'status-active' : 'status-inactive';
+                    
+                    toggleDialogBtn.innerHTML = newStatus ? 
+                        '<i class="fas fa-toggle-on"></i> Dialog: ON' : 
+                        '<i class="fas fa-toggle-off"></i> Dialog: OFF';
+                    
+                    // Update sidebar status
+                    const slotItem = Array.from(document.querySelectorAll('.slot-item')).find(item => 
+                        item.querySelector('.slot-id').textContent === currentSlotId
+                    );
+                    
+                    if (slotItem) {
+                        const statusElement = slotItem.querySelector('.slot-status');
+                        statusElement.textContent = newStatus ? 'ON' : 'OFF';
+                        statusElement.className = `slot-status ${newStatus ? 'status-active' : 'status-inactive'}`;
+                    }
+                    
+                    showStatus(`Dialog ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
+                } else {
+                    showStatus('Failed to update dialog status', 'error');
+                }
             } catch (error) {
-                const statusDiv = document.getElementById('jsonStatus');
-                statusDiv.className = "status-message status-error";
-                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
-                statusDiv.style.display = "block";
+                console.error('Error toggling dialog:', error);
+                showStatus(`Error: ${error.message}`, 'error');
             }
         }
         
-        // Validate JSON
-        function validateJson() {
-            const jsonEditor = document.getElementById('jsonEditor');
-            try {
-                JSON.parse(jsonEditor.value);
-                const statusDiv = document.getElementById('jsonStatus');
-                statusDiv.className = "status-message status-success";
-                statusDiv.innerHTML = "✅ JSON is valid";
-                statusDiv.style.display = "block";
-            } catch (error) {
-                const statusDiv = document.getElementById('jsonStatus');
-                statusDiv.className = "status-message status-error";
-                statusDiv.innerHTML = `❌ Invalid JSON: ${error.message}`;
-                statusDiv.style.display = "block";
-            }
+        // Download pin.txt file
+        function downloadPinFile() {
+            if (!currentSlotId) return;
+            
+            const content = currentSlotId;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pin.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('pin.txt downloaded. Place in app/assets folder', 'success');
         }
         
-        // Generate new slot ID
-        function generateNewSlotId() {
-            let id = '';
+        // Generate Slot ID
+        function generateSlotId() {
+            const prefix = 'rlx-pin-';
             const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let id = '';
+            
             for (let i = 0; i < 20; i++) {
                 id += chars.charAt(Math.floor(Math.random() * chars.length));
             }
-            document.getElementById('newSlotId').value = id;
-        }
-        
-        // Show create modal
-        function showCreateModal() {
-            generateNewSlotId();
-            document.getElementById('createModal').classList.add('active');
-        }
-        
-        // Close create modal
-        function closeCreateModal() {
-            document.getElementById('createModal').classList.remove('active');
-        }
-        
-        // Create slot in Firebase
-        async function createSlotInFirebase() {
-            const slotId = document.getElementById('newSlotId').value.trim();
-            const slotName = document.getElementById('newSlotName').value.trim();
             
-            if (!slotId || slotId.length !== 20) {
-                alert('Please generate a valid 20-digit ID');
-                return;
-            }
+            generatedSlotId.textContent = prefix + id;
+        }
+        
+        // Create Slot in Firebase
+        async function createSlotInFirebase() {
+            const slotName = slotNameInput.value.trim();
+            const slotDesc = slotDescInput.value.trim();
+            const slotId = generatedSlotId.textContent;
             
             if (!slotName) {
                 alert('Please enter a slot name');
                 return;
             }
             
+            if (slotId === 'Generating...') {
+                alert('Please generate a slot ID first');
+                return;
+            }
+            
+            showStatus('Creating slot in Firebase...', 'warning');
+            
+            const slotData = {
+                app_title: slotName,
+                app_description: slotDesc,
+                verification_duration_hours: 24,
+                verification_url: "https://example.com/verify",
+                how_to_verify_url: "https://example.com/tutorial",
+                join_us_url: "https://t.me/yourchannel",
+                shortener_api: "https://api.shorten.com/api",
+                telegram_url: "https://t.me/yourgroup",
+                enabled: true,
+                created_at: Date.now(),
+                updated_at: Date.now(),
+                colors: {
+                    border: "#FF3AC8",
+                    status_neon: "#00FF88",
+                    status_warning: "#FFAA00",
+                    status_error: "#FF4757"
+                },
+                firebase_check_interval: 500,
+                verification_code_length: 12,
+                auto_close_delay: 3
+            };
+            
             try {
-                const jsonData = JSON.parse(document.getElementById('defaultJson').value);
-                jsonData.app_title = slotName;
+                // Check if slot already exists
+                const checkResponse = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotId}/.json`);
+                const existingData = await checkResponse.json();
                 
-                // First, check if slot already exists
-                const checkResponse = await fetch(`${firebaseUrl}${basePath}${slotId}/.json`, {
-                    method: 'GET'
-                });
-                
-                if (checkResponse.ok) {
-                    const existingData = await checkResponse.json();
-                    if (existingData !== null) {
-                        alert(`Slot ${slotId} already exists in Firebase!`);
-                        return;
-                    }
+                if (existingData !== null) {
+                    showStatus('Slot ID already exists. Please regenerate.', 'error');
+                    return;
                 }
                 
-                // Create the slot
-                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
+                // Create slot
+                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotId}/config.json`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(jsonData)
+                    body: JSON.stringify(slotData)
                 });
                 
                 if (response.ok) {
-                    alert(`✅ Slot created successfully!\n\nSlot ID: ${slotId}\n\nPut this ID in your app's assets/pin.txt file`);
+                    showStatus('Slot created successfully', 'success');
                     closeCreateModal();
                     loadAllSlots();
-                    showSlotDetails(slotId);
+                    selectSlot(slotId);
                 } else {
-                    alert(`Failed to create slot (Status: ${response.status})`);
+                    showStatus('Failed to create slot', 'error');
                 }
             } catch (error) {
-                console.error('Create slot error:', error);
-                alert(`Error: ${error.message}`);
+                console.error('Error creating slot:', error);
+                showStatus(`Error: ${error.message}`, 'error');
             }
         }
         
-        // Show delete modal
-        function showDeleteModal(slotId) {
-            slotToDelete = slotId;
-            const slot = slots.find(s => s.id === slotId);
-            document.getElementById('deleteSlotInfo').innerHTML = `
-                Slot: <strong>${slot?.name || slotId}</strong><br>
-                ID: <code>${slotId}</code><br><br>
-                This will delete: <code>${basePath}${slotId}/</code>
-            `;
-            document.getElementById('deleteModal').classList.add('active');
-        }
-        
-        // Close delete modal
-        function closeDeleteModal() {
-            slotToDelete = null;
-            document.getElementById('deleteModal').classList.remove('active');
-        }
-        
-        // Confirm delete
-        async function confirmDelete() {
+        // Delete Slot
+        async function confirmDeleteSlot() {
             if (!slotToDelete) return;
             
+            showStatus('Deleting slot from Firebase...', 'warning');
+            
             try {
-                const response = await fetch(`${firebaseUrl}${basePath}${slotToDelete}/.json`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
+                const response = await fetch(`${FIREBASE_URL}${BASE_PATH}${slotToDelete}/.json`, {
+                    method: 'DELETE'
                 });
                 
                 if (response.ok) {
-                    alert(`✅ Slot ${slotToDelete} deleted from Firebase!`);
+                    showStatus('Slot deleted permanently', 'success');
                     closeDeleteModal();
-                    loadAllSlots();
                     
-                    // Clear details if deleted slot was selected
+                    // If deleted slot was selected, clear selection
                     if (currentSlotId === slotToDelete) {
                         currentSlotId = null;
-                        document.getElementById('slotDetailsContainer').innerHTML = `
-                            <div style="text-align: center; padding: 50px 20px; color: #888;">
-                                <h3>No Slot Selected</h3>
-                                <p>Select a slot from the sidebar or create a new one</p>
-                            </div>
-                        `;
+                        currentSlotData = null;
+                        slotActions.style.display = 'none';
+                        slotContent.classList.remove('active');
+                        selectedSlotTitle.textContent = 'No Slot Selected';
+                        selectedSlotDesc.textContent = 'Select a slot from the sidebar to configure it';
                     }
+                    
+                    loadAllSlots();
                 } else {
-                    alert(`Failed to delete slot (Status: ${response.status})`);
+                    showStatus('Failed to delete slot', 'error');
                 }
             } catch (error) {
-                console.error('Delete error:', error);
-                alert(`Error: ${error.message}`);
+                console.error('Error deleting slot:', error);
+                showStatus(`Error: ${error.message}`, 'error');
             }
         }
         
-        // Test dialog connection
-        async function testSlotConnection(slotId) {
-            try {
-                const response = await fetch(`${firebaseUrl}${basePath}${slotId}/config.json`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    alert(`✅ Dialog connection test successful!\n\nSlot ID: ${slotId}\nApp Title: ${data.app_title}\n\nDialog can read this configuration.`);
-                } else {
-                    alert(`❌ Dialog connection failed (Status: ${response.status})`);
-                }
-            } catch (error) {
-                console.error('Test connection error:', error);
-                alert(`Error: ${error.message}`);
-            }
+        // Helper Functions
+        function showCreateModal() {
+            slotNameInput.value = '';
+            slotDescInput.value = '';
+            generateSlotId();
+            createModal.classList.add('active');
         }
         
-        // Download JSON file
-        function downloadSlotJson(slotId) {
-            const jsonEditor = document.getElementById('jsonEditor');
-            const slot = slots.find(s => s.id === slotId);
-            const slotName = slot?.name || slotId;
+        function closeCreateModal() {
+            createModal.classList.remove('active');
+        }
+        
+        function showDeleteModal() {
+            if (!currentSlotId || !currentSlotData) return;
             
-            const content = jsonEditor ? jsonEditor.value : JSON.stringify(slot?.data, null, 2);
-            const blob = new Blob([content], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `slot_${slotId}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            slotToDelete = currentSlotId;
+            deleteSlotName.textContent = currentSlotData.name;
+            deleteSlotId.textContent = currentSlotId;
+            deleteModal.classList.add('active');
+        }
+        
+        function closeDeleteModal() {
+            slotToDelete = null;
+            deleteModal.classList.remove('active');
+        }
+        
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        }
+        
+        function switchTab(tabId) {
+            // Update tab buttons
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update tab contents
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tabId + 'Tab') {
+                    content.classList.add('active');
+                }
+            });
+        }
+        
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown';
+            
+            const date = new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
         }
     </script>
 </body>
