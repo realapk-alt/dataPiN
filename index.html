@@ -1,1085 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HackerTMM - Admin Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: linear-gradient(90deg, #3b0764, #7e22ce);
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid #8b5cf6;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #fff, #cbd5e1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            color: #cbd5e1;
-            font-size: 16px;
-        }
-
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #1e293b, #334155);
-            padding: 25px;
-            border-radius: 14px;
-            border-left: 5px solid #8b5cf6;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card h3 {
-            color: #cbd5e1;
-            font-size: 16px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-card .value {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        .stat-card .subtext {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-        .tabs {
-            display: flex;
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 8px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .tab {
-            padding: 15px 30px;
-            background: transparent;
-            border: none;
-            color: #cbd5e1;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s;
-            flex: 1;
-            text-align: center;
-        }
-
-        .tab.active {
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            color: white;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-        }
-
-        .tab-content {
-            display: none;
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title i {
-            color: #8b5cf6;
-        }
-
-        .search-box {
-            background: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 15px 20px;
-            color: #fff;
-            font-size: 16px;
-            width: 100%;
-            margin-bottom: 25px;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 12px;
-            background: #0f172a;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px;
-        }
-
-        thead {
-            background: linear-gradient(90deg, #3b0764, #7e22ce);
-        }
-
-        th {
-            padding: 18px 20px;
-            text-align: left;
-            color: white;
-            font-weight: 600;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #334155;
-            transition: background 0.3s;
-        }
-
-        tbody tr:hover {
-            background: rgba(139, 92, 246, 0.1);
-        }
-
-        td {
-            padding: 16px 20px;
-            color: #cbd5e1;
-            font-size: 15px;
-        }
-
-        .status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status.active {
-            background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
-        }
-
-        .status.inactive {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-        }
-
-        .status.used {
-            background: rgba(249, 115, 22, 0.2);
-            color: #fb923c;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, #7c3aed, #a855f7);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(90deg, #dc2626, #ef4444);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(90deg, #059669, #10b981);
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: #1e293b;
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            border: 1px solid #475569;
-        }
-
-        .modal-header {
-            margin-bottom: 25px;
-        }
-
-        .modal-header h2 {
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 14px;
-            background: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-left: 10px;
-            border: 2px solid #475569;
-        }
-
-        .copy-btn {
-            background: #334155;
-            color: #cbd5e1;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            transition: all 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: #475569;
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .badge.new {
-            background: rgba(34, 197, 94, 0.2);
-            color: #4ade80;
-        }
-
-        .badge.expired {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 24px;
-            }
-            
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .tab {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
-            
-            .tab-content {
-                padding: 20px;
-            }
-            
-            th, td {
-                padding: 12px 15px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PIN Slot Manager</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<style>
+body{margin:0;background:#0b0b10;color:#fff;font-family:system-ui}
+.card{max-width:460px;margin:14px auto;background:#12121a;padding:16px;border-radius:16px}
+h2{margin:6px 0}
+input,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;font-size:14px}
+textarea{resize:none}
+button{background:#00ff88;color:#000;font-weight:700}
+.row{display:flex;gap:8px}
+.slot{background:#181822;padding:12px;border-radius:12px;margin:10px 0}
+.small{font-size:12px;color:#aaa;word-break:break-all}
+.copy{background:#2bffcc}
+.del{background:#ff5252;color:#fff}
+.edit{background:#ffd54f;color:#000}
+.range{width:100%}
+label{font-size:13px;color:#bbb}
+.toggle{display:flex;justify-content:space-between;align-items:center}
+.hidden{display:none}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔒 HackerTMM Admin Dashboard</h1>
-            <p>Manage your verification system, users, and configurations</p>
-        </div>
 
-        <div class="stats-container">
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <div class="value" id="totalUsers">0</div>
-                <div class="subtext">Active slots</div>
-            </div>
-            <div class="stat-card">
-                <h3>Active Devices</h3>
-                <div class="value" id="activeDevices">0</div>
-                <div class="subtext">Verified devices</div>
-            </div>
-            <div class="stat-card">
-                <h3>Today's Codes</h3>
-                <div class="value" id="todaysCodes">0</div>
-                <div class="subtext">Generated today</div>
-            </div>
-            <div class="stat-card">
-                <h3>Total Revenue</h3>
-                <div class="value" id="totalRevenue">₹0</div>
-                <div class="subtext">All time earnings</div>
-            </div>
-        </div>
+<div class="card">
+<h2>🔐 Create Slot</h2>
+<input id="slotName" placeholder="Slot / App Name">
+<button onclick="createSlot()">Create Slot (Auto 15‑Digit ID)</button>
+</div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('users')">👥 Users/Slots</button>
-            <button class="tab" onclick="showTab('devices')">📱 Devices</button>
-            <button class="tab" onclick="showTab('codes')">🔑 Verification Codes</button>
-            <button class="tab" onclick="showTab('config')">⚙️ Configuration</button>
-            <button class="tab" onclick="showTab('analytics')">📊 Analytics</button>
-        </div>
+<div class="card">
+<h2>📦 All Slots</h2>
+<div id="slotList"></div>
+</div>
 
-        <!-- Users Tab -->
-        <div id="users-tab" class="tab-content active">
-            <div class="section-title">
-                <i>👥</i> Users/Slots Management
-                <button class="btn btn-primary" onclick="openAddUserModal()" style="margin-left: auto;">
-                    <i>+</i> Add New Slot
-                </button>
-            </div>
-            
-            <input type="text" class="search-box" placeholder="🔍 Search users by ID, name, or email..." 
-                   onkeyup="searchUsers(this.value)">
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Slot ID</th>
-                            <th>Status</th>
-                            <th>App Title</th>
-                            <th>Devices</th>
-                            <th>Expiry</th>
-                            <th>Created</th>
-                            <th>Revenue</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <!-- Users will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="card hidden" id="editor">
+<h2>⚙️ Edit Slot</h2>
+<div class="small" id="currentSlot"></div>
 
-        <!-- Devices Tab -->
-        <div id="devices-tab" class="tab-content">
-            <div class="section-title">
-                <i>📱</i> Device Management
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Device ID</th>
-                            <th>User Slot</th>
-                            <th>Verification Time</th>
-                            <th>Last Active</th>
-                            <th>Status</th>
-                            <th>Duration</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="devicesTable">
-                        <!-- Devices will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="toggle">
+<span>Dialog Enabled</span>
+<input type="checkbox" id="enabled">
+</div>
 
-        <!-- Codes Tab -->
-        <div id="codes-tab" class="tab-content">
-            <div class="section-title">
-                <i>🔑</i> Verification Codes
-                <button class="btn btn-primary" onclick="generateTestCode()" style="margin-left: auto;">
-                    <i>🔧</i> Generate Test Code
-                </button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Device ID</th>
-                            <th>User Slot</th>
-                            <th>Created</th>
-                            <th>Expires</th>
-                            <th>Status</th>
-                            <th>Used At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="codesTable">
-                        <!-- Codes will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<input id="title" placeholder="App Title">
+<textarea id="desc" placeholder="App Description"></textarea>
+<input id="verify" placeholder="Verification URL">
+<input id="howto" placeholder="How To Verify URL">
+<input id="telegram" placeholder="Telegram URL">
+<input id="shortener" placeholder="Shortener API">
 
-        <!-- Configuration Tab -->
-        <div id="config-tab" class="tab-content">
-            <div class="section-title">
-                <i>⚙️</i> Global Configuration
-            </div>
-            
-            <div class="form-group">
-                <label>Firebase Database URL:</label>
-                <input type="text" id="firebaseUrl" value="https://real-apk-pin-default-rtdb.firebaseio.com" readonly>
-                <button class="copy-btn" onclick="copyToClipboard('firebaseUrl')">Copy</button>
-            </div>
-            
-            <div class="form-group">
-                <label>Verification URL:</label>
-                <input type="text" id="verificationUrl" value="https://realapk.online/device" readonly>
-                <button class="copy-btn" onclick="copyToClipboard('verificationUrl')">Copy</button>
-            </div>
-            
-            <div class="form-group">
-                <label>Default Configuration (JSON):</label>
-                <textarea id="defaultConfig" rows="10">
-{
-  "enabled": true,
-  "app_title": "Premium App",
-  "app_description": "Unlock premium features with verification",
-  "verification_url": "https://realapk.online/device",
-  "how_to_verify_url": "https://t.me/your_channel",
-  "join_us_url": "https://t.me/joinchat/your_link",
-  "shortener_api": "https://your-shortener.com/api?url=",
-  "telegram_url": "https://t.me/your_channel",
-  "verification_duration_hours": 24,
-  "colors": {
-    "border": "#7c3aed",
-    "status_neon": "#00ff88",
-    "status_warning": "#fbbf24",
-    "status_error": "#ef4444"
+<label>Border Color</label>
+<input type="range" min="0" max="360" id="border" class="range">
+<label>Neon Color</label>
+<input type="range" min="0" max="360" id="neon" class="range">
+<label>Warning Color</label>
+<input type="range" min="0" max="360" id="warn" class="range">
+<label>Error Color</label>
+<input type="range" min="0" max="360" id="error" class="range">
+
+<button onclick="saveSlot()">Save Changes</button>
+<button class="del" onclick="closeEditor()">Close Editor</button>
+</div>
+
+<script>
+// 🔥 FIXED & TESTED FIREBASE LOGIC
+firebase.initializeApp({
+  databaseURL: 'https://real-apk-pin-default-rtdb.firebaseio.com'
+});
+
+const db = firebase.database();
+let editId = null;
+
+function genId() {
+  const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let s = '';
+  for (let i = 0; i < 15; i++) s += c[Math.floor(Math.random() * c.length)];
+  return s;
+}
+
+function hsv(h) {
+  return `hsl(${h},100%,50%)`;
+}
+
+// ✅ CREATE SLOT (FIXED)
+function createSlot() {
+  const name = slotName.value.trim();
+  if (!name) {
+    alert('Enter slot name');
+    return;
   }
-}</textarea>
-                <button class="btn btn-primary" onclick="updateDefaultConfig()">Update Default Config</button>
-            </div>
-        </div>
 
-        <!-- Analytics Tab -->
-        <div id="analytics-tab" class="tab-content">
-            <div class="section-title">
-                <i>📊</i> Analytics & Reports
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div class="stat-card">
-                    <h3>Monthly Growth</h3>
-                    <div class="value" id="monthlyGrowth">+12.5%</div>
-                    <div class="subtext">Compared to last month</div>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Success Rate</h3>
-                    <div class="value" id="successRate">94.2%</div>
-                    <div class="subtext">Successful verifications</div>
-                </div>
-            </div>
-            
-            <div style="background: #0f172a; padding: 25px; border-radius: 14px; margin-top: 30px;">
-                <h3 style="margin-bottom: 20px;">📈 Recent Activity</h3>
-                <div id="recentActivity">
-                    <!-- Activity logs will appear here -->
-                </div>
-            </div>
-        </div>
-    </div>
+  const id = genId();
 
-    <!-- Add User Modal -->
-    <div id="addUserModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>➕ Add New User Slot</h2>
-            </div>
-            
-            <div class="form-group">
-                <label>Slot ID:</label>
-                <input type="text" id="newSlotId" placeholder="e.g., premium_user_001">
-            </div>
-            
-            <div class="form-group">
-                <label>App Title:</label>
-                <input type="text" id="newAppTitle" placeholder="e.g., Premium App">
-            </div>
-            
-            <div class="form-group">
-                <label>Verification Duration (hours):</label>
-                <input type="number" id="newDuration" value="24" min="1" max="720">
-            </div>
-            
-            <div class="form-group">
-                <label>Initial Status:</label>
-                <select id="newStatus">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-            
-            <div class="modal-footer">
-                <button class="btn btn-danger" onclick="closeAddUserModal()">Cancel</button>
-                <button class="btn btn-success" onclick="saveNewUser()">Create Slot</button>
-            </div>
-        </div>
-    </div>
+  db.ref('users/' + id).set({
+    meta: {
+      name: name,
+      created: Date.now()
+    },
+    config: {},
+    'config.json': {
+      enabled: true
+    }
+  }).then(() => {
+    alert('Slot Created:
+' + id);
+    slotName.value = '';
+    loadSlots(); // 🔥 FORCE REFRESH
+  }).catch(e => alert(e.message));
+}
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBeHXB_9nHTWofFeXKOVUlQYCrB4YhAx_w",
-            authDomain: "real-apk-pin.firebaseapp.com",
-            databaseURL: "https://real-apk-pin-default-rtdb.firebaseio.com",
-            projectId: "real-apk-pin",
-            storageBucket: "real-apk-pin.firebasestorage.app",
-            messagingSenderId: "345555950697",
-            appId: "1:345555950697:web:e215d3e0850299e02096f8",
-            measurementId: "G-LPNCNHPYPF"
-        };
+// ✅ LIVE SLOT LIST (FIXED)
+function loadSlots() {
+  db.ref('users').once('value').then(snap => {
+    slotList.innerHTML = '';
+    if (!snap.exists()) {
+      slotList.innerHTML = '<div class="small">No slots created</div>';
+      return;
+    }
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const database = firebase.database();
+    snap.forEach(child => {
+      const id = child.key;
+      const name = child.child('meta/name').val() || 'Unnamed Slot';
 
-        // Global variables
-        let allUsers = {};
-        let allDevices = {};
-        let allCodes = {};
+      slotList.innerHTML += `
+        <div class="slot">
+          <b>${name}</b>
+          <div class="small">${id}</div>
+          <div class="row">
+            <button class="copy" onclick="copyId('${id}')">Copy</button>
+            <button class="edit" onclick="editSlot('${id}')">Edit</button>
+            <button class="del" onclick="deleteSlot('${id}')">Delete</button>
+          </div>
+        </div>`;
+    });
+  });
+}
 
-        // Tab management
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all tab buttons
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Add active class to clicked tab button
-            event.target.classList.add('active');
-            
-            // Load data for the tab
-            switch(tabName) {
-                case 'users':
-                    loadUsers();
-                    break;
-                case 'devices':
-                    loadDevices();
-                    break;
-                case 'codes':
-                    loadCodes();
-                    break;
-                case 'analytics':
-                    loadAnalytics();
-                    break;
-            }
-        }
+function copyId(id) {
+  navigator.clipboard.writeText(id);
+  alert('Copied Slot ID');
+}
 
-        // Load Users/Slots
-        function loadUsers() {
-            database.ref('users').on('value', (snapshot) => {
-                const users = snapshot.val();
-                allUsers = users || {};
-                
-                // Update stats
-                document.getElementById('totalUsers').textContent = Object.keys(users || {}).length;
-                
-                // Update table
-                const tbody = document.getElementById('usersTable');
-                tbody.innerHTML = '';
-                
-                if (!users) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No users found</td></tr>';
-                    return;
-                }
-                
-                let totalRevenue = 0;
-                let totalDevices = 0;
-                
-                Object.entries(users).forEach(([slotId, data]) => {
-                    const config = data.config || {};
-                    const appUsers = data.app_users || {};
-                    const deviceCount = Object.keys(appUsers).length;
-                    totalDevices += deviceCount;
-                    
-                    // Calculate revenue (example: ₹10 per device)
-                    const revenue = deviceCount * 10;
-                    totalRevenue += revenue;
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><strong>${slotId}</strong></td>
-                        <td>
-                            <span class="status ${config.enabled ? 'active' : 'inactive'}">
-                                ${config.enabled ? 'Active' : 'Inactive'}
-                            </span>
-                        </td>
-                        <td>${config.app_title || 'N/A'}</td>
-                        <td>${deviceCount}</td>
-                        <td>${config.verification_duration_hours || 24} hours</td>
-                        <td>${formatDate(Date.now())}</td>
-                        <td>₹${revenue}</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-primary" onclick="toggleUserStatus('${slotId}', ${!config.enabled})">
-                                ${config.enabled ? 'Disable' : 'Enable'}
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteUser('${slotId}')">
-                                Delete
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                
-                document.getElementById('activeDevices').textContent = totalDevices;
-                document.getElementById('totalRevenue').textContent = `₹${totalRevenue}`;
-            });
-        }
+function deleteSlot(id) {
+  if (!confirm('Delete slot?')) return;
+  db.ref('users/' + id).remove().then(loadSlots);
+}
 
-        // Load Devices
-        function loadDevices() {
-            database.ref('users').on('value', (snapshot) => {
-                const users = snapshot.val();
-                allDevices = {};
-                
-                const tbody = document.getElementById('devicesTable');
-                tbody.innerHTML = '';
-                
-                if (!users) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No devices found</td></tr>';
-                    return;
-                }
-                
-                Object.entries(users).forEach(([slotId, data]) => {
-                    const appUsers = data.app_users || {};
-                    
-                    Object.entries(appUsers).forEach(([deviceId, deviceData]) => {
-                        const verificationTime = deviceData.verification_time || 0;
-                        const lastActive = deviceData.last_active || verificationTime;
-                        const isActive = (Date.now() - verificationTime) < (24 * 3600000); // Active within 24 hours
-                        
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><code>${deviceId.substring(0, 8)}...</code></td>
-                            <td>${slotId}</td>
-                            <td>${verificationTime ? formatDate(verificationTime) : 'Never'}</td>
-                            <td>${lastActive ? formatDate(lastActive) : 'Never'}</td>
-                            <td>
-                                <span class="status ${isActive ? 'active' : 'inactive'}">
-                                    ${isActive ? 'Active' : 'Inactive'}
-                                </span>
-                            </td>
-                            <td>24h</td>
-                            <td>
-                                <button class="btn btn-danger" onclick="removeDevice('${slotId}', '${deviceId}')">
-                                    Remove
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                        
-                        allDevices[deviceId] = { slotId, ...deviceData };
-                    });
-                });
-            });
-        }
+// ✅ EDIT SLOT (FIXED PATH)
+function editSlot(id) {
+  editId = id;
+  editor.classList.remove('hidden');
+  currentSlot.innerText = 'Slot ID: ' + id;
 
-        // Load Verification Codes
-        function loadCodes() {
-            database.ref('users').on('value', (snapshot) => {
-                const users = snapshot.val();
-                allCodes = {};
-                
-                const tbody = document.getElementById('codesTable');
-                tbody.innerHTML = '';
-                
-                if (!users) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No codes found</td></tr>';
-                    return;
-                }
-                
-                let todaysCodes = 0;
-                const today = new Date().setHours(0, 0, 0, 0);
-                
-                Object.entries(users).forEach(([slotId, data]) => {
-                    const verificationCodes = data.verification_codes || {};
-                    
-                    Object.entries(verificationCodes).forEach(([code, codeData]) => {
-                        const created = codeData.created_at || 0;
-                        const expires = codeData.expires_at || 0;
-                        const used = codeData.used || false;
-                        const usedAt = codeData.used_at || 0;
-                        const deviceId = codeData.deviceId || 'N/A';
-                        
-                        // Count today's codes
-                        if (created >= today) {
-                            todaysCodes++;
-                        }
-                        
-                        const isExpired = Date.now() > expires;
-                        
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><code>${code.substring(0, 12)}...</code></td>
-                            <td>${deviceId.substring(0, 8)}...</td>
-                            <td>${codeData.access_token || slotId}</td>
-                            <td>${formatDate(created)}</td>
-                            <td>
-                                ${formatDate(expires)}
-                                ${isExpired ? '<span class="badge expired">Expired</span>' : ''}
-                            </td>
-                            <td>
-                                <span class="status ${used ? 'used' : 'active'}">
-                                    ${used ? 'Used' : 'Active'}
-                                </span>
-                            </td>
-                            <td>${usedAt ? formatDate(usedAt) : 'Not used'}</td>
-                            <td>
-                                <button class="btn btn-danger" onclick="deleteCode('${slotId}', '${code}')">
-                                    Delete
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                        
-                        allCodes[code] = { slotId, ...codeData };
-                    });
-                });
-                
-                document.getElementById('todaysCodes').textContent = todaysCodes;
-            });
-        }
+  db.ref('users/' + id + '/config.json').once('value').then(s => {
+    const d = s.val() || {};
+    enabled.checked = d.enabled !== false;
+    title.value = d.app_title || '';
+    desc.value = d.app_description || '';
+    verify.value = d.verification_url || '';
+    howto.value = d.how_to_verify_url || '';
+    telegram.value = d.telegram_url || '';
+    shortener.value = d.shortener_api || '';
+  });
+}
 
-        // Toggle user status
-        function toggleUserStatus(slotId, newStatus) {
-            database.ref(`users/${slotId}/config/enabled`).set(newStatus)
-                .then(() => {
-                    alert(`User ${slotId} ${newStatus ? 'enabled' : 'disabled'} successfully!`);
-                    loadUsers();
-                })
-                .catch(error => {
-                    alert('Error updating user: ' + error.message);
-                });
-        }
+// ✅ SAVE SLOT (FIXED PATH)
+function saveSlot() {
+  if (!editId) return;
 
-        // Delete user
-        function deleteUser(slotId) {
-            if (confirm(`Are you sure you want to delete user ${slotId}? This will delete all associated devices and codes!`)) {
-                database.ref(`users/${slotId}`).remove()
-                    .then(() => {
-                        alert('User deleted successfully!');
-                        loadUsers();
-                    })
-                    .catch(error => {
-                        alert('Error deleting user: ' + error.message);
-                    });
-            }
-        }
+  db.ref('users/' + editId + '/config.json').update({
+    enabled: enabled.checked,
+    app_title: title.value,
+    app_description: desc.value,
+    verification_url: verify.value,
+    how_to_verify_url: howto.value,
+    telegram_url: telegram.value,
+    shortener_api: shortener.value,
+    verification_duration_hours: 12,
+    colors: {
+      border: hsv(border.value),
+      status_neon: hsv(neon.value),
+      status_warning: hsv(warn.value),
+      status_error: hsv(error.value)
+    }
+  }).then(() => alert('Saved'));
+}
 
-        // Remove device
-        function removeDevice(slotId, deviceId) {
-            if (confirm('Are you sure you want to remove this device?')) {
-                database.ref(`users/${slotId}/app_users/${deviceId}`).remove()
-                    .then(() => {
-                        alert('Device removed successfully!');
-                        loadDevices();
-                    })
-                    .catch(error => {
-                        alert('Error removing device: ' + error.message);
-                    });
-            }
-        }
+function closeEditor() {
+  editor.classList.add('hidden');
+  editId = null;
+}
 
-        // Delete verification code
-        function deleteCode(slotId, code) {
-            if (confirm('Are you sure you want to delete this verification code?')) {
-                database.ref(`users/${slotId}/verification_codes/${code}`).remove()
-                    .then(() => {
-                        alert('Code deleted successfully!');
-                        loadCodes();
-                    })
-                    .catch(error => {
-                        alert('Error deleting code: ' + error.message);
-                    });
-            }
-        }
-
-        // Search users
-        function searchUsers(query) {
-            const tbody = document.getElementById('usersTable');
-            const rows = tbody.getElementsByTagName('tr');
-            
-            for (let row of rows) {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
-            }
-        }
-
-        // Modal functions
-        function openAddUserModal() {
-            document.getElementById('addUserModal').style.display = 'flex';
-        }
-
-        function closeAddUserModal() {
-            document.getElementById('addUserModal').style.display = 'none';
-        }
-
-        function saveNewUser() {
-            const slotId = document.getElementById('newSlotId').value.trim();
-            const appTitle = document.getElementById('newAppTitle').value.trim();
-            const duration = parseInt(document.getElementById('newDuration').value);
-            const status = document.getElementById('newStatus').value === 'active';
-            
-            if (!slotId || !appTitle) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            const defaultConfig = {
-                enabled: status,
-                app_title: appTitle,
-                app_description: "Unlock premium features with verification",
-                verification_url: "https://realapk.online/device",
-                how_to_verify_url: "https://t.me/your_channel",
-                join_us_url: "https://t.me/joinchat/your_link",
-                shortener_api: "https://your-shortener.com/api?url=",
-                telegram_url: "https://t.me/your_channel",
-                verification_duration_hours: duration,
-                colors: {
-                    border: "#7c3aed",
-                    status_neon: "#00ff88",
-                    status_warning: "#fbbf24",
-                    status_error: "#ef4444"
-                }
-            };
-            
-            database.ref(`users/${slotId}/config`).set(defaultConfig)
-                .then(() => {
-                    alert('New user slot created successfully!');
-                    closeAddUserModal();
-                    loadUsers();
-                })
-                .catch(error => {
-                    alert('Error creating user: ' + error.message);
-                });
-        }
-
-        // Generate test code
-        function generateTestCode() {
-            const slotId = prompt("Enter slot ID for test code:");
-            if (!slotId) return;
-            
-            const code = Math.random().toString(36).substring(2, 14).toUpperCase();
-            const deviceId = "test_device_" + Math.random().toString(36).substring(2, 8);
-            
-            const codeData = {
-                deviceId: deviceId,
-                access_token: slotId,
-                slotId: slotId,
-                used: false,
-                created_at: Date.now(),
-                expires_at: Date.now() + 3600000 // 1 hour
-            };
-            
-            database.ref(`users/${slotId}/verification_codes/${code}`).set(codeData)
-                .then(() => {
-                    alert(`Test code generated:\nCode: ${code}\nDevice: ${deviceId}\nSlot: ${slotId}`);
-                    loadCodes();
-                })
-                .catch(error => {
-                    alert('Error generating code: ' + error.message);
-                });
-        }
-
-        // Utility functions
-        function formatDate(timestamp) {
-            if (!timestamp) return 'N/A';
-            const date = new Date(timestamp);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            element.select();
-            document.execCommand('copy');
-            alert('Copied to clipboard!');
-        }
-
-        function updateDefaultConfig() {
-            const config = document.getElementById('defaultConfig').value;
-            try {
-                JSON.parse(config); // Validate JSON
-                localStorage.setItem('defaultConfig', config);
-                alert('Default configuration updated!');
-            } catch (e) {
-                alert('Invalid JSON: ' + e.message);
-            }
-        }
-
-        function loadAnalytics() {
-            // Simulate analytics data
-            document.getElementById('monthlyGrowth').textContent = '+12.5%';
-            document.getElementById('successRate').textContent = '94.2%';
-            
-            const activityLog = document.getElementById('recentActivity');
-            activityLog.innerHTML = `
-                <div style="color: #4ade80; margin-bottom: 10px;">✓ User "premium_001" verified device (5 minutes ago)</div>
-                <div style="color: #4ade80; margin-bottom: 10px;">✓ New slot "business_user" created (2 hours ago)</div>
-                <div style="color: #fbbf24; margin-bottom: 10px;">⚠ Code "ABC123XYZ" expired (3 hours ago)</div>
-                <div style="color: #4ade80; margin-bottom: 10px;">✓ 5 new devices verified today</div>
-                <div style="color: #ef4444; margin-bottom: 10px;">✗ Failed verification attempt for device "unknown" (6 hours ago)</div>
-            `;
-        }
-
-        // Initialize dashboard
-        window.onload = function() {
-            loadUsers();
-            loadAnalytics();
-            
-            // Close modal when clicking outside
-            window.onclick = function(event) {
-                const modal = document.getElementById('addUserModal');
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
-            };
-        };
-    </script>
+// 🔥 AUTO LOAD
+loadSlots();
+</script>
 </body>
 </html>
